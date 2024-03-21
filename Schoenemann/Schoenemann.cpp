@@ -1,6 +1,7 @@
 ﻿#include "Schoenemann.h"
 
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include <sstream>
 #include "movegen/tables.h"
@@ -87,7 +88,12 @@ int main(int argc, char* argv[]) {
 		std::getline(std::cin, token);
 		std::istringstream is(token);
 
+
 		is >> std::skipws >> cmd;
+		std::ofstream debug;
+		debug.open("outputlog.txt", std::ios_base::app);
+		debug << cmd << "\n";
+		debug.close();
 
 		if (cmd == "quit") 
 		{
@@ -142,7 +148,6 @@ int main(int argc, char* argv[]) {
 
 	} while (token != "stop");
 	
-
 
 	return 0;
 }
