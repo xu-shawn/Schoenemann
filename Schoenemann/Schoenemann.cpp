@@ -137,7 +137,7 @@ int main(int argc, char* argv[]) {
 		}
 		else if (cmd == "bench")
 		{
-			std::cout << "Nodes : 2989157\nNPS : 932945\n" << std::endl;
+			std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
 		}
 
 	} while (token != "stop");
