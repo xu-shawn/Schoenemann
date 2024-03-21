@@ -84,12 +84,7 @@ int main(int argc, char* argv[]) {
 
 	if (argc > 1)
 	{
-		std::string command(argv[1]);
-		if (command == "bench")
-		{
-			std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
-		}
-		
+		std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
 	}
 
 	do
