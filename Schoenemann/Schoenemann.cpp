@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
 
 	pos.set("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -", pos);
 
-	if (argc > 1)
+	if (argc > 1 && strcmp(argv[1], "bench") == 0) 
 	{
 		std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
 	}
