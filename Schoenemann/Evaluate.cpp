@@ -2,7 +2,6 @@
 #include <iostream>
 #include "movegen/chess.hpp"
 
-
 const short pawnValue = 100;
 const short knightValue = 300;
 const short bishopValue = 325;
@@ -10,10 +9,6 @@ const short rookValue = 500;
 const short queenValue = 900;
 
 int evaluate(chess::Board& board) {
-    return countPieces(board.sideToMove(), board);
-}
-
-int countPieces(const chess::Color& color, chess::Board& board) {
     int material = 0;
     material += count_amount(board, chess::PieceType::PAWN) * pawnValue;
     material += count_amount(board, chess::PieceType::KNIGHT) * knightValue;
@@ -21,7 +16,7 @@ int countPieces(const chess::Color& color, chess::Board& board) {
     material += count_amount(board, chess::PieceType::ROOK) * rookValue;
     material += count_amount(board, chess::PieceType::QUEEN) * queenValue;
 
-    if (color == chess::Color::BLACK)
+    if (board.sideToMove() == chess::Color::BLACK)
     {
         material = -material;
     }

@@ -1,91 +1,51 @@
 #include "Search.h"
 #include "Evaluate.h"
 #include "movegen/chess.hpp"
-int bestEvaluation = 0;
-short infinity = 32767;
-chess::Move bestMove;
+
 using namespace chess;
+
+short infinity = 32767;
+int count_nodes = 0;
+chess::Move bestMove = chess::Move::NULL_MOVE;
 
 int search(int depth, int alpha, int beta, Board& board) {
 	if (depth == 0)
 	{
 		return evaluate(board);
 	}
+	
+	Movelist movelist;
+	movegen::legalmoves(movelist, board);
 
-	int c = 0;
-
-	if (board.sideToMove() == Color::WHITE)
+	if (movelist.size() == 0)
 	{
-		
-		Movelist movelist;
-		movegen::legalmoves(movelist, board);
-		//MoveList<WHITE> moveList(position);
-		if (movelist.size() == 0)
+		if (!(board.isGameOver().first == GameResultReason::NONE))
 		{
-			/*
-			if (!(board.isGameOver() == GameResultReason::NONE))
-			{
-				return -infinity;
-			}
-			*/
-			return 0;
+			return -infinity;
 		}
-		for (const auto& move : movelist) {
-			c++;
-			std::cout << c << "\n" << std::endl;
-			//std::cout << move;
-			board.makeMove(move);
-			int evaluation = -search(depth - 1, -beta, -alpha, board);
-			board.unmakeMove(move);
-			if (evaluation >= beta)
-			{
-				return beta;
-			}
-			if (evaluation > alpha)
-			{
-				alpha = evaluation;
-				if (depth == depth) {
-					bestMove = move;
-				}
-			}
+		return 0;
+	}
+	for (const auto& move : movelist) {
+		count_nodes++;
+		board.makeMove(move);
+		int evaluation = -search(depth - 1, -beta, -alpha, board);
+		board.unmakeMove(move);
+		if (evaluation >= beta)
+		{
+			return beta;
 		}
-		return alpha;
 
-	}
-	else
-	{
-		Movelist movelist;
-		movegen::legalmoves(movelist, board);
-		//MoveList<WHITE> moveList(position);
-		if (movelist.size() == 0)
+		if (evaluation > alpha)
 		{
-			/*
-			if (!(board.isGameOver() == GameResultReason::NONE))
-			{
-				return -infinity;
-			}
-			*/
-			return 0;
+			bestMove = move;
+			alpha = evaluation;
 		}
-		for (const auto& move : movelist) {
-			board.makeMove(move);
-			int evaluation = -search(depth - 1, -beta, -alpha, board);
-			board.unmakeMove(move);
-			if (evaluation >= beta)
-			{
-				return beta;
-			}
-			if (evaluation > alpha)
-			{
-				alpha = evaluation;
-				if (depth == depth) {
-					bestMove = move;
-				}
-			}
-		}
-		return alpha;
 	}
-	return bestEvaluation;
+	return alpha;
+}
+
+int getNodes() {
+	return count_nodes;
 }
 
 chess::Move& getBestMove() {
