@@ -140,21 +140,25 @@ int main(int argc, char* argv[]) {
 				if (start != std::string::npos)
 					fen = fen.substr(start);
 				pos.set(fen, pos);
-				std::ofstream debug_test;
-				debug_test.open("outputlogVersion1-2.txt", std::ios_base::app);
-				debug_test << position_cmd << "\n";
-				debug_test.close();
 			}
 		}
 		else if (cmd == "go") 
 		{
 			Position testPosition;
-			std::string go_cmd;
-			is >> go_cmd;
-			std::ofstream debug_test;
-			debug_test.open("outputlogVersion1-2.txt", std::ios_base::app);
-			debug_test << go_cmd << "\n";
-			debug_test.close();
+			is >> token;
+			while (is.good())
+			{
+				if (token == "wtime")
+				{
+					is >> token;
+					std::cout << token;
+				}
+				if (token == "btime")
+				{
+					is >> token;
+					std::cout << token;
+				}
+			}
 
 			/*
 			* testPosition.set("2bqk2r/rp5p/p1n1pn2/2p3p1/2P5/2P2NPP/P2P1PB1/R1BQR2K w k - 2 14", testPosition);
