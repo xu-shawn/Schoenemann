@@ -139,19 +139,30 @@ int main(int argc, char* argv[]) {
 				size_t start = fen.find_first_not_of(' ');
 				if (start != std::string::npos)
 					fen = fen.substr(start);
-				std::cout << fen << std::endl;
 				pos.set(fen, pos);
-				std::cout << pos;
+				std::ofstream debug_test;
+				debug_test.open("outputlogVersion1-2.txt", std::ios_base::app);
+				debug_test << position_cmd << "\n";
+				debug_test.close();
 			}
 		}
 		else if (cmd == "go") 
 		{
 			Position testPosition;
-			testPosition.set("2bqk2r/rp5p/p1n1pn2/2p3p1/2P5/2P2NPP/P2P1PB1/R1BQR2K w k - 2 14", testPosition);
+			std::string go_cmd;
+			is >> go_cmd;
+			std::ofstream debug_test;
+			debug_test.open("outputlogVersion1-2.txt", std::ios_base::app);
+			debug_test << go_cmd << "\n";
+			debug_test.close();
+
+			/*
+			* testPosition.set("2bqk2r/rp5p/p1n1pn2/2p3p1/2P5/2P2NPP/P2P1PB1/R1BQR2K w k - 2 14", testPosition);
 			std::cout << "Evaluation: " << evaluate(testPosition) << "\n" << std::endl;
 			std::cout << search(5, -32767, 32767, testPosition) << "\n" << std::endl;
 			std::cout << getBestMove() << std::endl;
 			std::cout << "success" << std::endl;
+			*/
 		}
 		else if (cmd == "bench")
 		{
