@@ -97,7 +97,7 @@ int main(int argc, char* argv[]) {
 
 		is >> std::skipws >> cmd;
 		std::ofstream debug;
-		debug.open("outputlog.txt", std::ios_base::app);
+		debug.open("outputlogVersion1-2.txt", std::ios_base::app);
 		debug << cmd << "\n";
 		debug.close();
 
@@ -107,7 +107,7 @@ int main(int argc, char* argv[]) {
 		}
 		else if (cmd == "uci") 
 		{
-			std::cout << "id name Schoenemann" << std::endl << "uciok" << std::endl;
+			std::cout << "id name Schoenemann" << std::endl << "option name Threads type spin default 1 min 1 max 16" << std::endl << "option name Hash type spin default 16 min 1 max 4096" << std::endl << "uciok" << std::endl;
 		}
 		else if (cmd == "isready")
 		{
@@ -119,7 +119,13 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "setoption")
 		{
+			std::string option;
+			is >> option;
 
+			if (option == "name") {
+				std::string option_name;
+				is >> option_name;
+			}
 		}
 		else if (cmd == "position") 
 		{
@@ -129,7 +135,7 @@ int main(int argc, char* argv[]) {
 			if (position_cmd == "fen")
 			{
 				std::string fen;
-				std::getline(is, fen);  // Liest den Rest der Zeile in 'fen'
+				std::getline(is, fen);
 				size_t start = fen.find_first_not_of(' ');
 				if (start != std::string::npos)
 					fen = fen.substr(start);
