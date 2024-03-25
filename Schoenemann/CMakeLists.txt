@@ -3,7 +3,7 @@
 #
 
 # Fügen Sie der ausführbaren Datei dieses Projekts eine Quelle hinzu.
-add_executable (Schoenemann "Schoenemann.cpp" "Schoenemann.h" "Evaluate.cpp" "Evaluate.h" "Search.cpp" "Search.h" "movegen/position.cpp" "movegen/position.h" "movegen/tables.cpp" "movegen/tables.h" "movegen/types.cpp" "movegen/types.h"  )
+add_executable (Schoenemann "Schoenemann.cpp" "Schoenemann.h" "Evaluate.cpp" "Evaluate.h" "Search.cpp" "Search.h"         "movegen/benchmark.hpp")
 
 if (CMAKE_VERSION VERSION_GREATER 3.12)
   set_property(TARGET Schoenemann PROPERTY CXX_STANDARD 20)

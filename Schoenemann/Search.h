@@ -1,7 +1,5 @@
 #pragma once
-#include "movegen/position.h"
-#include "movegen/tables.h"
-#include "movegen/types.h"
+#include "movegen/chess.hpp"
 
-int search(int depth, int alpha, int beta, Position& position);
-Move& getBestMove();
+int search(int depth, int alpha, int beta, chess::Board& board);
+chess::Move& getBestMove();

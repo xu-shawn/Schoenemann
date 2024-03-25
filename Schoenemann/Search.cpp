@@ -1,33 +1,42 @@
 #include "Search.h"
 #include "Evaluate.h"
-#include "movegen/position.h"
-#include "movegen/tables.h"
-#include "movegen/types.h"
-
+#include "movegen/chess.hpp"
 int bestEvaluation = 0;
 short infinity = 32767;
-Move bestMove;
+chess::Move bestMove;
+using namespace chess;
 
-int search(int depth, int alpha, int beta, Position& position) {
+int search(int depth, int alpha, int beta, Board& board) {
 	if (depth == 0)
 	{
-		return evaluate(position);
+		return evaluate(board);
 	}
-	if (position.turn() == WHITE)
+
+	int c = 0;
+
+	if (board.sideToMove() == Color::WHITE)
 	{
-		MoveList<WHITE> moveList(position);
-		if (moveList.size() == 0)
+		
+		Movelist movelist;
+		movegen::legalmoves(movelist, board);
+		//MoveList<WHITE> moveList(position);
+		if (movelist.size() == 0)
 		{
-			if (position.in_check<WHITE>() == true)
+			/*
+			if (!(board.isGameOver() == GameResultReason::NONE))
 			{
 				return -infinity;
 			}
+			*/
 			return 0;
 		}
-		for (const auto& move : moveList) {
-			position.play<WHITE>(move);
-			int evaluation = -search(depth - 1, -beta, -alpha, position);
-			position.undo<WHITE>(move);
+		for (const auto& move : movelist) {
+			c++;
+			std::cout << c << "\n" << std::endl;
+			//std::cout << move;
+			board.makeMove(move);
+			int evaluation = -search(depth - 1, -beta, -alpha, board);
+			board.unmakeMove(move);
 			if (evaluation >= beta)
 			{
 				return beta;
@@ -45,19 +54,23 @@ int search(int depth, int alpha, int beta, Position& position) {
 	}
 	else
 	{
-		MoveList<BLACK> moveList(position);
-		if (moveList.size() == 0)
+		Movelist movelist;
+		movegen::legalmoves(movelist, board);
+		//MoveList<WHITE> moveList(position);
+		if (movelist.size() == 0)
 		{
-			if (position.in_check<BLACK>() == true)
+			/*
+			if (!(board.isGameOver() == GameResultReason::NONE))
 			{
 				return -infinity;
 			}
+			*/
 			return 0;
 		}
-		for (const auto& move : moveList) {
-			position.play<BLACK>(move);
-			int evaluation = -search(depth - 1, -beta, -alpha, position);
-			position.undo<BLACK>(move);
+		for (const auto& move : movelist) {
+			board.makeMove(move);
+			int evaluation = -search(depth - 1, -beta, -alpha, board);
+			board.unmakeMove(move);
 			if (evaluation >= beta)
 			{
 				return beta;
@@ -75,6 +88,6 @@ int search(int depth, int alpha, int beta, Position& position) {
 	return bestEvaluation;
 }
 
-Move& getBestMove() {
+chess::Move& getBestMove() {
 	return bestMove;
 }
