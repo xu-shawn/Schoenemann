@@ -2,6 +2,7 @@
 - [About](#about)
 - [How it works](#how-it-works)
 - [Install](#install)
+- [Thanks](#thanks)
 
 # About
 This is a simple (currently not functional and not UCI-Compatible) chess engine written in C++. The name was inspired by this chess line in the ruy lopez:
@@ -28,3 +29,5 @@ There are currently two ways:
   ```
   It is currently this way because of OpenBench. I am open for a better soulution.
 
+#  Thanks
+Special thanks to Disservin's [chess libary](https://github.com/Disservin/chess-library/) witch made the wohle development process simpler.
