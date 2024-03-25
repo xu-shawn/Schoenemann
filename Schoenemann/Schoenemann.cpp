@@ -82,6 +82,10 @@ int main(int argc, char* argv[]) {
 			is >> token;
 			while (is.good())
 			{
+				std::ofstream d;
+				d.open("outputlogVersion1-2.txt", std::ios_base::app);
+				d << token << "\n";
+				d.close();
 				if (token == "wtime")
 				{
 					is >> token;
@@ -105,7 +109,6 @@ int main(int argc, char* argv[]) {
 			testBoard.setFen("rnb1kbr1/1p3ppp/p4n2/q2Pp3/8/2N2N2/PPP1BPPP/R1BQ1RK1 w q - 1 10");
 			search(1, -32767, 32767, testBoard);
 			std::cout << getBestMove() << std::endl;
-			perft();
 		}
 
 	} while (token != "stop");
