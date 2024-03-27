@@ -9,7 +9,6 @@ int count_nodes = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 
 int search(int depth, int alpha, int beta, Board& board) {
-	int best_score = -infinity;
 	if (depth == 0)
 	{
 		return evaluate(board);
@@ -34,16 +33,15 @@ int search(int depth, int alpha, int beta, Board& board) {
 		board.makeMove(move);
 		int evaluation = -search(depth - 1, -beta, -alpha, board);
 		board.unmakeMove(move);
-
 		if (evaluation >= beta)
 		{
-			return evaluation;
+			return beta;
 		}
 
-		if (evaluation > best_score)
+		if (evaluation > alpha)
 		{
 			bestMove = move;
-			alpha = best_score;
+			alpha = evaluation;
 		}
 	}
 	return alpha;
