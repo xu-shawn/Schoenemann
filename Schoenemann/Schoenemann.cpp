@@ -47,7 +47,10 @@ int main(int argc, char* argv[]) {
 		}
 		else if (cmd == "uci") 
 		{
-			std::cout << "id name Schoenemann" << std::endl << "option name Threads type spin default 1 min 1 max 16" << std::endl << "option name Hash type spin default 16 min 1 max 4096" << std::endl << "uciok" << std::endl;
+			std::cout << "id name Schoenemann" << std::endl 
+				<< "option name Threads type spin default 1 min 1 max 16" << std::endl 
+				<< "option name Hash type spin default 16 min 1 max 4096" << std::endl 
+				<< "uciok" << std::endl;
 		}
 		else if (cmd == "isready")
 		{
@@ -67,20 +70,35 @@ int main(int argc, char* argv[]) {
 				is >> option_name;
 			}
 		}
-		else if (cmd == "position") 
+		else if (cmd == "position")
 		{
-			std::string position_cmd;
-			is >> position_cmd;
-
-			if (position_cmd == "fen")
+			std::string fen;
+			std::vector<std::string> moves;
+			bool isFen = false;
+			while (is >> token)
 			{
-				std::string fen;
-				std::getline(is, fen);
-				size_t start = fen.find_first_not_of(' ');
-				if (start != std::string::npos)
-					fen = fen.substr(start);
-				board.setFen(fen);
+				if (token == "fen")
+				{
+					isFen = true;
+					while (is >> token && token != "moves")
+					{
+						fen += token + " ";
+					}
+					fen = fen.substr(0, fen.size() - 1);
+					board.setFen(fen);
+				}
+				else if (token != "moves" && isFen)
+				{
+					moves.push_back(token);
+				}
 			}
+
+			for (const auto& move : moves)
+			{
+				board.makeMove(uci::uciToMove(board, move));
+			}
+
+			std::cout << board;
 		}
 		else if (cmd == "go")
 		{
@@ -114,7 +132,7 @@ int main(int argc, char* argv[]) {
 			std::cout << getBestMove() << "\n" << getNodes() << std::endl;
 		}
 
-	} while (token != "stop");
+	} while (cmd != "stop");
 	
 	return 0;
 }
