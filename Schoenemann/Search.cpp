@@ -4,7 +4,7 @@
 
 using namespace chess;
 
-short infinity = 32767;
+const short infinity = 32767;
 int count_nodes = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 
@@ -21,15 +21,19 @@ int search(int depth, int alpha, int beta, Board& board) {
 	{
 		if (board.inCheck())
 		{
-			return infinity;
+			return -infinity;
 		}
-		return 0;
+		else
+		{
+			return 0;
+		}
 	}
 	for (const auto& move : movelist) {
 		count_nodes++;
 		board.makeMove(move);
 		int evaluation = -search(depth - 1, -beta, -alpha, board);
 		board.unmakeMove(move);
+
 		if (evaluation >= beta)
 		{
 			return beta;
