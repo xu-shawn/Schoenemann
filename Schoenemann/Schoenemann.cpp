@@ -133,7 +133,7 @@ int main(int argc, char* argv[]) {
 		{
 			Board testBoard;
 			testBoard.setFen("r5kr/4R1pp/3Q2Nn/p7/5B2/2N5/PP3PPP/6K1 w - - 13 30");
-			search(6, -32767, 32767, testBoard);
+			search(5, -32767, 32767, testBoard);
 			std::cout << getBestMove() << "\n" << getNodes() << std::endl;
 		}
 
