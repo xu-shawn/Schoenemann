@@ -97,8 +97,6 @@ int main(int argc, char* argv[]) {
 			{
 				board.makeMove(uci::uciToMove(board, move));
 			}
-
-			std::cout << board;
 		}
 		else if (cmd == "go")
 		{
@@ -108,13 +106,20 @@ int main(int argc, char* argv[]) {
 				if (token == "wtime")
 				{
 					if (!(is >> token)) break;
-					std::cout << token;
 					search(3, -32767, 32767, board);
+					std::cout << "bestmove " << getBestMove() << std::endl;
 				}
 				else if (token == "btime")
 				{
 					if (!(is >> token)) break;
-					std::cout << token;
+				}
+				else if (token == "winc")
+				{
+
+				}
+				else if (token == "binc")
+				{
+
 				}
 				if (!(is >> token)) break;
 			}
@@ -132,7 +137,7 @@ int main(int argc, char* argv[]) {
 			std::cout << getBestMove() << "\n" << getNodes() << std::endl;
 		}
 
-	} while (cmd != "stop");
+	} while (cmd != "quit");
 	
 	return 0;
 }
