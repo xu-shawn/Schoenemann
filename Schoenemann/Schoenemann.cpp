@@ -115,7 +115,8 @@ int main(int argc, char* argv[]) {
 				}
 				else if (token == "winc")
 				{
-
+					is >> token;
+					std::cout << token;
 				}
 				else if (token == "binc")
 				{
@@ -124,7 +125,6 @@ int main(int argc, char* argv[]) {
 				if (!(is >> token)) break;
 			}
 		}
-
 		else if (cmd == "bench")
 		{
 			std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
@@ -132,8 +132,8 @@ int main(int argc, char* argv[]) {
 		else if (cmd == "test")
 		{
 			Board test_board;
-			test_board.setFen("rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2");
-			search(4, -32767, 32767, 0, test_board);
+			test_board.setFen("2kr2nr/ppp2ppp/1b6/8/4bp2/2P5/P4KPP/RNBq3R w - - 4 18");
+			search(1, -32767, 32767, 0, test_board);
 			std::cout << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
 		}
 

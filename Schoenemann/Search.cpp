@@ -14,8 +14,22 @@ int search(int depth, int alpha, int beta, int ply, Board& board) {
         return quiescence_search(alpha, beta, board);
     }
 
+
     Movelist movelist;
     movegen::legalmoves(movelist, board);
+
+    if (movelist.size() == 0)
+    {
+        if (board.inCheck() == true) 
+        {
+            return infinity;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
     for (const auto& move : movelist) {
         count_nodes++;
         board.makeMove(move);
