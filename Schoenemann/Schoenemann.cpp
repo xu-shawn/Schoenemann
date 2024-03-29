@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
 				if (token == "wtime")
 				{
 					if (!(is >> token)) break;
-					search(3, -32767, 32767, board);
+					search(3, -32767, 32767, 0, board);
 					std::cout << "bestmove " << getBestMove() << std::endl;
 				}
 				else if (token == "btime")
@@ -132,8 +132,8 @@ int main(int argc, char* argv[]) {
 		else if (cmd == "test")
 		{
 			Board test_board;
-			test_board.setFen("rnbq1rk1/pp3pbp/2pp2p1/3Pp2n/2P1P3/2NBBP2/PP2N1PP/R2QK2R b KQ - 1 1");
-			search(5, -32767, 32767, test_board);
+			test_board.setFen("rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2");
+			search(4, -32767, 32767, 0, test_board);
 			std::cout << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
 		}
 
@@ -165,7 +165,7 @@ void run_benchmark() {
 
 	for (const auto& test : testStrings) {
 		bench_board.setFen(test);
-		search(6, -32767, 32767, bench_board);
+		search(6, -32767, 32767, 0, bench_board);
 	}
 	std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
 }

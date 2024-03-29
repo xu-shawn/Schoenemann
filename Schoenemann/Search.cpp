@@ -8,7 +8,7 @@ const short infinity = 32767;
 int count_nodes = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 
-int search(int depth, int alpha, int beta, Board& board) {
+int search(int depth, int alpha, int beta, int ply, Board& board) {
     if (depth == 0)
     {
         return quiescence_search(alpha, beta, board);
@@ -19,17 +19,21 @@ int search(int depth, int alpha, int beta, Board& board) {
     for (const auto& move : movelist) {
         count_nodes++;
         board.makeMove(move);
-        int evaluation = -search(depth - 1, -beta, -alpha, board);
+        int evaluation = -search(depth - 1, -beta, -alpha, ply + 1, board);
         board.unmakeMove(move);
-        if (evaluation >= beta)
-        {
-            return beta;
-        }
 
         if (evaluation > alpha)
         {
-            bestMove = move;
+            if (ply == 0)
+            {
+                bestMove = move;
+            }
             alpha = evaluation;
+        }
+
+        if (evaluation >= beta)
+        {
+            return beta;
         }
     }
     return alpha;
