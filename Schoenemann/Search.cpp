@@ -6,6 +6,7 @@ using namespace chess;
 
 const short infinity = 32767;
 int count_nodes = 0;
+int score;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 
 int search(int depth, int alpha, int beta, Board& board) {
@@ -28,20 +29,34 @@ int search(int depth, int alpha, int beta, Board& board) {
 			return 0;
 		}
 	}
+
+	bool b_seach_pv = true;
+
 	for (const auto& move : movelist) {
 		count_nodes++;
 		board.makeMove(move);
-		int evaluation = -search(depth - 1, -beta, -alpha, board);
+		if (b_seach_pv)
+		{
+			score = -search(depth - 1, -beta, -alpha, board);
+		}
+		else
+		{
+			score = -search(depth - 1, -alpha - 1, -alpha, board);
+			if (score > alpha)
+			{
+				score - search(depth - 1, -beta, -alpha, board);
+			}
+		}
 		board.unmakeMove(move);
-		if (evaluation >= beta)
+		if (score >= beta)
 		{
 			return beta;
 		}
-
-		if (evaluation > alpha)
+		if (score > alpha)
 		{
+			alpha = score;
+			b_seach_pv = false;
 			bestMove = move;
-			alpha = evaluation;
 		}
 	}
 	return alpha;
