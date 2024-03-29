@@ -131,10 +131,10 @@ int main(int argc, char* argv[]) {
 		}
 		else if (cmd == "test")
 		{
-			Board testBoard;
-			testBoard.setFen("rnbq1rk1/pp3pbp/2pp2p1/3Pp2n/2P1P3/2NBBP2/PP2N1PP/R2QK2R b KQ - 1 1");
-			search(5, -32767, 32767, testBoard);
-			std::cout << testBoard << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
+			Board test_board;
+			test_board.setFen("rnbq1rk1/pp3pbp/2pp2p1/3Pp2n/2P1P3/2NBBP2/PP2N1PP/R2QK2R b KQ - 1 1");
+			search(5, -32767, 32767, test_board);
+			std::cout << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
 		}
 
 	} while (cmd != "quit");
