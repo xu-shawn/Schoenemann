@@ -11,6 +11,8 @@
 
 using namespace chess;
 
+int time_left = 0;
+int increment = 0;
 
 int main(int argc, char* argv[]) {
 	Board board;
@@ -40,12 +42,8 @@ int main(int argc, char* argv[]) {
 
 
 		is >> std::skipws >> cmd;
-
-		if (cmd == "quit") 
-		{
-			break;
-		}
-		else if (cmd == "uci") 
+		
+		if (cmd == "uci") 
 		{
 			std::cout << "id name Schoenemann" << std::endl 
 				<< "option name Threads type spin default 1 min 1 max 16" << std::endl 
@@ -100,29 +98,54 @@ int main(int argc, char* argv[]) {
 		}
 		else if (cmd == "go")
 		{
+			int number[4];
+			bool has_time = false;
 			is >> token;
 			while (is.good())
 			{
 				if (token == "wtime")
 				{
-					if (!(is >> token)) break;
-					search(3, -32767, 32767, 0, board);
-					std::cout << "bestmove " << getBestMove() << std::endl;
+					is >> token;
+					number[0] = std::stoi(token);
+					has_time = true;
 				}
 				else if (token == "btime")
 				{
-					if (!(is >> token)) break;
+					is >> token;
+					number[1] = std::stoi(token);
+					has_time = true;
 				}
 				else if (token == "winc")
 				{
 					is >> token;
-					std::cout << token;
+					number[2] = std::stoi(token);
 				}
 				else if (token == "binc")
 				{
-
+					is >> token;
+					number[3] = std::stoi(token);
+				}
+				else if (token == "depth")
+				{
+					is >> token;
+					search(std::stoi(token), -32767, 32767, 0, board);
+					std::cout << "bestmove " << getBestMove() << std::endl;
 				}
 				if (!(is >> token)) break;
+			}
+			if (has_time)
+			{
+				if (board.sideToMove() == Color::WHITE)
+				{
+					time_left = number[0];
+					increment = number[2];
+				}
+				else
+				{
+					time_left = number[1];
+					increment = number[3];
+				}
+				iterative_deepening(board);
 			}
 		}
 		else if (cmd == "bench")
@@ -168,4 +191,14 @@ void run_benchmark() {
 		search(6, -32767, 32767, 0, bench_board);
 	}
 	std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
+}
+
+int get_time()
+{
+	return time_left;
+}
+
+int get_increment()
+{
+	return increment;
 }

@@ -1,6 +1,8 @@
+#include <chrono>
 #include "Search.h"
 #include "Evaluate.h"
 #include "movegen/chess.hpp"
+#include "timeman.h"
 
 using namespace chess;
 
@@ -80,6 +82,27 @@ int quiescence_search(int alpha, int beta, Board& board) {
         }
 	}
 	return alpha;
+}
+
+void iterative_deepening(Board& board)
+{
+    auto start = std::chrono::high_resolution_clock::now();
+    int time_for_move = get_time_for_move();
+
+    while (true)
+    {
+        for (int i = 1; i < 256; i++)
+        {
+            search(i, -32767, 32767, 0, board);
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> elapsed = end - start;
+            if (elapsed.count() >= time_for_move)
+            {
+                std::cout << "bestmove " << bestMove << std::endl;
+                return;
+            }
+        }
+    }
 }
 
 int getNodes() {
