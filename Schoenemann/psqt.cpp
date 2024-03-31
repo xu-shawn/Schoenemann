@@ -32,6 +32,7 @@ int psqt::getPieceBounus(Board& board, PieceType piece, Color color)
 	{
 		for (int index : indexs)
 		{
+
 			bounus += rookTable[index];
 		}
 	}
