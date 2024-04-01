@@ -89,11 +89,11 @@ void iterative_deepening(Board& board)
     auto start = std::chrono::high_resolution_clock::now();
     int time_for_move = get_time_for_move();
 
-    while (true)
+    for (int i = 1; i < 256; i++)
     {
-        for (int i = 1; i < 256; i++)
+        search(i, -32767, 32767, 0, board);
+        while (true)
         {
-            search(i, -32767, 32767, 0, board);
             auto end = std::chrono::high_resolution_clock::now();
             std::chrono::duration<double, std::milli> elapsed = end - start;
             if (elapsed.count() >= time_for_move)
