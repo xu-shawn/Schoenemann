@@ -3,11 +3,11 @@
 #include "psqt.h"
 
 
-int psqt::getPieceBounus(Board& board, PieceType piece, Color color)
+int psqt::getPieceBounus(Board& board, PieceType piece, Color& color)
 {
 	int bounus = 0;
 	Bitboard pieces = board.pieces(piece, color);
-	if (color == Color::BLACK)
+	if (color == Color::WHITE)
 	{
 		pieces = reverse(pieces);
 	}
@@ -52,7 +52,7 @@ int psqt::getPieceBounus(Board& board, PieceType piece, Color color)
 	return bounus;
 }
 
-Bitboard psqt::reverse(Bitboard bitboard)
+Bitboard psqt::reverse(Bitboard& bitboard)
 {
 	std::uint64_t r = bitboard.getBits();
 	r = ((r >> 1) & 0x5555555555555555) | ((r & 0x5555555555555555) << 1);
@@ -64,7 +64,7 @@ Bitboard psqt::reverse(Bitboard bitboard)
 	return Bitboard(r);
 }
 
-std::vector<int> psqt::getSetBitsEfficient(Bitboard bitboard) {
+std::vector<int> psqt::getSetBitsEfficient(Bitboard& bitboard) {
 	std::vector<int> setBits;
 	for (int i = 0; i < 64; ++i) {
 		if ((bitboard.getBits() >> i) & 1ULL) {
