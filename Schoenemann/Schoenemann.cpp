@@ -28,15 +28,9 @@ int main(int argc, char* argv[]) {
 
 	do
 	{
-
-		std::ofstream debug;
 		std::string input_string;
-		debug.open("outputlogVersion1-2.txt", std::ios_base::app);
 
 		std::getline(std::cin, input_string);
-
-		debug << input_string << "\n";
-		debug.close();
 
 		std::istringstream is(input_string);
 		std::string token;
