@@ -156,7 +156,7 @@ int main(int argc, char* argv[]) {
 		else if (cmd == "test")
 		{
 			Board test_board;
-			test_board.setFen("8/7r/8/8/8/8/3R4/K6k w - - 0 1");
+			test_board.setFen("8/2R5/8/8/8/8/7r/K6k w - - 4 3");
 			//search(1, -32767, 32767, 0, test_board);
 			//std::cout << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
 			std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
