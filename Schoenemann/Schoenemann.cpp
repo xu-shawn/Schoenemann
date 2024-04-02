@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
 	Board board;
 	std::string token, cmd;
 	board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+	board.set960(false);
 
 	if (argc > 1 && strcmp(argv[1], "bench") == 0) 
 	{
@@ -28,9 +29,14 @@ int main(int argc, char* argv[]) {
 
 	do
 	{
+		std::ofstream debug;
 		std::string input_string;
+		debug.open("outputlogVersion1-2.txt", std::ios_base::app);
 
 		std::getline(std::cin, input_string);
+
+		debug << input_string << "\n";
+		debug.close();
 
 		std::istringstream is(input_string);
 		std::string token;
@@ -142,6 +148,14 @@ int main(int argc, char* argv[]) {
 				}
 				iterative_deepening(board);
 			}
+		}
+		else if (cmd == "d")
+		{
+			std::cout << board << std::endl;
+		}
+		else if (cmd == "fen")
+		{
+			std::cout << board.getFen() << std::endl;
 		}
 		else if (cmd == "bench")
 		{
