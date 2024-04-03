@@ -10,7 +10,8 @@ const short infinity = 32767;
 int count_nodes = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 
-int search(int depth, int alpha, int beta, int ply, Board& board) {
+int search(int depth, int alpha, int beta, int ply, Board& board) 
+{
     if (depth == 0)
     {
         return quiescence_search(alpha, beta, board);
@@ -32,7 +33,8 @@ int search(int depth, int alpha, int beta, int ply, Board& board) {
         }
     }
 
-    for (const auto& move : movelist) {
+    for (const auto& move : movelist) 
+    {
         count_nodes++;
         board.makeMove(move);
         int evaluation = -search(depth - 1, -beta, -alpha, ply + 1, board);
@@ -55,7 +57,8 @@ int search(int depth, int alpha, int beta, int ply, Board& board) {
     return alpha;
 }
 
-int quiescence_search(int alpha, int beta, Board& board) {
+int quiescence_search(int alpha, int beta, Board& board) 
+{
 	int stand_pat = evaluate(board);
 	if (stand_pat >= beta)
 	{
@@ -68,7 +71,8 @@ int quiescence_search(int alpha, int beta, Board& board) {
 
 	Movelist movelist;
 	movegen::legalmoves<movegen::MoveGenType::CAPTURE>(movelist, board);
-	for (const auto& move : movelist) {
+	for (const auto& move : movelist) 
+    {
         board.makeMove(move);
         int score = -quiescence_search(-beta, -alpha, board);
         board.unmakeMove(move);
@@ -98,17 +102,27 @@ void iterative_deepening(Board& board)
             std::chrono::duration<double, std::milli> elapsed = end - start;
             if (elapsed.count() >= time_for_move)
             {
-                std::cout << "bestmove " << bestMove << std::endl;
-                return;
+                Movelist movelist;
+                movegen::legalmoves<movegen::MoveGenType::ALL>(movelist, board);
+                for (const auto& move : movelist)
+                {
+                    if (bestMove == move)
+                    {
+                        std::cout << "bestmove " << bestMove << std::endl;
+                        return;
+                    }
+                }
             }
         }
     }
 }
 
-int getNodes() {
+int getNodes() 
+{
 	return count_nodes;
 }
 
-chess::Move& getBestMove() {
+chess::Move& getBestMove() 
+{
 	return bestMove;
 }

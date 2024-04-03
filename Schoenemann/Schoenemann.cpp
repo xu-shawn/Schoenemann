@@ -19,6 +19,7 @@ int main(int argc, char* argv[]) {
 	Board board;
 	std::string token, cmd;
 	board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+	board.set960(false);
 
 	if (argc > 1 && strcmp(argv[1], "bench") == 0) 
 	{
@@ -28,7 +29,6 @@ int main(int argc, char* argv[]) {
 
 	do
 	{
-
 		std::ofstream debug;
 		std::string input_string;
 		debug.open("outputlogVersion1-2.txt", std::ios_base::app);
@@ -149,6 +149,14 @@ int main(int argc, char* argv[]) {
 				iterative_deepening(board);
 			}
 		}
+		else if (cmd == "d")
+		{
+			std::cout << board << std::endl;
+		}
+		else if (cmd == "fen")
+		{
+			std::cout << board.getFen() << std::endl;
+		}
 		else if (cmd == "bench")
 		{
 			std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
@@ -156,7 +164,7 @@ int main(int argc, char* argv[]) {
 		else if (cmd == "test")
 		{
 			Board test_board;
-			test_board.setFen("8/7r/8/8/8/8/3R4/K6k w - - 0 1");
+			test_board.setFen("8/2R5/8/8/8/8/7r/K6k w - - 4 3");
 			//search(1, -32767, 32767, 0, test_board);
 			//std::cout << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
 			std::cout << "The evaluation: " << evaluate(test_board) << std::endl;

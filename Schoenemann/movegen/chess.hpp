@@ -3989,7 +3989,8 @@ namespace chess {
 
             // convert to king captures rook
             // in chess960 the move should be sent as king captures rook already!
-            if (!board.chess960() && piece == PieceType::KING && Square::distance(target, source) == 2) {
+            if (!board.chess960() && piece == PieceType::KING && board.at(target).type() == PieceType::ROOK &&
+                board.at(target).color() == board.sideToMove()) {
                 target = Square(target > source ? File::FILE_H : File::FILE_A, source.rank());
                 return Move::make<Move::CASTLING>(source, target);
             }
