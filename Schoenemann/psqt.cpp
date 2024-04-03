@@ -48,7 +48,7 @@ int psqt::getPieceBounus(Board& board, PieceType piece, Color& color)
 			bounus += queenTable[index];
 		}
 	}
-	
+
 	return bounus;
 }
 
@@ -73,5 +73,3 @@ std::vector<int> psqt::getSetBitsEfficient(Bitboard& bitboard) {
 	}
 	return setBits;
 }
-
-

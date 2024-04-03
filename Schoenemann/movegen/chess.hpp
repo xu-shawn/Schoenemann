@@ -25,7 +25,7 @@ THIS FILE IS AUTO GENERATED DO NOT CHANGE MANUALLY.
 
 Source: https://github.com/Disservin/chess-library
 
-VERSION: 0.6.38
+VERSION: 0.6.39
 */
 
 #ifndef CHESS_HPP
@@ -3453,6 +3453,11 @@ namespace chess::pgn {
                     while (buffer_index_ < bytes_read_) {
                         const auto c = buffer_[buffer_index_];
 
+                        if (c == '\r') {
+                            buffer_index_++;
+                            continue;
+                        }
+
                         if constexpr (std::is_same_v<decltype(f(c)), bool>) {
                             const auto res = f(c);
 
@@ -3607,6 +3612,12 @@ namespace chess::pgn {
                             return false;
                         }
                         });
+
+                    // manually skip carriage return, otherwise we would be in the body
+                    // ideally we should completely skip all carriage returns and newlines to avoid this
+                    if (stream_buffer.current() == '\r') {
+                        stream_buffer.advance();
+                    }
 
                     header.second.remove_suffix(1);
 
@@ -3989,8 +4000,7 @@ namespace chess {
 
             // convert to king captures rook
             // in chess960 the move should be sent as king captures rook already!
-            if (!board.chess960() && piece == PieceType::KING && board.at(target).type() == PieceType::ROOK &&
-                board.at(target).color() == board.sideToMove()) {
+            if (!board.chess960() && piece == PieceType::KING && Square::distance(target, source) >= 2) {
                 target = Square(target > source ? File::FILE_H : File::FILE_A, source.rank());
                 return Move::make<Move::CASTLING>(source, target);
             }
