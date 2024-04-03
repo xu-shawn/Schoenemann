@@ -7,10 +7,9 @@ int psqt::getPieceBounus(Board& board, PieceType piece, Color& color)
 {
 	int bounus = 0;
 	Bitboard pieces = board.pieces(piece, color);
-	bool isReversed = false;
 	if (color == Color::WHITE)
 	{
-		isReversed = true;
+		pieces = reverse(pieces);
 	}
 	std::vector<int> indexs = getSetBitsEfficient(pieces);
 
@@ -18,74 +17,51 @@ int psqt::getPieceBounus(Board& board, PieceType piece, Color& color)
 	{
 		for (int index : indexs)
 		{
-			if (isReversed)
-			{
-				bounus += RpawnTable[index];
-			}
-			else
-			{
-				bounus += pawnTable[index];
-			}
+			bounus += pawnTable[index];
 		}
 	}
 	else if (piece == PieceType::KNIGHT)
 	{
 		for (int index : indexs)
 		{
-			if (isReversed)
-			{
-				bounus += RknightTable[index];
-			}
-			else
-			{
-				bounus += knightTable[index];
-			}
+			bounus += knightTable[index];
 		}
 	}
 	else if (piece == PieceType::BISHOP)
 	{
 		for (int index : indexs)
 		{
-			if (isReversed)
-			{
-				bounus += RbishopTable[index];
-			}
-			else
-			{
-				bounus += bishopTable[index];
-			}
+			bounus += bishopTable[index];
 		}
 	}
 	else if (piece == PieceType::ROOK)
 	{
 		for (int index : indexs)
 		{
-			if (isReversed)
-			{
-				bounus += RrookTable[index];
-			}
-			else
-			{
-				bounus += rookTable[index];
-			}
+			bounus += rookTable[index];
 		}
 	}
 	else if (piece == PieceType::QUEEN)
 	{
 		for (int index : indexs)
 		{
-			if (isReversed)
-			{
-				bounus += RqueenTable[index];
-			}
-			else
-			{
-				bounus += queenTable[index];
-			}
+			bounus += queenTable[index];
 		}
 	}
-	
+
 	return bounus;
+}
+
+Bitboard psqt::reverse(Bitboard& bitboard)
+{
+	std::uint64_t r = bitboard.getBits();
+	r = ((r >> 1) & 0x5555555555555555) | ((r & 0x5555555555555555) << 1);
+	r = ((r >> 2) & 0x3333333333333333) | ((r & 0x3333333333333333) << 2);
+	r = ((r >> 4) & 0x0F0F0F0F0F0F0F0F) | ((r & 0x0F0F0F0F0F0F0F0F) << 4);
+	r = ((r >> 8) & 0x00FF00FF00FF00FF) | ((r & 0x00FF00FF00FF00FF) << 8);
+	r = ((r >> 16) & 0x0000FFFF0000FFFF) | ((r & 0x0000FFFF0000FFFF) << 16);
+	r = (r >> 32) | (r << 32);
+	return Bitboard(r);
 }
 
 std::vector<int> psqt::getSetBitsEfficient(Bitboard& bitboard) {
@@ -97,5 +73,3 @@ std::vector<int> psqt::getSetBitsEfficient(Bitboard& bitboard) {
 	}
 	return setBits;
 }
-
-
