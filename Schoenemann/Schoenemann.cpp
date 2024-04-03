@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
 		}
 		else if (cmd == "bench")
 		{
-			std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
+			run_benchmark();
 		}
 		else if (cmd == "test")
 		{
@@ -195,12 +195,17 @@ void run_benchmark() {
 	};
 
 	Board bench_board;
-
+	auto start = std::chrono::high_resolution_clock::now();
+	setNodes(0);
 	for (const auto& test : testStrings) {
 		bench_board.setFen(test);
-		search(6, -32767, 32767, 0, bench_board);
+		search(3, -32767, 32767, 0, bench_board);
 	}
-	std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::milli> timeElapsed = end - start;
+	int timeInMs = static_cast<int>(timeElapsed.count());
+	int NPS = static_cast<int>(1000 * getNodes() / timeElapsed.count());
+	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << getNodes() << "\nNPS   : " << NPS << std::endl;
 }
 
 int get_time()

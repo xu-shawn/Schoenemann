@@ -92,6 +92,7 @@ void iterative_deepening(Board& board)
 {
     auto start = std::chrono::high_resolution_clock::now();
     int time_for_move = get_time_for_move();
+    bestMove = Move::NULL_MOVE;
 
     for (int i = 1; i < 256; i++)
     {
@@ -102,16 +103,12 @@ void iterative_deepening(Board& board)
             std::chrono::duration<double, std::milli> elapsed = end - start;
             if (elapsed.count() >= time_for_move)
             {
-                Movelist movelist;
-                movegen::legalmoves<movegen::MoveGenType::ALL>(movelist, board);
-                for (const auto& move : movelist)
+                if (bestMove != Move::NULL_MOVE)
                 {
-                    if (bestMove == move)
-                    {
-                        std::cout << "bestmove " << bestMove << std::endl;
-                        return;
-                    }
+                    std::cout << "bestmove " << bestMove << std::endl;
+                    return;
                 }
+                    
             }
         }
     }
@@ -120,6 +117,11 @@ void iterative_deepening(Board& board)
 int getNodes() 
 {
 	return count_nodes;
+}
+
+void setNodes(int newNodes)
+{
+    count_nodes = newNodes;
 }
 
 chess::Move& getBestMove() 
