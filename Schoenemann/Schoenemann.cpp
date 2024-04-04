@@ -161,6 +161,10 @@ int main(int argc, char* argv[]) {
 		{
 			run_benchmark();
 		}
+		else if (cmd == "tt")
+		{
+			std::cout << getTranspositions() << std::endl;
+		}
 		else if (cmd == "test")
 		{
 			Board test_board;

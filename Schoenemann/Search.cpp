@@ -4,11 +4,13 @@
 #include "movegen/chess.hpp"
 #include "timeman.h"
 #include "tt.h"
+#include "Moveorder.h"
 
 using namespace chess;
 
 const short infinity = 32767;
 int count_nodes = 0;
+int transpositions = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 
 tt transpositionTabel(64000);
@@ -19,6 +21,7 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
 
     if (ttEval != -40000)
     {
+        transpositions++;
         if (ply == 0)
         {
             bestMove == transpositionTabel.getStoredMove(board);
@@ -56,6 +59,12 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
         int evaluation = -search(depth - 1, -beta, -alpha, ply + 1, board);
         board.unmakeMove(move);
 
+        if (evaluation >= beta)
+        {
+            transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
+            return beta;
+        }
+
         if (evaluation > alpha)
         {
             evalType = transpositionTabel.exact;
@@ -64,12 +73,6 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
                 bestMove = move;
             }
             alpha = evaluation;
-        }
-
-        if (evaluation >= beta)
-        {
-            transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
-            return beta;
         }
     }
 
@@ -138,6 +141,11 @@ void iterative_deepening(Board& board)
 int getNodes() 
 {
 	return count_nodes;
+}
+
+int getTranspositions()
+{
+    return transpositions;
 }
 
 void setNodes(int newNodes)

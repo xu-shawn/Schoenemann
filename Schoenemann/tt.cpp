@@ -10,6 +10,7 @@ void tt::storeEvaluation(int depth, int play, int eval, int nodeType, Move move,
 	ent.nodeType = nodeType;
 	ent.depth = depth;
 	ent.move = move;
+	entries[board.zobrist() % ttSize] = ent;
 }
 
 int tt::lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board)
