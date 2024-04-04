@@ -7,10 +7,13 @@
 #include "Evaluate.h"
 #include "Search.h"
 #include "psqt.h"
+#include "consts.h"
 #include "movegen/chess.hpp"
 #include "movegen/benchmark.hpp"
 
 using namespace chess;
+
+tt transpositionTabel;
 
 int time_left = 0;
 int increment = 0;
@@ -31,7 +34,7 @@ int main(int argc, char* argv[]) {
 	{
 		std::ofstream debug;
 		std::string input_string;
-		debug.open("outputlogVersion1-2.txt", std::ios_base::app);
+		debug.open("outputlog.txt", std::ios_base::app);
 
 		std::getline(std::cin, input_string);
 
@@ -41,14 +44,13 @@ int main(int argc, char* argv[]) {
 		std::istringstream is(input_string);
 		std::string token;
 
-
 		is >> std::skipws >> cmd;
 		
 		if (cmd == "uci") 
 		{
 			std::cout << "id name Schoenemann" << std::endl 
 				<< "option name Threads type spin default 1 min 1 max 16" << std::endl 
-				<< "option name Hash type spin default 16 min 1 max 4096" << std::endl 
+				<< "option name Hash type spin default 64 min 1 max 4096" << std::endl 
 				<< "uciok" << std::endl;
 		}
 		else if (cmd == "isready")
@@ -58,15 +60,23 @@ int main(int argc, char* argv[]) {
 		else if (cmd == "ucinewgame")
 		{
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			transpositionTabel.clear();
 		}
-		else if (token == "setoption")
+		else if (cmd == "setoption")
 		{
-			std::string option;
-			is >> option;
+			is >> token;
 
-			if (option == "name") {
-				std::string option_name;
-				is >> option_name;
+			if (token == "name") {
+				is >> token;
+				if (token == "Hash")
+				{
+					is >> token;
+					if (token == "value")
+					{
+						is >> token;
+						transpositionTabel.init(std::stoi(token));
+					}
+				}
 			}
 		}
 		else if (cmd == "position")

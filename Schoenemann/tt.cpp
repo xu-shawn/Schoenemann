@@ -43,7 +43,16 @@ Move tt::getStoredMove(Board& board)
 	return entries[board.zobrist() % ttSize].move;
 }
 
-void tt::clear(tt obj)
+void tt::clear()
 {
+	delete[] entries;
+}
 
+void tt::init(int size)
+{
+	long long bytes = (long long)size << 20;
+	long long maxSize = bytes / sizeof(entry);
+	entries = new entry[maxSize];
+	ttSize = maxSize;
+	this->size = maxSize;
 }

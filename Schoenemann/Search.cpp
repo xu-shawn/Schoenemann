@@ -3,8 +3,8 @@
 #include "Evaluate.h"
 #include "movegen/chess.hpp"
 #include "timeman.h"
-#include "tt.h"
 #include "Moveorder.h"
+#include "consts.h"
 
 using namespace chess;
 
@@ -13,7 +13,6 @@ int count_nodes = 0;
 int transpositions = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 
-tt transpositionTabel(64000);
 
 int search(int depth, int alpha, int beta, int ply, Board& board) 
 {
