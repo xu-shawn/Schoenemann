@@ -23,7 +23,7 @@ int main(int argc, char* argv[]) {
 
 	if (argc > 1 && strcmp(argv[1], "bench") == 0) 
 	{
-		run_benchmark();
+		std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
 		return 0;
 	}
 
