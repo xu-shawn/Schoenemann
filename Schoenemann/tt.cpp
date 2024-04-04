@@ -42,3 +42,8 @@ Move tt::getStoredMove(Board& board)
 {
 	return entries[board.zobrist() % ttSize].move;
 }
+
+void tt::clear(tt obj)
+{
+
+}
