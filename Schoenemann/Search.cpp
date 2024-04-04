@@ -3,6 +3,7 @@
 #include "Evaluate.h"
 #include "movegen/chess.hpp"
 #include "timeman.h"
+#include "tt.h"
 
 using namespace chess;
 
@@ -10,8 +11,21 @@ const short infinity = 32767;
 int count_nodes = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 
+tt transpositionTabel(64000);
+
 int search(int depth, int alpha, int beta, int ply, Board& board) 
 {
+    int ttEval = transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board);
+
+    if (ttEval != -40000)
+    {
+        if (ply == 0)
+        {
+            bestMove == transpositionTabel.getStoredMove(board);
+        }
+        return ttEval;
+    }
+
     if (depth == 0)
     {
         return quiescence_search(alpha, beta, board);
@@ -33,6 +47,8 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
         }
     }
 
+    int evalType = transpositionTabel.uppperBound;
+
     for (const auto& move : movelist) 
     {
         count_nodes++;
@@ -42,6 +58,7 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
 
         if (evaluation > alpha)
         {
+            evalType = transpositionTabel.exact;
             if (ply == 0)
             {
                 bestMove = move;
@@ -51,9 +68,13 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
 
         if (evaluation >= beta)
         {
+            transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
             return beta;
         }
     }
+
+    transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMove, board);
+
     return alpha;
 }
 
