@@ -54,5 +54,4 @@ void tt::init(int size)
 	long long maxSize = bytes / sizeof(entry);
 	entries = new entry[maxSize];
 	ttSize = maxSize;
-	this->size = maxSize;
 }

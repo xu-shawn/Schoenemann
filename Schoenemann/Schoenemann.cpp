@@ -23,6 +23,7 @@ int main(int argc, char* argv[]) {
 	std::string token, cmd;
 	board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	board.set960(false);
+	transpositionTabel.init(16000);
 
 	if (argc > 1 && strcmp(argv[1], "bench") == 0) 
 	{
@@ -74,6 +75,7 @@ int main(int argc, char* argv[]) {
 					if (token == "value")
 					{
 						is >> token;
+						transpositionTabel.clear();
 						transpositionTabel.init(std::stoi(token));
 					}
 				}
