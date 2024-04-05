@@ -128,7 +128,7 @@ void iterative_deepening(Board& board)
             if (elapsed.count() >= time_for_move)
             {
                 std::cout << "bestmove " << bestMove << std::endl;
-                return;
+                break;
             }
             else
             {
