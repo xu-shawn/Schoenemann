@@ -38,4 +38,4 @@ private:
 	int size;
 };
 
-#endif // TT_H
+#endif

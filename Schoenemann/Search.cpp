@@ -37,6 +37,8 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
     Movelist movelist;
     movegen::legalmoves(movelist, board);
 
+    movelist = orderMoves(movelist, board, depth, ply, alpha, beta);
+
     if (movelist.size() == 0)
     {
         if (board.inCheck() == true) 
