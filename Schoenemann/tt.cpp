@@ -50,8 +50,7 @@ void tt::clear()
 
 void tt::init(int size)
 {
-	long long bytes = (long long)size << 20;
-	long long maxSize = bytes / sizeof(entry);
-	entries = new entry[maxSize];
-	ttSize = maxSize;
+	size *= 100000;
+	entries = new entry[size];
+	ttSize = size;
 }
