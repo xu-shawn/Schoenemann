@@ -50,7 +50,7 @@ void tt::clear()
 
 void tt::init(int size)
 {
-	size *= 100000;
+	size *= 40000;
 	entries = new entry[size];
 	ttSize = size;
 }

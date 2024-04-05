@@ -30,6 +30,8 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
+	transpositionTabel.init(8);
+
 	do
 	{
 		std::ofstream debug;
@@ -73,6 +75,7 @@ int main(int argc, char* argv[]) {
 					if (token == "value")
 					{
 						is >> token;
+						transpositionTabel.clear();
 						transpositionTabel.init(std::stoi(token));
 					}
 				}

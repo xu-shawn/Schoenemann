@@ -122,8 +122,7 @@ void iterative_deepening(Board& board)
         search(i, -32767, 32767, 0, board);
         while (true)
         {
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double, std::milli> elapsed = end - start;
+            std::chrono::duration<double, std::milli> elapsed = std::chrono::high_resolution_clock::now() - start;
             if (elapsed.count() >= time_for_move)
             {
                 if (bestMove != Move::NULL_MOVE)
@@ -133,7 +132,12 @@ void iterative_deepening(Board& board)
                 }
                     
             }
+            else
+            {
+                break;
+            }
         }
+        std::cout << "info depth " << i << " moves " << bestMove << std::endl;
     }
 }
 
