@@ -16,6 +16,7 @@ const short infinity = 32767;
 int count_nodes = 0;
 int transpositions = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
+std::atomic<bool> time_up(false);
 
 
 int search(int depth, int alpha, int beta, int ply, Board& board) 
@@ -117,8 +118,6 @@ int quiescence_search(int alpha, int beta, Board& board)
 	return alpha;
 }
 
-std::atomic<bool> time_up(false);
-
 void time_checker(int time_for_move, std::chrono::high_resolution_clock::time_point start)
 {
     while (!time_up)
@@ -137,6 +136,7 @@ void iterative_deepening(Board& board)
     int time_for_move = get_time_for_move();
     bestMove = Move::NULL_MOVE;
     bool hasFoundMove = false;
+    time_up = false;
 
     std::thread timer_thread(time_checker, time_for_move, start);
 
@@ -146,6 +146,7 @@ void iterative_deepening(Board& board)
         if (time_up)
         {
             std::cout << "bestmove " << bestMove << std::endl;
+            break;
         }
         else
         {
