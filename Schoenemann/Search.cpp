@@ -1,6 +1,7 @@
+#include <atomic>
 #include <chrono>
 #include <thread>
-#include <atomic>
+#include <iostream>
 
 #include "Search.h"
 #include "Evaluate.h"
@@ -120,13 +121,12 @@ std::atomic<bool> time_up(false);
 
 void time_checker(int time_for_move, std::chrono::high_resolution_clock::time_point start)
 {
-    while (true)
+    while (!time_up)
     {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start);
         if (elapsed.count() >= time_for_move)
         {
             time_up = true;
-            break;
         }
     }
 }
@@ -140,19 +140,22 @@ void iterative_deepening(Board& board)
 
     std::thread timer_thread(time_checker, time_for_move, start);
 
-    for (int i = 1; i < 256; i++)
+    for (int i = 1; i < 256 && !time_up; i++)
     {
+        search(i, -32767, 32767, 0, board);
         if (time_up)
         {
             std::cout << "bestmove " << bestMove << std::endl;
-            break;
         }
-        search(i, -32767, 32767, 0, board);
-        std::cout << "info depth " << i << " moves " << bestMove << std::endl;
+        else
+        {
+            std::cout << "info depth " << i << " moves " << bestMove << std::endl;
+        }
     }
 
     timer_thread.join();
 }
+
 
 
 
