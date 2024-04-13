@@ -25,7 +25,7 @@ THIS FILE IS AUTO GENERATED DO NOT CHANGE MANUALLY.
 
 Source: https://github.com/Disservin/chess-library
 
-VERSION: 0.6.39
+VERSION: 0.6.41
 */
 
 #ifndef CHESS_HPP
@@ -1105,13 +1105,12 @@ namespace chess {
         constexpr operator int() const noexcept { return static_cast<int>(piece); }
 
         [[nodiscard]] constexpr PieceType type() const noexcept {
+            if (piece == NONE) return PieceType::NONE;
             return static_cast<PieceType::underlying>(int(piece) % 6);
         }
 
         [[nodiscard]] constexpr Color color() const noexcept {
-            if (piece == NONE) {
-                return Color::NONE;
-            }
+            if (piece == NONE) return Color::NONE;
             return static_cast<Color>(static_cast<int>(piece) / 6);
         }
 
@@ -2349,17 +2348,33 @@ namespace chess {
         virtual void placePiece(Piece piece, Square sq) {
             assert(board_[sq.index()] == Piece::NONE);
 
-            pieces_bb_[piece.type()].set(sq.index());
-            occ_bb_[piece.color()].set(sq.index());
-            board_[sq.index()] = piece;
+            auto type = piece.type();
+            auto color = piece.color();
+            auto index = sq.index();
+
+            assert(type != PieceType::NONE);
+            assert(color != Color::NONE);
+            assert(index >= 0 && index < 64);
+
+            pieces_bb_[type].set(index);
+            occ_bb_[color].set(index);
+            board_[index] = piece;
         }
 
         virtual void removePiece(Piece piece, Square sq) {
             assert(board_[sq.index()] == piece && piece != Piece::NONE);
 
-            pieces_bb_[piece.type()].clear(sq.index());
-            occ_bb_[piece.color()].clear(sq.index());
-            board_[sq.index()] = Piece::NONE;
+            auto type = piece.type();
+            auto color = piece.color();
+            auto index = sq.index();
+
+            assert(type != PieceType::NONE);
+            assert(color != Color::NONE);
+            assert(index >= 0 && index < 64);
+
+            pieces_bb_[type].clear(index);
+            occ_bb_[color].clear(index);
+            board_[index] = Piece::NONE;
         }
 
         std::vector<State> prev_states_;
@@ -4000,7 +4015,7 @@ namespace chess {
 
             // convert to king captures rook
             // in chess960 the move should be sent as king captures rook already!
-            if (!board.chess960() && piece == PieceType::KING && Square::distance(target, source) >= 2) {
+            if (!board.chess960() && piece == PieceType::KING && Square::distance(target, source) == 2) {
                 target = Square(target > source ? File::FILE_H : File::FILE_A, source.rank());
                 return Move::make<Move::CASTLING>(source, target);
             }

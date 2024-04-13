@@ -127,13 +127,14 @@ void iterative_deepening(Board& board)
     {
         if (bestMove != Move::NULL_MOVE)
         {
-            hasFoundMove = false;
+            hasFoundMove = true;
         }
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> elapsed = end - start;
+        bool isOver = elapsed.count() >= time_for_move;
 
-        if (elapsed.count() >= time_for_move)
+        if (isOver && hasFoundMove)
         {
             std::cout << "bestmove " << bestMove << std::endl;
             break;
