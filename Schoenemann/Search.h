@@ -10,4 +10,3 @@ chess::Move& getBestMove();
 int quiescence_search(int alpha, int beta, Board& board);
 void iterative_deepening(Board& board);
 int getTranspositions();
-void time_checker(int time_for_move, std::chrono::high_resolution_clock::time_point start);

@@ -1,6 +1,5 @@
 #include <atomic>
 #include <chrono>
-#include <thread>
 #include <iostream>
 
 #include "Search.h"
@@ -16,7 +15,6 @@ const short infinity = 32767;
 int count_nodes = 0;
 int transpositions = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
-std::atomic<bool> time_up(false);
 
 
 int search(int depth, int alpha, int beta, int ply, Board& board) 
@@ -118,43 +116,30 @@ int quiescence_search(int alpha, int beta, Board& board)
 	return alpha;
 }
 
-void time_checker(int time_for_move, std::chrono::high_resolution_clock::time_point start)
-{
-    while (!time_up)
-    {
-        auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - start);
-        if (elapsed.count() >= time_for_move)
-        {
-            time_up = true;
-        }
-    }
-}
-
 void iterative_deepening(Board& board)
 {
     auto start = std::chrono::high_resolution_clock::now();
     int time_for_move = get_time_for_move();
     bestMove = Move::NULL_MOVE;
     bool hasFoundMove = false;
-    time_up = false;
 
-    std::thread timer_thread(time_checker, time_for_move, start);
-
-    for (int i = 1; i < 256 && !time_up; i++)
+    for (int i = 1; i < 256; i++)
     {
-        search(i, -32767, 32767, 0, board);
-        if (time_up)
+        if (bestMove != Move::NULL_MOVE)
+        {
+            hasFoundMove = false;
+        }
+
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = end - start;
+
+        if (elapsed.count() >= time_for_move)
         {
             std::cout << "bestmove " << bestMove << std::endl;
             break;
         }
-        else
-        {
-            std::cout << "info depth " << i << " moves " << bestMove << std::endl;
-        }
+        search(i, -32767, 32767, 0, board);
     }
-
-    timer_thread.join();
 }
 
 
