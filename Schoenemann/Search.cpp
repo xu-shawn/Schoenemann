@@ -123,30 +123,23 @@ void iterative_deepening(Board& board)
     bestMove = Move::NULL_MOVE;
     bool hasFoundMove = false;
 
-    if (timeForMove < 0)
-    {
-        search(1, -32767, 32767, 0, board); 
-        std::cout << "bestmove " << bestMove << std::endl;
-        return;
-    }
-
     for (int i = 1; i < 256; i++)
     {
-        if (bestMove != Move::NULL_MOVE)
-        {
-            hasFoundMove = true;
-        }
-
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> elapsed = end - start;
-        bool isOver = elapsed.count() >= timeForMove;
-
-        if (isOver && hasFoundMove)
-        {
-            std::cout << "bestmove " << bestMove << std::endl;
-            break;
-        }
         search(i, -32767, 32767, 0, board);
+        while (true)
+        {
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> elapsed = end - start;
+            if (elapsed.count() >= timeForMove)
+            {
+                if (bestMove != Move::NULL_MOVE)
+                {
+                    std::cout << "bestmove " << bestMove << std::endl;
+                    return;
+                }
+
+            }
+        }
     }
 }
 
