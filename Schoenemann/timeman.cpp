@@ -1,18 +1,21 @@
 #include "timeman.h"
 #include "Schoenemann.h"
 
-int get_time_for_move()
+int getTimeForMove()
 {
-	int time_left = get_time();
-	int increment = get_increment();
-	int time_for_this_move = time_left / 40 + (increment / 2);
-	if (time_for_this_move >= time_left)
+	int timeLeft = getTime();
+	int increment = getIncrement();
+	int timeForThisMove = timeLeft / 40 + (increment / 2);
+
+	if (timeForThisMove >= timeLeft)
 	{
-		time_for_this_move = time_left - 500;
+		timeForThisMove = timeLeft - 500;
 	}
-	if (time_for_this_move < 0)
+
+	if (timeForThisMove < 0)
 	{
-		time_for_this_move = 100;
+		timeForThisMove = timeLeft + increment;
 	}
-	return time_for_this_move;
+
+	return timeForThisMove;
 }

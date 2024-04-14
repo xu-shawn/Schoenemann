@@ -225,12 +225,12 @@ void run_benchmark() {
 	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << getNodes() << "\nNPS   : " << NPS << std::endl;
 }
 
-int get_time()
+int getTime()
 {
 	return time_left;
 }
 
-int get_increment()
+int getIncrement()
 {
 	return increment;
 }

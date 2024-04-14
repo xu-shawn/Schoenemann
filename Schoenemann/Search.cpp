@@ -119,9 +119,16 @@ int quiescence_search(int alpha, int beta, Board& board)
 void iterative_deepening(Board& board)
 {
     auto start = std::chrono::high_resolution_clock::now();
-    int time_for_move = get_time_for_move();
+    int timeForMove = getTimeForMove();
     bestMove = Move::NULL_MOVE;
     bool hasFoundMove = false;
+
+    if (timeForMove < 0)
+    {
+        search(1, -32767, 32767, 0, board); 
+        std::cout << "bestmove " << bestMove << std::endl;
+        return;
+    }
 
     for (int i = 1; i < 256; i++)
     {
@@ -132,7 +139,7 @@ void iterative_deepening(Board& board)
 
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> elapsed = end - start;
-        bool isOver = elapsed.count() >= time_for_move;
+        bool isOver = elapsed.count() >= timeForMove;
 
         if (isOver && hasFoundMove)
         {
