@@ -122,11 +122,14 @@ void iterative_deepening(Board& board)
     bestMove = Move::NULL_MOVE;
     bool hasFoundMove = false;
 
-    if (timeForMove == -100)
+    if (timeForMove == -20)
     {
         search(1, -32767, 32767, 0, board); 
-        std::cout << "bestmove " << bestMove << std::endl;
-        return;
+        if (bestMove != Move::NULL_MOVE)
+        {
+            std::cout << "bestmove " << bestMove << std::endl;
+            return;
+        }
     }
 
     for (int i = 1; i < 256; i++)

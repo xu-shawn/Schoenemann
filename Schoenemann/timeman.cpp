@@ -14,7 +14,7 @@ int getTimeForMove()
 
 	if (timeForThisMove < 0)
 	{
-		timeForThisMove = -100;
+		timeForThisMove = -20;
 	}
 
 	return timeForThisMove;
