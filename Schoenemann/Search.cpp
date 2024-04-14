@@ -45,7 +45,7 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
     {
         if (board.inCheck() == true) 
         {
-            return -infinity;
+            return infinity;
         }
         else
         {
@@ -139,6 +139,8 @@ void iterative_deepening(Board& board)
             hasFoundMove = true;
         }
 
+        search(i, -32767, 32767, 0, board);
+
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> elapsed = end - start;
         bool isOver = elapsed.count() >= timeForMove;
@@ -148,7 +150,6 @@ void iterative_deepening(Board& board)
             std::cout << "bestmove " << bestMove << std::endl;
             break;
         }
-        search(i, -32767, 32767, 0, board);
     }
 }
 
