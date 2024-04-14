@@ -14,10 +14,21 @@ const short infinity = 32767;
 int count_nodes = 0;
 int transpositions = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
+std::chrono::high_resolution_clock::time_point start;
+int timeForMove;
 
 
 int search(int depth, int alpha, int beta, int ply, Board& board) 
 {
+    std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    bool isOver = elapsed.count() >= timeForMove;
+
+    if (isOver && bestMove != Move::NULL_MOVE)
+    {
+        return -10000;
+    }
+
     int ttEval = transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board);
 
     if (ttEval != -40000)
@@ -32,7 +43,7 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
 
     if (depth == 0)
     {
-        return quiescence_search(alpha, beta, board);
+        return quiescenceSearch(alpha, beta, board);
     }
 
 
@@ -84,7 +95,7 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
     return alpha;
 }
 
-int quiescence_search(int alpha, int beta, Board& board) 
+int quiescenceSearch(int alpha, int beta, Board& board) 
 {
 	int stand_pat = evaluate(board);
 	if (stand_pat >= beta)
@@ -101,7 +112,7 @@ int quiescence_search(int alpha, int beta, Board& board)
 	for (const auto& move : movelist) 
     {
         board.makeMove(move);
-        int score = -quiescence_search(-beta, -alpha, board);
+        int score = -quiescenceSearch(-beta, -alpha, board);
         board.unmakeMove(move);
         if (score >= beta)
         {
@@ -117,14 +128,14 @@ int quiescence_search(int alpha, int beta, Board& board)
 
 void iterativeDeepening(Board& board)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-    int timeForMove = getTimeForMove();
+    start = std::chrono::high_resolution_clock::now();
+    timeForMove = getTimeForMove();
     bestMove = Move::NULL_MOVE;
     bool hasFoundMove = false;
 
     if (timeForMove == -20)
     {
-        search(1, -32767, 32767, 0, board);
+        search(1, -32767, 32767, 0, board); 
         if (bestMove != Move::NULL_MOVE)
         {
             std::cout << "bestmove " << bestMove << std::endl;
@@ -134,27 +145,24 @@ void iterativeDeepening(Board& board)
 
     for (int i = 1; i < 256; i++)
     {
-        search(i, -32767, 32767, 0, board);
-
         if (bestMove != Move::NULL_MOVE)
         {
             hasFoundMove = true;
         }
-        auto end = std::chrono::high_resolution_clock::now();
+
+        search(i, -32767, 32767, 0, board);
+
+        std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> elapsed = end - start;
         bool isOver = elapsed.count() >= timeForMove;
 
-        if (isOver)
+        if (isOver && hasFoundMove)
         {
-            if (hasFoundMove)
-            {
-                std::cout << "bestmove " << bestMove << std::endl;
-            }
+            std::cout << "bestmove " << bestMove << std::endl;
             break;
         }
     }
 }
-
 
 
 
