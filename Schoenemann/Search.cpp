@@ -115,7 +115,7 @@ int quiescence_search(int alpha, int beta, Board& board)
 	return alpha;
 }
 
-void iterative_deepening(Board& board)
+void iterativeDeepening(Board& board)
 {
     auto start = std::chrono::high_resolution_clock::now();
     int timeForMove = getTimeForMove();
@@ -124,7 +124,7 @@ void iterative_deepening(Board& board)
 
     if (timeForMove == -20)
     {
-        search(1, -32767, 32767, 0, board); 
+        search(1, -32767, 32767, 0, board);
         if (bestMove != Move::NULL_MOVE)
         {
             std::cout << "bestmove " << bestMove << std::endl;
@@ -136,25 +136,25 @@ void iterative_deepening(Board& board)
     {
         search(i, -32767, 32767, 0, board);
 
-        while (true)
+        if (bestMove != Move::NULL_MOVE)
         {
-            if (bestMove != Move::NULL_MOVE)
-            {
-                hasFoundMove = true;
-            }
-            auto end = std::chrono::high_resolution_clock::now();
-            std::chrono::duration<double, std::milli> elapsed = end - start;
-            bool isOver = elapsed.count() >= timeForMove;
+            hasFoundMove = true;
+        }
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = end - start;
+        bool isOver = elapsed.count() >= timeForMove;
 
-            if (isOver && hasFoundMove)
+        if (isOver)
+        {
+            if (hasFoundMove)
             {
                 std::cout << "bestmove " << bestMove << std::endl;
-                break;
             }
+            break;
         }
-        break;
     }
 }
+
 
 
 
