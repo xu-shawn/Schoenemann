@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
 					time_left = number[1];
 					increment = number[3];
 				}
-				iterativeDeepening(board);
+				iterative_deepening(board);
 			}
 		}
 		else if (cmd == "d")

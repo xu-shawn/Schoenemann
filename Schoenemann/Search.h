@@ -7,6 +7,6 @@ int getNodes();
 void setNodes(int newNodes);
 int search(int depth, int alpha, int beta, int ply, Board& board);
 chess::Move& getBestMove();
-int quiescenceSearch(int alpha, int beta, Board& board);
-void iterativeDeepening(Board& board);
+int quiescence_search(int alpha, int beta, Board& board);
+void iterative_deepening(Board& board);
 int getTranspositions();
