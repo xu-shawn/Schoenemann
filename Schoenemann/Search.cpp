@@ -161,6 +161,7 @@ void iterative_deepening(Board& board)
         }
         search(i, -32767, 32767, 0, board);
     }
+    shouldStop = false;
 }
 
 int getNodes() 
