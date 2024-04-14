@@ -20,13 +20,9 @@ int timeForMove;
 
 int search(int depth, int alpha, int beta, int ply, Board& board) 
 {
-    std::chrono::high_resolution_clock::time_point end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = end - start;
-    bool isOver = elapsed.count() >= timeForMove;
-
-    if (isOver && bestMove != Move::NULL_MOVE)
+    if ((std::chrono::high_resolution_clock::now() - start).count() >= timeForMove && bestMove != Move::NULL_MOVE)
     {
-        return -10000;
+        return -1;
     }
 
     int ttEval = transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board);
@@ -56,7 +52,7 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
     {
         if (board.inCheck() == true) 
         {
-            return infinity;
+            return -infinity;
         }
         else
         {
