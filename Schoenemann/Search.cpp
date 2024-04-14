@@ -15,7 +15,6 @@ int count_nodes = 0;
 int transpositions = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 
-
 bool shouldStop = false;
 
 int search(int depth, int alpha, int beta, int ply, Board& board)
