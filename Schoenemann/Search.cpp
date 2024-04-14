@@ -152,6 +152,7 @@ void iterative_deepening(Board& board)
                 break;
             }
         }
+        break;
     }
 }
 
