@@ -159,7 +159,7 @@ int main(int argc, char* argv[]) {
 					time_left = number[1];
 					increment = number[3];
 				}
-				iterative_deepening(board);
+				iterativeDeepening(board);
 			}
 		}
 		else if (cmd == "d")
@@ -181,10 +181,10 @@ int main(int argc, char* argv[]) {
 		else if (cmd == "test")
 		{
 			Board test_board;
-			test_board.setFen("8/2R5/8/8/8/8/7r/K6k w - - 4 3");
-			//search(1, -32767, 32767, 0, test_board);
-			//std::cout << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
-			std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
+			test_board.setFen("rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2");
+			search(2, -32767, 32767, 0, test_board);
+			std::cout << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
+			//std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
 		}
 
 	} while (cmd != "quit");

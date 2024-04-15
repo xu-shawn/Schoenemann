@@ -14,7 +14,6 @@ const short infinity = 32767;
 int count_nodes = 0;
 int transpositions = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
-
 bool shouldStop = false;
 
 int search(int depth, int alpha, int beta, int ply, Board& board)
@@ -38,33 +37,30 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
 
     if (depth == 0)
     {
-        return quiescence_search(alpha, beta, board);
+        return quiescenceSearch(alpha, beta, board);
     }
 
-    Movelist movelist;
-    movegen::legalmoves(movelist, board);
-
-    movelist = orderMoves(movelist, board, depth, ply, alpha, beta);
-
-    if (movelist.size() == 0)
+    Movelist moveList;
+    movegen::legalmoves(moveList, board);
+    if (board.inCheck())
     {
-        if (board.inCheck() == true)
+        Movelist inCheck;
+        movegen::legalmoves(inCheck, board);
+        if (inCheck.size() <= 1)
         {
-            return -infinity;
-        }
-        else
-        {
-            return 0;
+            return ply - infinity;
         }
     }
+
+    moveList = orderMoves(moveList, board, depth, ply, alpha, beta);
 
     int evalType = transpositionTabel.uppperBound;
 
-    for (const auto& move : movelist)
+    for (const Move& move : moveList)
     {
         count_nodes++;
         board.makeMove(move);
-        int evaluation = -search(depth - 1, -beta, -alpha, ply + 1, board);
+        int score = -search(depth - 1, -beta, -alpha, ply + 1, board);
         board.unmakeMove(move);
 
         if (shouldStop)
@@ -72,20 +68,20 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
             return alpha;
         }
 
-        if (evaluation >= beta)
+        if (score >= beta)
         {
             transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
             return beta;
         }
 
-        if (evaluation > alpha)
+        if (score > alpha)
         {
             evalType = transpositionTabel.exact;
             if (ply == 0)
             {
                 bestMove = move;
             }
-            alpha = evaluation;
+            alpha = score;
         }
     }
 
@@ -94,25 +90,29 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
     return alpha;
 }
 
-int quiescence_search(int alpha, int beta, Board& board) 
+int quiescenceSearch(int alpha, int beta, Board& board) 
 {
-	int stand_pat = evaluate(board);
-	if (stand_pat >= beta)
+
+	int eval = evaluate(board);
+
+	if (eval >= beta)
 	{
 		return beta;
 	}
-	if (alpha < stand_pat)
+
+	if (alpha < eval)
 	{
-		alpha = stand_pat;
+		alpha = eval;
 	}
 
-	Movelist movelist;
-	movegen::legalmoves<movegen::MoveGenType::CAPTURE>(movelist, board);
-	for (const auto& move : movelist) 
+	Movelist moveList;
+	movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
+	for (const Move& move : moveList) 
     {
         board.makeMove(move);
-        int score = -quiescence_search(-beta, -alpha, board);
+        int score = -quiescenceSearch(-beta, -alpha, board);
         board.unmakeMove(move);
+
         if (score >= beta)
         {
             return beta;
@@ -125,7 +125,7 @@ int quiescence_search(int alpha, int beta, Board& board)
 	return alpha;
 }
 
-void iterative_deepening(Board& board)
+void iterativeDeepening(Board& board)
 {
     auto start = std::chrono::high_resolution_clock::now();
     int timeForMove = getTimeForMove();

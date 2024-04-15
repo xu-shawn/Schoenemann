@@ -13,5 +13,6 @@ Movelist orderMoves(Movelist moveList, Board& board, int depth, int ply, int alp
 			moveList.back() = cache;
 		}
 	}
+
 	return moveList;
 }
