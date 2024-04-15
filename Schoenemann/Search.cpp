@@ -46,9 +46,13 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
     {
         Movelist inCheck;
         movegen::legalmoves(inCheck, board);
-        if (inCheck.size() <= 1)
+        if (inCheck.size() == 0)
         {
             return ply - infinity;
+        }
+        else
+        {
+            return 0;
         }
     }
 
