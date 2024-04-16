@@ -174,6 +174,10 @@ int main(int argc, char* argv[]) {
 		{
 			run_benchmark();
 		}
+		else if (cmd == "nodes")
+		{
+			std::cout << getNodes() << std::endl;
+		}
 		else if (cmd == "tt")
 		{
 			std::cout << getTranspositions() << std::endl;
@@ -181,10 +185,10 @@ int main(int argc, char* argv[]) {
 		else if (cmd == "test")
 		{
 			Board test_board;
-			test_board.setFen("rnbqkbnr/pppp1ppp/8/4p3/6P1/5P2/PPPPP2P/RNBQKBNR b KQkq - 0 2");
-			search(2, -32767, 32767, 0, test_board);
+			test_board.setFen("rn2kb1r/ppp1pppp/8/8/4q3/3P1N1b/PPP1BPnP/RNBQ1K1R b kq - 0 1");
+			search(6, -32767, 32767, 0, test_board);
 			std::cout << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
-			//std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
+			std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
 		}
 
 	} while (cmd != "quit");

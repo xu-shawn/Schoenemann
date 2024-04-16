@@ -16,8 +16,19 @@ int transpositions = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 bool shouldStop = false;
 
+auto start = std::chrono::high_resolution_clock::now();
+int timeForMove = 0;
+
 int search(int depth, int alpha, int beta, int ply, Board& board)
 {
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    bool isOver = elapsed.count() >= timeForMove;
+    if (isOver)
+    {
+        shouldStop = true;
+    }
+
     if (shouldStop)
     {
         return alpha;
@@ -66,11 +77,6 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
         board.makeMove(move);
         int score = -search(depth - 1, -beta, -alpha, ply + 1, board);
         board.unmakeMove(move);
-
-        if (shouldStop)
-        {
-            return alpha;
-        }
 
         if (score >= beta)
         {
@@ -131,8 +137,8 @@ int quiescenceSearch(int alpha, int beta, Board& board)
 
 void iterativeDeepening(Board& board)
 {
-    auto start = std::chrono::high_resolution_clock::now();
-    int timeForMove = getTimeForMove();
+    start = std::chrono::high_resolution_clock::now();
+    timeForMove = getTimeForMove();
     bestMove = Move::NULL_MOVE;
     bool hasFoundMove = false;
 
@@ -157,6 +163,8 @@ void iterativeDeepening(Board& board)
         std::chrono::duration<double, std::milli> elapsed = end - start;
         bool isOver = elapsed.count() >= timeForMove;
 
+        //std::cout << "Time for this move: " << timeForMove << " | Time left: " << elapsed.count() << std::endl;
+
         if (isOver && hasFoundMove)
         {
             std::cout << "bestmove " << bestMove << std::endl;
@@ -166,6 +174,7 @@ void iterativeDeepening(Board& board)
         search(i, -32767, 32767, 0, board);
     }
     shouldStop = false;
+
 }
 
 int getNodes() 
