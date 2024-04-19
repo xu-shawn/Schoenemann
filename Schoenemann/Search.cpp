@@ -15,20 +15,12 @@ int count_nodes = 0;
 int transpositions = 0;
 chess::Move bestMove = chess::Move::NULL_MOVE;
 bool shouldStop = false;
-
+bool isNormalSearch = true;
 auto start = std::chrono::high_resolution_clock::now();
 int timeForMove = 0;
 
 int search(int depth, int alpha, int beta, int ply, Board& board)
 {
-    auto end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = end - start;
-    bool isOver = elapsed.count() >= timeForMove;
-    if (isOver)
-    {
-        shouldStop = true;
-    }
-
     if (shouldStop)
     {
         return alpha;
@@ -48,16 +40,14 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
 
     if (depth == 0)
     {
-        return quiescenceSearch(alpha, beta, board);
+        return quiescenceSearch(alpha, beta, ply, board);
     }
 
     Movelist moveList;
     movegen::legalmoves(moveList, board);
-    if (board.inCheck())
+    if (moveList.size() == 0)
     {
-        Movelist inCheck;
-        movegen::legalmoves(inCheck, board);
-        if (inCheck.size() == 0)
+        if (board.inCheck() == true)
         {
             return ply - infinity;
         }
@@ -97,10 +87,19 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
 
     transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMove, board);
 
+    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    bool isOver = elapsed.count() >= timeForMove;
+    if (isOver && !isNormalSearch)
+    {
+        //std::cout << "Time used: " << (std::chrono::high_resolution_clock::now() - start).count() << "Time for Move: " << timeForMove;
+        shouldStop = true;
+    }
+
     return alpha;
 }
 
-int quiescenceSearch(int alpha, int beta, Board& board) 
+int quiescenceSearch(int alpha, int beta, int ply, Board& board) 
 {
 
 	int eval = evaluate(board);
@@ -117,10 +116,15 @@ int quiescenceSearch(int alpha, int beta, Board& board)
 
 	Movelist moveList;
 	movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
+    if (board.inCheck())
+    {
+        return checkQuiescenceSearch(alpha, beta, ply, board);
+    }
+
 	for (const Move& move : moveList) 
     {
         board.makeMove(move);
-        int score = -quiescenceSearch(-beta, -alpha, board);
+        int score = -quiescenceSearch(-beta, -alpha, ply, board);
         board.unmakeMove(move);
 
         if (score >= beta)
@@ -135,11 +139,47 @@ int quiescenceSearch(int alpha, int beta, Board& board)
 	return alpha;
 }
 
+
+int checkQuiescenceSearch(int alpha, int beta, int ply, Board& board)
+{
+    Movelist moveList;
+    movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
+    int bestScore = -infinity;
+    int score = -infinity;
+    for (const Move& move : moveList)
+    {
+        board.makeMove(move);
+        score = -quiescenceSearch(-beta, -alpha, ply, board);
+        board.unmakeMove(move);
+
+        if (score >= beta)
+        {
+            return score;
+        }
+            
+
+        if (score > bestScore) {
+            bestScore = score;
+            if (score > alpha)
+            {
+                alpha = score;
+            }
+        }
+    }
+
+    if (bestScore == -infinity) {
+        return ply - infinity;
+    }
+
+    return bestScore;
+}
+
 void iterativeDeepening(Board& board)
 {
     start = std::chrono::high_resolution_clock::now();
     timeForMove = getTimeForMove();
     bestMove = Move::NULL_MOVE;
+    isNormalSearch = false;
     bool hasFoundMove = false;
 
     if (timeForMove == -20)
@@ -163,7 +203,7 @@ void iterativeDeepening(Board& board)
         std::chrono::duration<double, std::milli> elapsed = end - start;
         bool isOver = elapsed.count() >= timeForMove;
 
-        //std::cout << "Time for this move: " << timeForMove << " | Time left: " << elapsed.count() << std::endl;
+        //std::cout << "Time for this move: " << timeForMove << " | Time used: " << elapsed.count() << std::endl;
 
         if (isOver && hasFoundMove)
         {
@@ -174,7 +214,7 @@ void iterativeDeepening(Board& board)
         search(i, -32767, 32767, 0, board);
     }
     shouldStop = false;
-
+    isNormalSearch = true;
 }
 
 int getNodes() 
