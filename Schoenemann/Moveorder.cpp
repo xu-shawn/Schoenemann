@@ -3,16 +3,18 @@
 
 Movelist orderMoves(Movelist moveList, Board& board, int depth, int ply, int alpha, int beta)
 {
-	if (transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board) != -40000)
+	Move hashMove = transpositionTabel.getStoredMove(board);
+	for (Move move : moveList)
 	{
-		Move ttMove = transpositionTabel.getStoredMove(board);
-		if (ttMove != Move::NO_MOVE && ttMove != Move::NULL_MOVE)
+		if (move == hashMove)
 		{
-			Move cache = moveList.front();
-			moveList.front() = ttMove;
-			moveList.back() = cache;
+			if (hashMove != Move::NO_MOVE && hashMove != Move::NULL_MOVE)
+			{
+				Move cache = moveList.front();
+				moveList.front() = hashMove;
+				moveList.back() = cache;
+			}
 		}
 	}
-
 	return moveList;
 }

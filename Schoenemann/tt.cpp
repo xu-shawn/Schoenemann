@@ -35,7 +35,7 @@ int tt::lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board)
 			}
 		}
 	}
-	return -40000;
+	return lookupFaild;
 }
 
 Move tt::getStoredMove(Board& board)

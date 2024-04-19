@@ -10,16 +10,9 @@
 
 using namespace chess;
 
-const short infinity = 32767;
-int count_nodes = 0;
-int transpositions = 0;
-chess::Move bestMove = chess::Move::NULL_MOVE;
-bool shouldStop = false;
-bool isNormalSearch = true;
 auto start = std::chrono::high_resolution_clock::now();
-int timeForMove = 0;
 
-int search(int depth, int alpha, int beta, int ply, Board& board)
+int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
 {
     if (shouldStop)
     {
@@ -28,7 +21,7 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
 
     int ttEval = transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board);
 
-    if (ttEval != -40000)
+    if (ttEval != -1)
     {
         transpositions++;
         if (ply == 0)
@@ -99,7 +92,7 @@ int search(int depth, int alpha, int beta, int ply, Board& board)
     return alpha;
 }
 
-int quiescenceSearch(int alpha, int beta, int ply, Board& board) 
+int searcher::quiescenceSearch(int alpha, int beta, int ply, Board& board)
 {
 
 	int eval = evaluate(board);
@@ -140,7 +133,7 @@ int quiescenceSearch(int alpha, int beta, int ply, Board& board)
 }
 
 
-int checkQuiescenceSearch(int alpha, int beta, int ply, Board& board)
+int searcher::checkQuiescenceSearch(int alpha, int beta, int ply, Board& board)
 {
     Movelist moveList;
     movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
@@ -174,7 +167,7 @@ int checkQuiescenceSearch(int alpha, int beta, int ply, Board& board)
     return bestScore;
 }
 
-void iterativeDeepening(Board& board)
+void searcher::iterativeDeepening(Board& board)
 {
     start = std::chrono::high_resolution_clock::now();
     timeForMove = getTimeForMove();
@@ -217,22 +210,22 @@ void iterativeDeepening(Board& board)
     isNormalSearch = true;
 }
 
-int getNodes() 
+int searcher::getNodes()
 {
 	return count_nodes;
 }
 
-int getTranspositions()
+int searcher::getTranspositions()
 {
     return transpositions;
 }
 
-void setNodes(int newNodes)
+void searcher::setNodes(int newNodes)
 {
     count_nodes = newNodes;
 }
 
-chess::Move& getBestMove() 
+chess::Move& searcher::getBestMove()
 {
 	return bestMove;
 }

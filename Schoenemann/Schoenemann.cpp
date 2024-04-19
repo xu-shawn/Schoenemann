@@ -18,6 +18,8 @@ tt transpositionTabel;
 int time_left = 0;
 int increment = 0;
 
+searcher seracher;
+
 int main(int argc, char* argv[]) {
 	Board board;
 	std::string token, cmd;
@@ -142,8 +144,8 @@ int main(int argc, char* argv[]) {
 				else if (token == "depth")
 				{
 					is >> token;
-					search(std::stoi(token), -32767, 32767, 0, board);
-					std::cout << "bestmove " << getBestMove() << std::endl;
+					seracher.search(std::stoi(token), -32767, 32767, 0, board);
+					std::cout << "bestmove " << seracher.getBestMove() << std::endl;
 				}
 				if (!(is >> token)) break;
 			}
@@ -159,7 +161,7 @@ int main(int argc, char* argv[]) {
 					time_left = number[1];
 					increment = number[3];
 				}
-				iterativeDeepening(board);
+				seracher.iterativeDeepening(board);
 			}
 		}
 		else if (cmd == "d")
@@ -176,18 +178,18 @@ int main(int argc, char* argv[]) {
 		}
 		else if (cmd == "nodes")
 		{
-			std::cout << getNodes() << std::endl;
+			std::cout << seracher.getNodes() << std::endl;
 		}
 		else if (cmd == "tt")
 		{
-			std::cout << getTranspositions() << std::endl;
+			std::cout << seracher.getTranspositions() << std::endl;
 		}
 		else if (cmd == "test")
 		{
 			Board test_board;
 			test_board.setFen("rn2kb1r/ppp1pppp/8/8/4q3/3P1N1b/PPP1BPnP/RNBQ1K1R b kq - 0 1");
-			search(6, -32767, 32767, 0, test_board);
-			std::cout << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
+			seracher.search(6, -32767, 32767, 0, test_board);
+			std::cout << "\nbestmove " << seracher.getBestMove() << "\nNodes: " << seracher.getNodes() << std::endl;
 			std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
 		}
 
@@ -217,16 +219,16 @@ void run_benchmark() {
 
 	Board bench_board;
 	auto start = std::chrono::high_resolution_clock::now();
-	setNodes(0);
+	seracher.setNodes(0);
 	for (const auto& test : testStrings) {
 		bench_board.setFen(test);
-		search(3, -32767, 32767, 0, bench_board);
+		seracher.search(3, -32767, 32767, 0, bench_board);
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> timeElapsed = end - start;
 	int timeInMs = static_cast<int>(timeElapsed.count());
-	int NPS = static_cast<int>(1000 * getNodes() / timeElapsed.count());
-	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << getNodes() << "\nNPS   : " << NPS << std::endl;
+	int NPS = static_cast<int>(1000 * seracher.getNodes() / timeElapsed.count());
+	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << seracher.getNodes() << "\nNPS   : " << NPS << std::endl;
 }
 
 int getTime()
