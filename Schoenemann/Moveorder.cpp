@@ -5,7 +5,6 @@ Movelist orderMoves(Movelist moveList, Board& board, int depth, int ply, int alp
 {
 	if (transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board) != -40000)
 	{
-		std::cout << "hi";
 		Move ttMove = transpositionTabel.getStoredMove(board);
 		if (ttMove != Move::NO_MOVE && ttMove != Move::NULL_MOVE)
 		{
