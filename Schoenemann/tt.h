@@ -26,11 +26,11 @@ public:
 	const short exact = 0;
 	const short lowerBound = 1;
 	const short uppperBound = 2;
-	const short lookupFaild = -1;
+	const short lookupFaild = -32768;
 	
 	void storeEvaluation(int depth, int play, int eval, int nodeType, Move move, Board& board);
 	int lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board);
-	Move getStoredMove(Board& board);
+	entry getEntry(Board& board);
 	void clear();
 	void init(int size);
 

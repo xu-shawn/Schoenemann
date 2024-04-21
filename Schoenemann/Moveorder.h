@@ -4,4 +4,4 @@
 
 using namespace chess;
 
-Movelist orderMoves(Movelist moveList, Board& board, int depth, int ply, int alpha, int beta);
+Movelist orderMoves(Movelist moveList, Board& board);

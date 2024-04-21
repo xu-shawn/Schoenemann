@@ -38,9 +38,9 @@ int tt::lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board)
 	return lookupFaild;
 }
 
-Move tt::getStoredMove(Board& board)
+tt::entry tt::getEntry(Board& board)
 {
-	return entries[board.zobrist() % ttSize].move;
+	return entries[board.zobrist() % ttSize];
 }
 
 void tt::clear()

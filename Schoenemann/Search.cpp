@@ -10,7 +10,7 @@
 
 using namespace chess;
 
-auto start = std::chrono::high_resolution_clock::now();
+std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
 int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
 {
@@ -21,19 +21,21 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
 
     int ttEval = transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board);
 
-    if (ttEval != -1)
+    if (ttEval != -32768)
     {
-        transpositions++;
+        tt::entry hashEntry = transpositionTabel.getEntry(board);
         if (ply == 0)
         {
-            bestMove == transpositionTabel.getStoredMove(board);
+            std::cout << "The transposition move: " << hashEntry.move << std::endl;
+            transpositions++;
+            bestMove = hashEntry.move;
         }
         return ttEval;
     }
 
     if (depth == 0)
     {
-        return quiescenceSearch(alpha, beta, ply, board);
+        return quiescenceSearch(depth, alpha, beta, ply, board);
     }
 
     Movelist moveList;
@@ -50,9 +52,11 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
         }
     }
 
-    moveList = orderMoves(moveList, board, depth, ply, alpha, beta);
+    moveList = orderMoves(moveList, board);
 
     int evalType = transpositionTabel.uppperBound;
+
+    Move bestMoveThisIteration = Move::NULL_MOVE;
 
     for (const Move& move : moveList)
     {
@@ -70,30 +74,41 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
         if (score > alpha)
         {
             evalType = transpositionTabel.exact;
+            bestMoveThisIteration = move;
             if (ply == 0)
             {
+                bestMoveThisIteration = move;
                 bestMove = move;
             }
             alpha = score;
         }
     }
 
-    transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMove, board);
+    transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMoveThisIteration, board);
 
-    auto end = std::chrono::high_resolution_clock::now();
+    std::chrono::time_point end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = end - start;
     bool isOver = elapsed.count() >= timeForMove;
     if (isOver && !isNormalSearch)
     {
-        //std::cout << "Time used: " << (std::chrono::high_resolution_clock::now() - start).count() << "Time for Move: " << timeForMove;
         shouldStop = true;
     }
 
     return alpha;
 }
 
-int searcher::quiescenceSearch(int alpha, int beta, int ply, Board& board)
+int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& board)
 {
+
+    tt::entry hashEntry = transpositionTabel.getEntry(board);
+
+    if (hashEntry.eval != -32768)
+    {
+        if (ply == 0)
+        {
+            return hashEntry.eval;
+        }
+    }
 
 	int eval = evaluate(board);
 
@@ -111,17 +126,18 @@ int searcher::quiescenceSearch(int alpha, int beta, int ply, Board& board)
 	movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
     if (board.inCheck())
     {
-        return checkQuiescenceSearch(alpha, beta, ply, board);
+        return checkQuiescenceSearch(depth, alpha, beta, ply, board);
     }
 
 	for (const Move& move : moveList) 
     {
         board.makeMove(move);
-        int score = -quiescenceSearch(-beta, -alpha, ply, board);
+        int score = -quiescenceSearch(depth, -beta, -alpha, ply, board);
         board.unmakeMove(move);
 
         if (score >= beta)
         {
+            //transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
             return beta;
         }
         if (score > alpha)
@@ -133,16 +149,20 @@ int searcher::quiescenceSearch(int alpha, int beta, int ply, Board& board)
 }
 
 
-int searcher::checkQuiescenceSearch(int alpha, int beta, int ply, Board& board)
+int searcher::checkQuiescenceSearch(int depth, int alpha, int beta, int ply, Board& board)
 {
     Movelist moveList;
-    movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
+    movegen::legalmoves<movegen::MoveGenType::ALL>(moveList, board);
     int bestScore = -infinity;
     int score = -infinity;
     for (const Move& move : moveList)
     {
+        if (bestScore > ply - infinity && !board.isCapture(move))
+        {
+            continue;
+        }
         board.makeMove(move);
-        score = -quiescenceSearch(-beta, -alpha, ply, board);
+        score = -quiescenceSearch(depth, -beta, -alpha, ply, board);
         board.unmakeMove(move);
 
         if (score >= beta)
@@ -185,7 +205,7 @@ void searcher::iterativeDeepening(Board& board)
         }
     }
 
-    for (int i = 1; i < 256; i++)
+    for (int i = 1; i <= 256; i++)
     {
         if (bestMove != Move::NULL_MOVE)
         {
@@ -196,7 +216,7 @@ void searcher::iterativeDeepening(Board& board)
         std::chrono::duration<double, std::milli> elapsed = end - start;
         bool isOver = elapsed.count() >= timeForMove;
 
-        //std::cout << "Time for this move: " << timeForMove << " | Time used: " << elapsed.count() << std::endl;
+        std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
 
         if (isOver && hasFoundMove)
         {

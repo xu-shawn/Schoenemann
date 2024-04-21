@@ -1,9 +1,9 @@
 #include "Moveorder.h"
 #include "consts.h"
 
-Movelist orderMoves(Movelist moveList, Board& board, int depth, int ply, int alpha, int beta)
+Movelist orderMoves(Movelist moveList, Board& board)
 {
-	Move hashMove = transpositionTabel.getStoredMove(board);
+	Move hashMove = transpositionTabel.getEntry(board).move;
 	for (Move move : moveList)
 	{
 		if (move == hashMove)
@@ -14,6 +14,7 @@ Movelist orderMoves(Movelist moveList, Board& board, int depth, int ply, int alp
 				moveList.front() = hashMove;
 				moveList.back() = cache;
 			}
+			break;
 		}
 	}
 	return moveList;
