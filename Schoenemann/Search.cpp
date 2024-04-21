@@ -26,7 +26,6 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
         tt::entry hashEntry = transpositionTabel.getEntry(board);
         if (ply == 0)
         {
-            std::cout << "The transposition move: " << hashEntry.move << std::endl;
             transpositions++;
             bestMove = hashEntry.move;
         }
