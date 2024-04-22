@@ -222,7 +222,7 @@ void run_benchmark() {
 	seracher.setNodes(0);
 	for (const auto& test : testStrings) {
 		bench_board.setFen(test);
-		seracher.search(3, -32767, 32767, 0, bench_board);
+		seracher.search(4, -32767, 32767, 0, bench_board);
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> timeElapsed = end - start;

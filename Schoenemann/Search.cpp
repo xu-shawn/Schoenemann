@@ -136,7 +136,7 @@ int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& b
 
         if (score >= beta)
         {
-            //transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
+            transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
             return beta;
         }
         if (score > alpha)
@@ -215,7 +215,7 @@ void searcher::iterativeDeepening(Board& board)
         std::chrono::duration<double, std::milli> elapsed = end - start;
         bool isOver = elapsed.count() >= timeForMove;
 
-        std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
+        //std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
 
         if (isOver && hasFoundMove)
         {
