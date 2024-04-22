@@ -21,7 +21,7 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
 
     int ttEval = transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board);
 
-    if (ttEval != -32768)
+    if (ttEval != -1)
     {
         tt::entry hashEntry = transpositionTabel.getEntry(board);
         if (ply == 0)
@@ -98,13 +98,11 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
 
 int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& board)
 {
-
-    tt::entry hashEntry = transpositionTabel.getEntry(board);
-
-    if (hashEntry.eval != -32768)
+    if (transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board) != -1)
     {
         if (ply == 0)
         {
+            tt::entry hashEntry = transpositionTabel.getEntry(board);
             return hashEntry.eval;
         }
     }

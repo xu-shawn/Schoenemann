@@ -13,8 +13,8 @@ Movelist orderMoves(Movelist moveList, Board& board)
 				Move cache = moveList.front();
 				moveList.front() = hashMove;
 				moveList.back() = cache;
+				break;
 			}
-			break;
 		}
 	}
 	return moveList;
