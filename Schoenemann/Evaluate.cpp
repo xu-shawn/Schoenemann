@@ -32,6 +32,7 @@ int count_material(Board& board, Color color) {
     material += count_amount(board, PieceType::BISHOP, color) * (bishopValue + bouns.getPieceBounus(board, PieceType::BISHOP, color));
     material += count_amount(board, PieceType::ROOK, color) * (rookValue + bouns.getPieceBounus(board, PieceType::ROOK, color));
     material += count_amount(board, PieceType::QUEEN, color) * (queenValue + bouns.getPieceBounus(board, PieceType::QUEEN, color));
+    //material += bouns.getPieceBounus(board, PieceType::KING, color);
     return material;
 }
 

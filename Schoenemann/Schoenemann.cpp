@@ -7,13 +7,18 @@
 #include "Evaluate.h"
 #include "Search.h"
 #include "psqt.h"
+#include "consts.h"
 #include "movegen/chess.hpp"
 #include "movegen/benchmark.hpp"
 
 using namespace chess;
 
+tt transpositionTabel;
+
 int time_left = 0;
 int increment = 0;
+
+searcher seracher;
 
 int main(int argc, char* argv[]) {
 	Board board;
@@ -27,11 +32,13 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
+	transpositionTabel.init(8);
+
 	do
 	{
 		std::ofstream debug;
 		std::string input_string;
-		debug.open("outputlogVersion1-2.txt", std::ios_base::app);
+		debug.open("outputlog.txt", std::ios_base::app);
 
 		std::getline(std::cin, input_string);
 
@@ -41,14 +48,13 @@ int main(int argc, char* argv[]) {
 		std::istringstream is(input_string);
 		std::string token;
 
-
 		is >> std::skipws >> cmd;
 		
 		if (cmd == "uci") 
 		{
 			std::cout << "id name Schoenemann" << std::endl 
 				<< "option name Threads type spin default 1 min 1 max 16" << std::endl 
-				<< "option name Hash type spin default 16 min 1 max 4096" << std::endl 
+				<< "option name Hash type spin default 64 min 1 max 4096" << std::endl 
 				<< "uciok" << std::endl;
 		}
 		else if (cmd == "isready")
@@ -58,19 +64,30 @@ int main(int argc, char* argv[]) {
 		else if (cmd == "ucinewgame")
 		{
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			transpositionTabel.clear();
+			transpositionTabel.init(8);
 		}
-		else if (token == "setoption")
+		else if (cmd == "setoption")
 		{
-			std::string option;
-			is >> option;
+			is >> token;
 
-			if (option == "name") {
-				std::string option_name;
-				is >> option_name;
+			if (token == "name") {
+				is >> token;
+				if (token == "Hash")
+				{
+					is >> token;
+					if (token == "value")
+					{
+						is >> token;
+						transpositionTabel.clear();
+						transpositionTabel.init(std::stoi(token));
+					}
+				}
 			}
 		}
 		else if (cmd == "position")
 		{
+			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 			std::string fen;
 			std::vector<std::string> moves;
 			bool isFen = false;
@@ -129,8 +146,8 @@ int main(int argc, char* argv[]) {
 				else if (token == "depth")
 				{
 					is >> token;
-					search(std::stoi(token), -32767, 32767, 0, board);
-					std::cout << "bestmove " << getBestMove() << std::endl;
+					seracher.search(std::stoi(token), -32767, 32767, 0, board);
+					std::cout << "bestmove " << seracher.getBestMove() << std::endl;
 				}
 				if (!(is >> token)) break;
 			}
@@ -146,7 +163,7 @@ int main(int argc, char* argv[]) {
 					time_left = number[1];
 					increment = number[3];
 				}
-				iterative_deepening(board);
+				seracher.iterativeDeepening(board);
 			}
 		}
 		else if (cmd == "d")
@@ -161,12 +178,20 @@ int main(int argc, char* argv[]) {
 		{
 			run_benchmark();
 		}
+		else if (cmd == "nodes")
+		{
+			std::cout << seracher.getNodes() << std::endl;
+		}
+		else if (cmd == "tt")
+		{
+			std::cout << seracher.getTranspositions() << std::endl;
+		}
 		else if (cmd == "test")
 		{
 			Board test_board;
-			test_board.setFen("8/2R5/8/8/8/8/7r/K6k w - - 4 3");
-			//search(1, -32767, 32767, 0, test_board);
-			//std::cout << "\nbestmove " << getBestMove() << "\nNodes: " << getNodes() << std::endl;
+			test_board.setFen("rn2kb1r/ppp1pppp/8/8/4q3/3P1N1b/PPP1BPnP/RNBQ1K1R b kq - 0 1");
+			seracher.search(6, -32767, 32767, 0, test_board);
+			std::cout << "\nbestmove " << seracher.getBestMove() << "\nNodes: " << seracher.getNodes() << std::endl;
 			std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
 		}
 
@@ -196,24 +221,24 @@ void run_benchmark() {
 
 	Board bench_board;
 	auto start = std::chrono::high_resolution_clock::now();
-	setNodes(0);
+	seracher.setNodes(0);
 	for (const auto& test : testStrings) {
 		bench_board.setFen(test);
-		search(3, -32767, 32767, 0, bench_board);
+		seracher.search(3, -32767, 32767, 0, bench_board);
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> timeElapsed = end - start;
 	int timeInMs = static_cast<int>(timeElapsed.count());
-	int NPS = static_cast<int>(1000 * getNodes() / timeElapsed.count());
-	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << getNodes() << "\nNPS   : " << NPS << std::endl;
+	int NPS = static_cast<int>(seracher.getNodes() / timeElapsed.count() * 1000);
+	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << seracher.getNodes() << "\nNPS   : " << NPS << std::endl;
 }
 
-int get_time()
+int getTime()
 {
 	return time_left;
 }
 
-int get_increment()
+int getIncrement()
 {
 	return increment;
 }
