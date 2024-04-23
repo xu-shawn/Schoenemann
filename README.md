@@ -5,7 +5,7 @@
 - [Thanks](#thanks)
 
 # About
-This is a simple (currently not functional and not UCI-Compatible) chess engine written in C++. The name was inspired by this chess line in the ruy lopez:
+This is a simple chess engine written in C++. The name was inspired by this chess line in the ruy lopez:
 ```
 1. e4 e5 2. Nf3 Nc6 3. Bb5 f5 4. d4 fxe4 5. Nxe5 Nxe5 6. dxe5 c6 7. Nc3 *
 ```
