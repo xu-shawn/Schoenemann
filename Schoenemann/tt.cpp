@@ -46,10 +46,12 @@ tt::entry tt::getEntry(Board& board)
 void tt::clear()
 {
 	delete[] entries;
+	entries = nullptr;
 }
 
 void tt::init(int size)
 {
+	clear();
 	int entrySize = sizeof(entry);
 	long long sizeInBytes = static_cast<long long>(size) * 1024 * 1024;
 	ttSize = sizeInBytes / entrySize;
