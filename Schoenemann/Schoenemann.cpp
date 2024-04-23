@@ -64,6 +64,8 @@ int main(int argc, char* argv[]) {
 		else if (cmd == "ucinewgame")
 		{
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			transpositionTabel.clear();
+			transpositionTabel.init(8);
 		}
 		else if (cmd == "setoption")
 		{

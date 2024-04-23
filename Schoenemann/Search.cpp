@@ -107,6 +107,11 @@ int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& b
         }
     }
 
+    if (board.inCheck())
+    {
+        return checkQuiescenceSearch(depth, alpha, beta, ply, board);
+    }
+
 	int eval = evaluate(board);
 
 	if (eval >= beta)
@@ -121,10 +126,6 @@ int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& b
 
 	Movelist moveList;
 	movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
-    if (board.inCheck())
-    {
-        return checkQuiescenceSearch(depth, alpha, beta, ply, board);
-    }
 
 	for (const Move& move : moveList) 
     {
@@ -213,7 +214,7 @@ void searcher::iterativeDeepening(Board& board)
         std::chrono::duration<double, std::milli> elapsed = end - start;
         bool isOver = elapsed.count() >= timeForMove;
 
-        //std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
+        std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
 
         if (isOver && hasFoundMove)
         {
