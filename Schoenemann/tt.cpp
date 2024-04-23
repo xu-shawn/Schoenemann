@@ -50,7 +50,8 @@ void tt::clear()
 
 void tt::init(int size)
 {
-	size *= 40000;
-	entries = new entry[size];
-	ttSize = size;
+	int entrySize = sizeof(entry);
+	long long sizeInBytes = static_cast<long long>(size) * 1024 * 1024;
+	ttSize = sizeInBytes / entrySize;
+	entries = new entry[ttSize];
 }
