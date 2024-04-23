@@ -19,6 +19,14 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
         return alpha;
     }
 
+    std::chrono::time_point end = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<double, std::milli> elapsed = end - start;
+    bool isOver = elapsed.count() >= timeForMove;
+    if (isOver && !isNormalSearch)
+    {
+        shouldStop = true;
+    }
+
     int ttEval = transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board);
 
     if (ttEval != -1)
@@ -59,7 +67,6 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
 
     for (const Move& move : moveList)
     {
-        count_nodes++;
         board.makeMove(move);
         int score = -search(depth - 1, -beta, -alpha, ply + 1, board);
         board.unmakeMove(move);
@@ -84,14 +91,6 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
     }
 
     transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMoveThisIteration, board);
-
-    std::chrono::time_point end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = end - start;
-    bool isOver = elapsed.count() >= timeForMove;
-    if (isOver && !isNormalSearch)
-    {
-        shouldStop = true;
-    }
 
     return alpha;
 }
@@ -153,6 +152,7 @@ int searcher::checkQuiescenceSearch(int depth, int alpha, int beta, int ply, Boa
     movegen::legalmoves<movegen::MoveGenType::ALL>(moveList, board);
     int bestScore = -infinity;
     int score = -infinity;
+    count_nodes++;
     for (const Move& move : moveList)
     {
         if (bestScore > ply - infinity && !board.isCapture(move))
@@ -165,6 +165,7 @@ int searcher::checkQuiescenceSearch(int depth, int alpha, int beta, int ply, Boa
 
         if (score >= beta)
         {
+            transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
             return score;
         }
             
