@@ -15,7 +15,7 @@ void tt::storeEvaluation(int depth, int play, int eval, int nodeType, Move move,
 
 int tt::lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board)
 {
-	entry ent = entries[board.zobrist() % ttSize];
+	entry ent = getEntry(board);
 	if (ent.key == board.zobrist())
 	{
 		if (ent.depth >= depth)
@@ -45,7 +45,11 @@ tt::entry tt::getEntry(Board& board)
 
 void tt::clear()
 {
-	std::memset(static_cast<void*>(entries), 0, ttSize * sizeof(entry));
+	for (int i = 0; i < ttSize; i++)
+	{
+		entries[i] = entry{ };
+	}
+	//std::memset(static_cast<void*>(entries), 0, ttSize * sizeof(entry));
 }
 
 
