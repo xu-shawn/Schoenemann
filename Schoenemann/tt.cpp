@@ -61,10 +61,7 @@ tt::entry tt::getEntry(Board& board)
 void tt::clear()
 {
 	//Clears every element in the array
-	for (int i = 0; i < ttSize; i++)
-	{
-		entries[i] = entry{ };
-	}
+	std::memset(static_cast<void*>(entries), 0, ttSize * sizeof(entry));
 }
 
 
