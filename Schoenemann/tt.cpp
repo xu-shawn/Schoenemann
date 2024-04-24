@@ -61,10 +61,9 @@ tt::entry tt::getEntry(Board& board)
 void tt::clear()
 {
 	//Clears every element in the array
-	if (entries != nullptr)
+	for (int i = 0; i < ttSize; i++)
 	{
-		delete[] entries;
-		entries = nullptr;
+		entries[i] = entry{ };
 	}
 }
 
@@ -85,10 +84,4 @@ void tt::init(int size)
 
 	//Initialize the tranpsosition table
 	entries = new entry[ttSize];
-
-	for (int i = 0; i < ttSize; i++)
-	{
-		entries[i] = entry{ };
-	}
-
 }
