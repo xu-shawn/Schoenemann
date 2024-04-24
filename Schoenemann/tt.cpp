@@ -45,9 +45,9 @@ tt::entry tt::getEntry(Board& board)
 
 void tt::clear()
 {
-	delete[] entries;
-	entries = nullptr;
+	std::memset(static_cast<void*>(entries), 0, ttSize * sizeof(entry));
 }
+
 
 void tt::init(int size)
 {
