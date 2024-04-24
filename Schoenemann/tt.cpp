@@ -2,25 +2,37 @@
 
 #include "tt.h"
 
-void tt::storeEvaluation(int depth, int play, int eval, int nodeType, Move move, Board& board)
+void tt::storeEvaluation(int depth, int ply, int score, int nodeType, Move move, Board& board)
 {
 	entry ent;
-	ent.key = board.zobrist();
-	ent.eval = eval;
+
+	//Get the zobrist key for the position
+	std::uint64_t zobristKey = board.zobrist();
+
+	//Set the values of the entry
+	ent.key = zobristKey;
+	ent.score = score;
 	ent.nodeType = nodeType;
 	ent.depth = depth;
 	ent.move = move;
-	entries[board.zobrist() % ttSize] = ent;
+
+	//Store the entry in the lookup Table
+	entries[zobristKey % ttSize] = ent;
 }
 
 int tt::lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board)
 {
-	entry ent = entries[board.zobrist() % ttSize];
-	if (ent.key == board.zobrist())
+	//Get the zobrist key for the position
+	std::uint64_t zobristKey = board.zobrist();
+	
+	//Get the entry
+	entry ent = entries[zobristKey % ttSize];
+
+	if (ent.key == zobristKey)
 	{
 		if (ent.depth >= depth)
 		{
-			int score = ent.eval;
+			int score = ent.score;
 			if (ent.nodeType == exact)
 			{
 				return score;
@@ -35,23 +47,38 @@ int tt::lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board)
 			}
 		}
 	}
+
+	//No transposition was found
 	return lookupFaild;
 }
 
 tt::entry tt::getEntry(Board& board)
 {
+	//Returns an entry based on the board
 	return entries[board.zobrist() % ttSize];
 }
 
 void tt::clear()
 {
-	delete[] entries;
+	//Clears every element in the array
+	std::memset(static_cast<void*>(entries), 0, ttSize * sizeof(entry));
 }
+
 
 void tt::init(int size)
 {
+	//Maybe the tranposition table is already initialized so we clear it
+	clear();
+
+	//The entry size
 	int entrySize = sizeof(entry);
+
+	//Calculate the size in bytes
 	long long sizeInBytes = static_cast<long long>(size) * 1024 * 1024;
+
+	//Calculate the transposition table size
 	ttSize = sizeInBytes / entrySize;
+
+	//Initialize the tranpsosition table
 	entries = new entry[ttSize];
 }

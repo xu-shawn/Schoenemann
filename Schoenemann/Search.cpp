@@ -29,15 +29,15 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
 
     int ttEval = transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board);
 
-    if (ttEval != -1)
+    if (ttEval != transpositionTabel.lookupFaild)
     {
+        transpositions++;
         tt::entry hashEntry = transpositionTabel.getEntry(board);
         if (ply == 0)
         {
-            transpositions++;
             bestMove = hashEntry.move;
         }
-        return ttEval;
+        return hashEntry.score;
     }
 
     if (depth == 0)
@@ -102,7 +102,7 @@ int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& b
         if (ply == 0)
         {
             tt::entry hashEntry = transpositionTabel.getEntry(board);
-            return hashEntry.eval;
+            return hashEntry.score;
         }
     }
 
@@ -111,16 +111,16 @@ int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& b
         return checkQuiescenceSearch(depth, alpha, beta, ply, board);
     }
 
-	int eval = evaluate(board);
+	int score = evaluate(board);
 
-	if (eval >= beta)
+	if (score >= beta)
 	{
 		return beta;
 	}
 
-	if (alpha < eval)
+	if (alpha < score)
 	{
-		alpha = eval;
+		alpha = score;
 	}
 
 	Movelist moveList;
@@ -165,7 +165,6 @@ int searcher::checkQuiescenceSearch(int depth, int alpha, int beta, int ply, Boa
 
         if (score >= beta)
         {
-            transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
             return score;
         }
             
