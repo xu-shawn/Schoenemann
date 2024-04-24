@@ -8,15 +8,9 @@ using namespace chess;
 
 class tt{
 public:
-    long long ttSize;
-
-    ~tt() {
-        clear();
-    }
-
     struct entry {
         std::uint64_t key;
-        int eval;
+        int score;
         Move move;
         short depth;
         short nodeType;
@@ -27,7 +21,7 @@ public:
     const short uppperBound = 2;
     const short lookupFaild = -1;
 
-    void storeEvaluation(int depth, int play, int eval, int nodeType, Move move, Board& board);
+    void storeEvaluation(int depth, int ply, int score, int nodeType, Move move, Board& board);
     int lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board);
     entry getEntry(Board& board);
     void clear();
@@ -35,6 +29,6 @@ public:
 
 private:
     entry* entries = nullptr;
-    int size;
+    long long ttSize;
 };
 #endif
