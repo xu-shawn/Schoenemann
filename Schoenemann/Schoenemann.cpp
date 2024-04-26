@@ -1,5 +1,4 @@
-﻿﻿#include "Schoenemann.h"
-
+﻿#include "Schoenemann.h"
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -41,11 +40,7 @@ int main(int argc, char* argv[]) {
 		std::string input_string;
 		debug.open("outputlog.txt", std::ios_base::app);
 
-		// Check if the entire line was read.
-		if (!std::cin.eof()) {
-			debug << "Not the whole line was read" << "\n";
-			continue;  // Skip the rest of this loop iteration.
-		}
+		std::getline(std::cin, input_string);
 
 		debug << input_string << "\n";
 		debug.close();
@@ -178,11 +173,35 @@ int main(int argc, char* argv[]) {
 		}
 		else if (cmd == "fen")
 		{
-			std::ofstream debug;
-			debug.open("outputlog.txt", std::ios_base::app);
+			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			std::string fen;
+			std::vector<std::string> moves;
+			bool isFen = false;
+			while (is >> token)
+			{
+				if (token == "fen")
+				{
+					isFen = true;
+					while (is >> token && token != "moves")
+					{
+						fen += token + " ";
+					}
+					fen = fen.substr(0, fen.size() - 1);
+					board.setFen(fen);
+				}
+				else if (token != "moves" && isFen)
+				{
+					moves.push_back(token);
+				}
+			}
 
-			debug << "I am in Fen" << "\n";
-			debug.close();
+			for (const auto& move : moves)
+			{
+				board.makeMove(uci::uciToMove(board, move));
+			}
+		}
+		else if (cmd == "gfen")
+		{
 			std::cout << board.getFen() << std::endl;
 		}
 		else if (cmd == "bench")
