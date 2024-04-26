@@ -89,8 +89,10 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
             alpha = score;
         }
     }
-
-    transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMoveThisIteration, board);
+    if (bestMoveThisIteration != Move::NULL_MOVE)
+    {
+        transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMoveThisIteration, board);
+    }
 
     return alpha;
 }
@@ -105,7 +107,6 @@ int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& b
             return hashEntry.score;
         }
     }
-
     if (board.inCheck())
     {
         return checkQuiescenceSearch(depth, alpha, beta, ply, board);
