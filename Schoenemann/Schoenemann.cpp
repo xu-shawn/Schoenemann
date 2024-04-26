@@ -1,4 +1,4 @@
-﻿#include "Schoenemann.h"
+﻿﻿#include "Schoenemann.h"
 
 #include <iostream>
 #include <fstream>
@@ -27,7 +27,7 @@ int main(int argc, char* argv[]) {
 	board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	board.set960(false);
 
-	if (argc > 1 && strcmp(argv[1], "bench") == 0) 
+	if (argc > 1 && strcmp(argv[1], "bench") == 0)
 	{
 		std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
 		return 0;
@@ -41,7 +41,11 @@ int main(int argc, char* argv[]) {
 		std::string input_string;
 		debug.open("outputlog.txt", std::ios_base::app);
 
-		std::getline(std::cin, input_string);
+		// Check if the entire line was read.
+		if (!std::cin.eof()) {
+			debug << "Not the whole line was read" << "\n";
+			continue;  // Skip the rest of this loop iteration.
+		}
 
 		debug << input_string << "\n";
 		debug.close();
@@ -50,12 +54,12 @@ int main(int argc, char* argv[]) {
 		std::string token;
 
 		is >> std::skipws >> cmd;
-		
-		if (cmd == "uci") 
+
+		if (cmd == "uci")
 		{
-			std::cout << "id name Schoenemann" << std::endl 
-				<< "option name Threads type spin default 1 min 1 max 16" << std::endl 
-				<< "option name Hash type spin default 64 min 1 max 4096" << std::endl 
+			std::cout << "id name Schoenemann" << std::endl
+				<< "option name Threads type spin default 1 min 1 max 16" << std::endl
+				<< "option name Hash type spin default 64 min 1 max 4096" << std::endl
 				<< "uciok" << std::endl;
 		}
 		else if (cmd == "isready")
@@ -174,6 +178,11 @@ int main(int argc, char* argv[]) {
 		}
 		else if (cmd == "fen")
 		{
+			std::ofstream debug;
+			debug.open("outputlog.txt", std::ios_base::app);
+
+			debug << "I am in Fen" << "\n";
+			debug.close();
 			std::cout << board.getFen() << std::endl;
 		}
 		else if (cmd == "bench")
@@ -198,7 +207,7 @@ int main(int argc, char* argv[]) {
 		}
 
 	} while (cmd != "quit");
-	
+
 	return 0;
 }
 
