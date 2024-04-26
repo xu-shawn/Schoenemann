@@ -216,6 +216,11 @@ void searcher::iterativeDeepening(Board& board)
         bool isOver = elapsed.count() >= timeForMove;
 
         //std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
+        if (i == 256 && hasFoundMove)
+        {
+            std::cout << "bestmove " << bestMove << std::endl;
+            break;
+        }
 
         if (isOver && hasFoundMove)
         {
