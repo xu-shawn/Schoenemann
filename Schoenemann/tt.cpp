@@ -61,15 +61,12 @@ tt::entry tt::getEntry(Board& board)
 void tt::clear()
 {
 	//Clears every element in the array
-	std::memset(static_cast<void*>(entries), 0, ttSize * sizeof(entry));
+	delete[] entries;
 }
 
 
 void tt::init(int size)
 {
-	//Maybe the tranposition table is already initialized so we clear it
-	clear();
-
 	//The entry size
 	int entrySize = sizeof(entry);
 

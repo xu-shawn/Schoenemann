@@ -17,6 +17,7 @@ tt transpositionTabel;
 
 int time_left = 0;
 int increment = 0;
+int newTranspositionTableSize = 8;
 
 searcher seracher;
 
@@ -65,6 +66,7 @@ int main(int argc, char* argv[]) {
 		{
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 			transpositionTabel.clear();
+			transpositionTabel.init(newTranspositionTableSize);
 		}
 		else if (cmd == "setoption")
 		{
@@ -79,7 +81,8 @@ int main(int argc, char* argv[]) {
 					{
 						is >> token;
 						transpositionTabel.clear();
-						transpositionTabel.init(std::stoi(token));
+						newTranspositionTableSize = std::stoi(token);
+						transpositionTabel.init(newTranspositionTableSize);
 					}
 				}
 			}
