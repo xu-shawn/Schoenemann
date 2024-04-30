@@ -4,11 +4,12 @@
 Movelist orderMoves(Movelist moveList, Board& board)
 {
 	Move hashMove = transpositionTabel.getEntry(board).move;
-	for (Move move : moveList)
+
+	if (hashMove != Move::NO_MOVE && hashMove != Move::NULL_MOVE)
 	{
-		if (move == hashMove)
+		for (Move move : moveList)
 		{
-			if (hashMove != Move::NO_MOVE && hashMove != Move::NULL_MOVE)
+			if (move == hashMove)
 			{
 				Move cache = moveList.front();
 				moveList.front() = hashMove;

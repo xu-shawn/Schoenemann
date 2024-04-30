@@ -8,17 +8,16 @@
 #include "psqt.h"
 #include "consts.h"
 #include "movegen/chess.hpp"
-#include "movegen/benchmark.hpp"
 
 using namespace chess;
 
+searcher seracher;
 tt transpositionTabel;
+uciRunner mainRunner;
 
 int time_left = 0;
 int increment = 0;
 int newTranspositionTableSize = 8;
-
-searcher seracher;
 
 int main(int argc, char* argv[]) {
 	Board board;
@@ -36,9 +35,10 @@ int main(int argc, char* argv[]) {
 
 	do
 	{
-		if (argc == 1
-			&& !getline(std::cin, cmd))
+		if (argc == 1 && !getline(std::cin, cmd))
+		{
 			cmd = "quit";
+		}
 
 		std::ofstream debug;
 		debug.open("outputlog.txt", std::ios_base::app);
@@ -78,8 +78,8 @@ int main(int argc, char* argv[]) {
 					if (token == "value")
 					{
 						is >> token;
-						transpositionTabel.clear();
 						newTranspositionTableSize = std::stoi(token);
+						transpositionTabel.clear();
 						transpositionTabel.init(newTranspositionTableSize);
 					}
 				}
@@ -117,7 +117,7 @@ int main(int argc, char* argv[]) {
 		else if (token == "go")
 		{
 			int number[4];
-			bool has_time = false;
+			bool hasTime = false;
 			is >> token;
 			while (is.good())
 			{
@@ -125,13 +125,13 @@ int main(int argc, char* argv[]) {
 				{
 					is >> token;
 					number[0] = std::stoi(token);
-					has_time = true;
+					hasTime = true;
 				}
 				else if (token == "btime")
 				{
 					is >> token;
 					number[1] = std::stoi(token);
-					has_time = true;
+					hasTime = true;
 				}
 				else if (token == "winc")
 				{
@@ -151,7 +151,7 @@ int main(int argc, char* argv[]) {
 				}
 				if (!(is >> token)) break;
 			}
-			if (has_time)
+			if (hasTime)
 			{
 				if (board.sideToMove() == Color::WHITE)
 				{
@@ -176,7 +176,7 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "bench")
 		{
-			run_benchmark();
+			mainRunner.run_benchmark();
 		}
 		else if (token == "nodes")
 		{
@@ -195,12 +195,12 @@ int main(int argc, char* argv[]) {
 			std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
 		}
 
-	} while (cmd != "quit");
+	} while (token != "quit");
 
 	return 0;
 }
 
-void run_benchmark() {
+void uciRunner::run_benchmark() {
 	const std::string testStrings[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -",
 		"r2q4/pp1k1pp1/2p1r1np/5p2/2N5/1P5Q/5PPP/3RR1K1 b - -",

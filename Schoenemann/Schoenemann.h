@@ -1,9 +1,16 @@
 ﻿#pragma once
 
 #include "tt.h"
-
+#include "Search.h"
 #include <iostream>
-int main(int argc, char* argv[]);
-void run_benchmark();
+
+class uciRunner
+{
+public:
+	void run_benchmark();
+private:
+
+};
+
 int getTime();
 int getIncrement();

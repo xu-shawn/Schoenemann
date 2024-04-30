@@ -11,7 +11,7 @@ void tt::storeEvaluation(int depth, int ply, int score, int nodeType, Move move,
 
 	//Set the values of the entry
 	ent.key = zobristKey;
-	ent.score = score;
+	ent.score = correctMateScoreForStorage(ply, score, isMateScore(score));
 	ent.nodeType = nodeType;
 	ent.depth = depth;
 	ent.move = move;
@@ -32,7 +32,7 @@ int tt::lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board)
 	{
 		if (ent.depth >= depth)
 		{
-			int score = ent.score;
+			int score = correctRetrievedMateScore(ply, ent.score, isMateScore(ent.score));
 			if (ent.nodeType == exact)
 			{
 				return score;
@@ -56,6 +56,26 @@ tt::entry tt::getEntry(Board& board)
 {
 	//Returns an entry based on the board
 	return entries[board.zobrist() % ttSize];
+}
+
+int tt::correctMateScoreForStorage(int ply, int score, bool isMate)
+{
+	if (isMate)
+	{
+		int sign = sgn(score);
+		return (score * sign + ply) * sign;
+	}
+	return score;
+}
+
+int tt::correctRetrievedMateScore(int ply, int score, bool isMate)
+{
+	if (isMate)
+	{
+		int sign = sgn(score);
+		return (score * sign - ply) * sign;
+	}
+	return score;
 }
 
 void tt::clear()
