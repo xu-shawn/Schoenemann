@@ -62,11 +62,11 @@ int tt::scoreToTT(int ply, int score)
 {
 	if (score >= infinity)
 	{
-		return score + ply;
+		return ply + score;
 	}
 	else if (score <= -infinity)
 	{
-		return score - ply;
+		return ply - score;;
 	}
 	else
 	{
@@ -79,11 +79,11 @@ int tt::scoreFromTT(int ply, int score)
 	
 	if (score >= infinity)
 	{
-		return score - ply;
+		return ply - score;
 	}
 	else if (score <= -infinity)
 	{
-		return score + ply;
+		return ply + score;;
 	}
 	else
 	{
