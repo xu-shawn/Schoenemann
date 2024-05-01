@@ -24,8 +24,8 @@ public:
 
     void storeEvaluation(int depth, int ply, int score, int nodeType, Move move, Board& board);
     int lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board);
-    int correctMateScoreForStorage(int ply, int score, bool isMate);
-    int correctRetrievedMateScore(int ply, int score, bool isMate);
+    int scoreToTT(int ply, int score);
+    int scoreFromTT(int ply, int score);
     entry getEntry(Board& board);
     void clear();
     void init(int size);
@@ -33,18 +33,5 @@ public:
 private:
     entry* entries;
     long long ttSize;
-    int sgn(int val) {
-        return (0 < val) - (val < 0);
-    }
-
-    bool isMateScore(int score)
-    {
-        if (score == -infinity)
-        {
-            return false;
-        }
-        const int maxMateDepth = 1000;
-        return std::abs(score) > infinity - maxMateDepth;
-    }
 };
 #endif
