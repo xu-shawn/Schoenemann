@@ -33,15 +33,15 @@ public:
 private:
     entry* entries;
     long long ttSize;
-    template <typename T> int sgn(T val) {
-        return (T(0) < val) - (val < T(0));
+    int sgn(int val) {
+        return (0 < val) - (val < 0);
     }
 
     bool isMateScore(int score)
     {
         if (score == -infinity)
         {
-            return score;
+            return false;
         }
         const int maxMateDepth = 1000;
         return std::abs(score) > infinity - maxMateDepth;
