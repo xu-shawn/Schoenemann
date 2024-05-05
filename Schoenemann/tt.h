@@ -31,7 +31,7 @@ public:
     void init(int size);
 
 private:
-    entry* entries;
+    entry* entries = nullptr;
     long long ttSize;
 };
 #endif

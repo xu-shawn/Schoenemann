@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "Search.h"
-#include "Evaluate.h"
+#include "evaluate.h"
 #include "movegen/chess.hpp"
 #include "timeman.h"
 #include "Moveorder.h"

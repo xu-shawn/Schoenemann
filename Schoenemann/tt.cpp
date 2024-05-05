@@ -95,11 +95,16 @@ void tt::clear()
 {
 	//Clears every element in the array
 	delete[] entries;
+	entries = nullptr;
 }
 
 
 void tt::init(int size)
 {
+	if (entries != nullptr) {
+		clear();
+	}
+
 	//The entry size
 	int entrySize = sizeof(entry);
 

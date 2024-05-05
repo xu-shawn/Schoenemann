@@ -1,6 +1,6 @@
 #include <iostream>
 
-#include "Evaluate.h"
+#include "evaluate.h"
 #include "movegen/chess.hpp"
 #include "psqt.h"
 
