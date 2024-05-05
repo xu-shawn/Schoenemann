@@ -88,7 +88,14 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
 
     if (bestMove != Move::NULL_MOVE)
     {
-        transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMove, board);
+        for (Move move : moveList)
+        {
+            if (move == bestMove)
+            {
+                transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMove, board);
+                break;
+            }
+        }
     }
 
     return alpha;
@@ -127,11 +134,13 @@ int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& b
 	for (const Move& move : moveList) 
     {
         board.makeMove(move);
+        countNodes++;
         int score = -quiescenceSearch(depth, -beta, -alpha, ply, board);
         board.unmakeMove(move);
 
         if (score >= beta)
         {
+            countNodes++;
             transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
             return beta;
         }
