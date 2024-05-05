@@ -2,7 +2,7 @@
 #include <iostream>
 
 #include "Search.h"
-#include "Evaluate.h"
+#include "evaluate.h"
 #include "movegen/chess.hpp"
 #include "timeman.h"
 #include "Moveorder.h"
@@ -47,6 +47,7 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
 
     Movelist moveList;
     movegen::legalmoves(moveList, board);
+
     if (moveList.size() == 0)
     {
         if (board.inCheck() == true)
@@ -62,9 +63,6 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
     moveList = orderMoves(moveList, board);
 
     int evalType = transpositionTabel.uppperBound;
-
-    Move bestMoveThisIteration = Move::NULL_MOVE;
-
     for (const Move& move : moveList)
     {
         board.makeMove(move);
@@ -80,17 +78,25 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
         if (score > alpha)
         {
             evalType = transpositionTabel.exact;
-            bestMoveThisIteration = move;
+            alpha = score;
             if (ply == 0)
             {
-                bestMoveThisIteration = move;
                 bestMove = move;
             }
-            alpha = score;
         }
     }
 
-    transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMoveThisIteration, board);
+    if (bestMove != Move::NULL_MOVE)
+    {
+        for (Move move : moveList)
+        {
+            if (move == bestMove)
+            {
+                transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMove, board);
+                break;
+            }
+        }
+    }
 
     return alpha;
 }
@@ -105,7 +111,6 @@ int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& b
             return hashEntry.score;
         }
     }
-
     if (board.inCheck())
     {
         return checkQuiescenceSearch(depth, alpha, beta, ply, board);
@@ -129,11 +134,13 @@ int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& b
 	for (const Move& move : moveList) 
     {
         board.makeMove(move);
+        countNodes++;
         int score = -quiescenceSearch(depth, -beta, -alpha, ply, board);
         board.unmakeMove(move);
 
         if (score >= beta)
         {
+            countNodes++;
             transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
             return beta;
         }
@@ -152,7 +159,7 @@ int searcher::checkQuiescenceSearch(int depth, int alpha, int beta, int ply, Boa
     movegen::legalmoves<movegen::MoveGenType::ALL>(moveList, board);
     int bestScore = -infinity;
     int score = -infinity;
-    count_nodes++;
+    countNodes++;
     for (const Move& move : moveList)
     {
         if (bestScore > ply - infinity && !board.isCapture(move))
@@ -205,6 +212,8 @@ void searcher::iterativeDeepening(Board& board)
 
     for (int i = 1; i <= 256; i++)
     {
+        search(i, -32767, 32767, 0, board);
+
         if (bestMove != Move::NULL_MOVE)
         {
             hasFoundMove = true;
@@ -215,6 +224,11 @@ void searcher::iterativeDeepening(Board& board)
         bool isOver = elapsed.count() >= timeForMove;
 
         //std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
+        if (i == 256 && hasFoundMove)
+        {
+            std::cout << "bestmove " << bestMove << std::endl;
+            break;
+        }
 
         if (isOver && hasFoundMove)
         {
@@ -222,28 +236,8 @@ void searcher::iterativeDeepening(Board& board)
             shouldStop = true;
             break;
         }
-        search(i, -32767, 32767, 0, board);
+        
     }
     shouldStop = false;
     isNormalSearch = true;
-}
-
-int searcher::getNodes()
-{
-	return count_nodes;
-}
-
-int searcher::getTranspositions()
-{
-    return transpositions;
-}
-
-void searcher::setNodes(int newNodes)
-{
-    count_nodes = newNodes;
-}
-
-chess::Move& searcher::getBestMove()
-{
-	return bestMove;
 }

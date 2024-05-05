@@ -1,5 +1,4 @@
 ﻿#include "Schoenemann.h"
-
 #include <iostream>
 #include <fstream>
 #include <chrono>
@@ -9,16 +8,16 @@
 #include "psqt.h"
 #include "consts.h"
 #include "movegen/chess.hpp"
-#include "movegen/benchmark.hpp"
 
 using namespace chess;
 
+searcher seracher;
 tt transpositionTabel;
+uciRunner mainRunner;
 
 int time_left = 0;
 int increment = 0;
-
-searcher seracher;
+int newTranspositionTableSize = 8;
 
 int main(int argc, char* argv[]) {
 	Board board;
@@ -26,7 +25,7 @@ int main(int argc, char* argv[]) {
 	board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	board.set960(false);
 
-	if (argc > 1 && strcmp(argv[1], "bench") == 0) 
+	if (argc > 1 && strcmp(argv[1], "bench") == 0)
 	{
 		std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
 		return 0;
@@ -36,37 +35,38 @@ int main(int argc, char* argv[]) {
 
 	do
 	{
+		if (argc == 1 && !getline(std::cin, cmd))
+		{
+			cmd = "quit";
+		}
+
 		std::ofstream debug;
-		std::string input_string;
 		debug.open("outputlog.txt", std::ios_base::app);
-
-		std::getline(std::cin, input_string);
-
-		debug << input_string << "\n";
+		debug << cmd << "\n";
 		debug.close();
 
-		std::istringstream is(input_string);
-		std::string token;
+		std::istringstream is(cmd);
+		cmd.clear();
+		is >> std::skipws >> token;
 
-		is >> std::skipws >> cmd;
-		
-		if (cmd == "uci") 
+		if (token == "uci")
 		{
-			std::cout << "id name Schoenemann" << std::endl 
-				<< "option name Threads type spin default 1 min 1 max 16" << std::endl 
-				<< "option name Hash type spin default 64 min 1 max 4096" << std::endl 
+			std::cout << "id name Schoenemann" << std::endl
+				<< "option name Threads type spin default 1 min 1 max 16" << std::endl
+				<< "option name Hash type spin default 64 min 1 max 4096" << std::endl
 				<< "uciok" << std::endl;
 		}
-		else if (cmd == "isready")
+		else if (token == "isready")
 		{
 			std::cout << "readyok" << std::endl;
 		}
-		else if (cmd == "ucinewgame")
+		else if (token == "ucinewgame")
 		{
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 			transpositionTabel.clear();
+			transpositionTabel.init(newTranspositionTableSize);
 		}
-		else if (cmd == "setoption")
+		else if (token == "setoption")
 		{
 			is >> token;
 
@@ -78,13 +78,14 @@ int main(int argc, char* argv[]) {
 					if (token == "value")
 					{
 						is >> token;
+						newTranspositionTableSize = std::stoi(token);
 						transpositionTabel.clear();
-						transpositionTabel.init(std::stoi(token));
+						transpositionTabel.init(newTranspositionTableSize);
 					}
 				}
 			}
 		}
-		else if (cmd == "position")
+		else if (token == "position")
 		{
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 			std::string fen;
@@ -113,10 +114,10 @@ int main(int argc, char* argv[]) {
 				board.makeMove(uci::uciToMove(board, move));
 			}
 		}
-		else if (cmd == "go")
+		else if (token == "go")
 		{
 			int number[4];
-			bool has_time = false;
+			bool hasTime = false;
 			is >> token;
 			while (is.good())
 			{
@@ -124,13 +125,13 @@ int main(int argc, char* argv[]) {
 				{
 					is >> token;
 					number[0] = std::stoi(token);
-					has_time = true;
+					hasTime = true;
 				}
 				else if (token == "btime")
 				{
 					is >> token;
 					number[1] = std::stoi(token);
-					has_time = true;
+					hasTime = true;
 				}
 				else if (token == "winc")
 				{
@@ -150,7 +151,7 @@ int main(int argc, char* argv[]) {
 				}
 				if (!(is >> token)) break;
 			}
-			if (has_time)
+			if (hasTime)
 			{
 				if (board.sideToMove() == Color::WHITE)
 				{
@@ -165,27 +166,27 @@ int main(int argc, char* argv[]) {
 				seracher.iterativeDeepening(board);
 			}
 		}
-		else if (cmd == "d")
+		else if (token == "d")
 		{
 			std::cout << board << std::endl;
 		}
-		else if (cmd == "fen")
+		else if (token == "fen")
 		{
 			std::cout << board.getFen() << std::endl;
 		}
-		else if (cmd == "bench")
+		else if (token == "bench")
 		{
-			run_benchmark();
+			mainRunner.run_benchmark();
 		}
-		else if (cmd == "nodes")
+		else if (token == "nodes")
 		{
 			std::cout << seracher.getNodes() << std::endl;
 		}
-		else if (cmd == "tt")
+		else if (token == "tt")
 		{
 			std::cout << seracher.getTranspositions() << std::endl;
 		}
-		else if (cmd == "test")
+		else if (token == "test")
 		{
 			Board test_board;
 			test_board.setFen("rn2kb1r/ppp1pppp/8/8/4q3/3P1N1b/PPP1BPnP/RNBQ1K1R b kq - 0 1");
@@ -194,12 +195,12 @@ int main(int argc, char* argv[]) {
 			std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
 		}
 
-	} while (cmd != "quit");
-	
+	} while (token != "quit");
+
 	return 0;
 }
 
-void run_benchmark() {
+void uciRunner::run_benchmark() {
 	const std::string testStrings[] = {
 		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -",
 		"r2q4/pp1k1pp1/2p1r1np/5p2/2N5/1P5Q/5PPP/3RR1K1 b - -",

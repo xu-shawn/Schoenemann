@@ -20,9 +20,12 @@ public:
     const short lowerBound = 1;
     const short uppperBound = 2;
     const short lookupFaild = -1;
+    const short infinity = 32767;
 
     void storeEvaluation(int depth, int ply, int score, int nodeType, Move move, Board& board);
     int lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board);
+    int scoreToTT(int ply, int score);
+    int scoreFromTT(int ply, int score);
     entry getEntry(Board& board);
     void clear();
     void init(int size);
