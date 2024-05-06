@@ -12,6 +12,8 @@ public:
 	bool shouldStop = false;
 	bool isNormalSearch = true;
 	int timeForMove = 0;
+	bool hasNodeLimit = false;
+	int nodeLimit = 0;
 
 	int checkQuiescenceSearch(int depth, int alpha, int beta, int ply, Board& board);
 	int search(int depth, int alpha, int beta, int ply, Board& board);

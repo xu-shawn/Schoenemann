@@ -45,6 +45,8 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
         return quiescenceSearch(depth, alpha, beta, ply, board);
     }
 
+    bool bSearchPv = true;
+
     Movelist moveList;
     movegen::legalmoves(moveList, board);
 
@@ -66,7 +68,19 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
     for (const Move& move : moveList)
     {
         board.makeMove(move);
-        int score = -search(depth - 1, -beta, -alpha, ply + 1, board);
+        int score;
+        if (bSearchPv)
+        {
+            score = -search(depth - 1, -beta, -alpha, ply + 1, board);
+        }
+        else
+        {
+            score = -search(depth - 1, -alpha - 1, -alpha, ply + 1, board);
+            if (score > alpha)
+            {
+                score = -search(depth - 1, -beta, -alpha, ply + 1, board);
+            }
+        }
         board.unmakeMove(move);
 
         if (score >= beta)
@@ -79,9 +93,14 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
         {
             evalType = transpositionTabel.exact;
             alpha = score;
+            bSearchPv = false;
             if (ply == 0)
             {
                 bestMove = move;
+                if (hasNodeLimit && countNodes >= nodeLimit)
+                {
+                    return alpha;
+                }
             }
         }
     }

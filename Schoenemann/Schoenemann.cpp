@@ -7,6 +7,7 @@
 #include "Search.h"
 #include "psqt.h"
 #include "consts.h"
+#include "datagen/gen.h"
 #include "movegen/chess.hpp"
 
 using namespace chess;
@@ -181,6 +182,11 @@ int main(int argc, char* argv[]) {
 		else if (token == "nodes")
 		{
 			std::cout << seracher.getNodes() << std::endl;
+		}
+		else if (token == "datagen")
+		{
+			is >> token;
+			generateDataSet(std::stoi(token));
 		}
 		else if (token == "tt")
 		{
