@@ -6,11 +6,11 @@
 
 using namespace chess;
 
-const short pawnValue = 100;
-const short knightValue = 300;
-const short bishopValue = 325;
-const short rookValue = 500;
-const short queenValue = 900;
+const short pawnValue = 33;
+const short knightValue = 371;
+const short bishopValue = 364;
+const short rookValue = 685;
+const short queenValue = 1562;
 
 int evaluate(Board& board) {
     int evaluation = 0;
