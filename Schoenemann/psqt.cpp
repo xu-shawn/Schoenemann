@@ -6,46 +6,81 @@
 int psqt::getPieceBounus(Board& board, PieceType piece, Color& color)
 {
 	int bounus = 0;
+	bool isBlack = board.sideToMove() == Color::WHITE ? true : false;
 	Bitboard pieces = board.pieces(piece, color);
-	if (color == Color::WHITE)
-	{
-		pieces = reverse(pieces);
-	}
 	std::vector<int> indexs = getSetBitsEfficient(pieces);
 
 	if (piece == PieceType::PAWN)
 	{
 		for (int index : indexs)
 		{
-			bounus += pawnTable[index];
+			for (int index : indexs)
+			{
+				if (isBlack)
+				{
+					bounus += blackPawnTable[index];
+				}
+				else
+				{
+					bounus += pawnTable[index];
+				}
+			}
 		}
 	}
 	else if (piece == PieceType::KNIGHT)
 	{
 		for (int index : indexs)
 		{
-			bounus += knightTable[index];
+			if (isBlack)
+			{
+				bounus += blackKnightTable[index];
+			}
+			else
+			{
+				bounus += knightTable[index];
+			}
 		}
 	}
 	else if (piece == PieceType::BISHOP)
 	{
 		for (int index : indexs)
 		{
-			bounus += bishopTable[index];
+			if (isBlack)
+			{
+				bounus += blackBishopTable[index];
+			}
+			else
+			{
+				bounus += bishopTable[index];
+			}
 		}
 	}
 	else if (piece == PieceType::ROOK)
 	{
 		for (int index : indexs)
 		{
-			bounus += rookTable[index];
+			if (isBlack)
+			{
+				bounus += blackRookTable[index];
+			}
+			else
+			{
+				bounus += rookTable[index];
+			}
 		}
 	}
 	else if (piece == PieceType::QUEEN)
 	{
 		for (int index : indexs)
 		{
-			bounus += queenTable[index];
+			if (isBlack)
+			{
+				bounus += blackQueenTable[index];
+			}
+			else
+			{
+				bounus += queenTable[index];
+			}
 		}
 	}
 	else if (piece == PieceType::KING)
