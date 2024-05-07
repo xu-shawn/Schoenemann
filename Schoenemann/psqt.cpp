@@ -7,8 +7,8 @@ int psqt::getPieceBounus(Board& board, PieceType piece, Color& color)
 {
 	int bounus = 0;
 	Bitboard pieces = board.pieces(piece, color);
-	bool isBlacksTurn = board.sideToMove() == Color::BLACK ? false : true;
-	std::vector<int> indexs = getSetBitsEfficient(pieces, isBlacksTurn);
+
+	std::vector<int> indexs = getSetBitsEfficient(pieces);
 
 	if (piece == PieceType::PAWN)
 	{
@@ -61,11 +61,11 @@ int psqt::getPieceBounus(Board& board, PieceType piece, Color& color)
 	return bounus;
 }
 
-std::vector<int> psqt::getSetBitsEfficient(Bitboard& bitboard, bool isBlackTurn) {
+std::vector<int> psqt::getSetBitsEfficient(Bitboard& bitboard) {
 	std::vector<int> setBits;
 	for (int i = 0; i < 64; ++i) {
 		if ((bitboard.getBits() >> i) & 1ULL) {
-			isBlackTurn ? setBits.push_back(63 - i) : setBits.push_back(i);
+			setBits.push_back(i);
 		}
 	}
 	return setBits;
