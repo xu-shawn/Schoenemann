@@ -14,12 +14,21 @@ const short queenValue = 2538;
 
 int evaluate(Board& board) {
     int evaluation = 0;
-    int white_evaluation = count_material(board, Color::WHITE);
-    int black_evaluation = count_material(board, Color::BLACK);
+    int whiteEvaluation = count_material(board, Color::WHITE);
+    int blackEvaluation = count_material(board, Color::BLACK);
 
-    evaluation = white_evaluation - black_evaluation;
+    evaluation = whiteEvaluation - blackEvaluation;
 
-    int perspective = board.sideToMove() == Color::WHITE ? 1 : -1;
+    int perspective;
+
+    if (board.sideToMove() == Color::WHITE)
+    {
+        perspective = 1;
+    }
+    else
+    {
+        perspective = -1;
+    }
 
     return evaluation * perspective;
 }
@@ -29,6 +38,7 @@ int count_material(Board& board, Color color) {
     psqt bouns;
     //Pawn
     material += count_amount(board, PieceType::PAWN, color) * (pawnValue + bouns.getPieceBounus(board, PieceType::PAWN, color));
+    //std::cout << "color " << color << " pawnvalue " << count_amount(board, PieceType::PAWN, color) * (pawnValue + bouns.getPieceBounus(board, PieceType::PAWN, color)) << " amount " << count_amount(board, PieceType::PAWN, color) << " bounus " << bouns.getPieceBounus(board, PieceType::PAWN, color) << std::endl;
     material += count_amount(board, PieceType::KNIGHT, color) * (knightValue + bouns.getPieceBounus(board, PieceType::KNIGHT, color));
 
     short bishopAmount = count_amount(board, PieceType::BISHOP, color);
@@ -39,6 +49,7 @@ int count_material(Board& board, Color color) {
     }
 
     material += bishopAmount * (bishopValue + bouns.getPieceBounus(board, PieceType::BISHOP, color));
+
     material += count_amount(board, PieceType::ROOK, color) * (rookValue + bouns.getPieceBounus(board, PieceType::ROOK, color));
     material += count_amount(board, PieceType::QUEEN, color) * (queenValue + bouns.getPieceBounus(board, PieceType::QUEEN, color));
     //material += bouns.getPieceBounus(board, PieceType::KING, color);

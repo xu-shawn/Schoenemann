@@ -8,12 +8,13 @@ int psqt::getPieceBounus(Board& board, PieceType piece, Color& color)
 	int bounus = 0;
 	Bitboard pieces = board.pieces(piece, color);
 
-	std::vector<int> indexs = getSetBitsEfficient(pieces);
+	std::vector<int> indexs = getSetBitsEfficient(pieces, color);
 
 	if (piece == PieceType::PAWN)
 	{
 		for (int index : indexs)
 		{
+			//std::cout << " index " << index << " bounus " << bounus << std::endl;
 			bounus += pawnTable[index];
 		}
 	}
@@ -61,11 +62,22 @@ int psqt::getPieceBounus(Board& board, PieceType piece, Color& color)
 	return bounus;
 }
 
-std::vector<int> psqt::getSetBitsEfficient(Bitboard& bitboard) {
+std::vector<int> psqt::getSetBitsEfficient(Bitboard& bitboard, Color color) {
 	std::vector<int> setBits;
-	for (int i = 0; i < 64; ++i) {
-		if ((bitboard.getBits() >> i) & 1ULL) {
-			setBits.push_back(i);
+	if (color == Color::WHITE)
+	{
+		for (int i = 0; i < 64; ++i) {
+			if ((bitboard.getBits() >> i) & 1ULL) {
+				setBits.push_back(63 - i);
+			}
+		}
+	}
+	else
+	{
+		for (int i = 63; i >= 0; --i) {
+			if ((bitboard.getBits() >> i) & 1ULL) {
+				setBits.push_back(i);
+			}
 		}
 	}
 	return setBits;

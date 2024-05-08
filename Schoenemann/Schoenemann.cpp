@@ -195,9 +195,12 @@ int main(int argc, char* argv[]) {
 		else if (token == "test")
 		{
 			Board test_board;
-			test_board.setFen("8/1p6/8/8/8/5K2/7k/8 b - - 0 1");
-			seracher.search(1, -32767, 32767, 0, test_board);
-			std::cout << "\nbestmove " << seracher.getBestMove() << "\nNodes: " << seracher.getNodes() << std::endl;
+			test_board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			//seracher.search(1, -32767, 32767, 0, test_board);
+			//std::cout << "\nbestmove " << seracher.getBestMove() << "\nNodes: " << seracher.getNodes() << std::endl;
+
+			std::cout << "Starting eval..." << std::endl;
+
 			std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
 		}
 
