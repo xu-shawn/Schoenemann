@@ -94,6 +94,7 @@ void searcher::iterativeDeepening(Board& board)
     start = std::chrono::high_resolution_clock::now();
     timeForMove = getTimeForMove();
     bestMove = Move::NULL_MOVE;
+    Move bestMoveThisIteration = Move::NULL_MOVE;
     isNormalSearch = false;
     bool hasFoundMove = false;
 
@@ -110,6 +111,11 @@ void searcher::iterativeDeepening(Board& board)
     for (int i = 1; i <= 256; i++)
     {
 		pvs(-32767, 32767, i, 0, board);
+
+        if (!shouldStop)
+        {
+            bestMoveThisIteration = bestMove;
+        }
 
         if (bestMove != Move::NULL_MOVE)
         {
@@ -129,7 +135,7 @@ void searcher::iterativeDeepening(Board& board)
 
         if (isOver && hasFoundMove)
         {
-            std::cout << "bestmove " << bestMove << std::endl;
+            std::cout << "bestmove " << bestMoveThisIteration << std::endl;
             shouldStop = true;
             break;
         }
