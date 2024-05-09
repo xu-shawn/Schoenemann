@@ -12,8 +12,9 @@ using namespace chess;
 
 std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
-int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
+int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
+
     if (shouldStop)
     {
         return alpha;
@@ -27,183 +28,52 @@ int searcher::search(int depth, int alpha, int beta, int ply, Board& board)
         shouldStop = true;
     }
 
-    int ttEval = transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board);
-
-    if (ttEval != transpositionTabel.lookupFaild)
-    {
-        transpositions++;
-        tt::entry hashEntry = transpositionTabel.getEntry(board);
-        if (ply == 0)
-        {
-            bestMove = hashEntry.move;
-        }
-        return hashEntry.score;
-    }
-
-    if (depth == 0)
-    {
-        return quiescenceSearch(depth, alpha, beta, ply, board);
-    }
-
-    Movelist moveList;
-    movegen::legalmoves(moveList, board);
-
-    if (moveList.size() == 0)
-    {
-        if (board.inCheck() == true)
-        {
-            return ply - infinity;
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    moveList = orderMoves(moveList, board);
-
-    int evalType = transpositionTabel.uppperBound;
-    bool bSearchPv = true;
-    for (const Move& move : moveList)
-    {
-        board.makeMove(move);
-        int score;
-        if (bSearchPv)
-        {
-            score = -search(depth - 1, -beta, -alpha, ply + 1, board);
-        }
-        else
-        {
-            score = -search(depth - 1, -alpha - 1, -alpha, ply + 1, board);
-            if (score > alpha)
-            {
-                score = -search(depth - 1, -beta, -alpha, ply + 1, board);
-            }
-        }
-        board.unmakeMove(move);
-
-        if (score >= beta)
-        {
-            transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
-            return beta;
-        }
-
-        if (score > alpha)
-        {
-            evalType = transpositionTabel.exact;
-            alpha = score;
-            bSearchPv = false;
-            if (ply == 0)
-            {
-                bestMove = move;
-            }
-        }
-    }
-
-    if (bestMove != Move::NULL_MOVE)
-    {
-        for (Move move : moveList)
-        {
-            if (move == bestMove)
-            {
-                transpositionTabel.storeEvaluation(depth, ply, alpha, evalType, bestMove, board);
-                break;
-            }
-        }
-    }
-
-    return alpha;
-}
-
-int searcher::quiescenceSearch(int depth, int alpha, int beta, int ply, Board& board)
-{
-    if (transpositionTabel.lookUpEvaluation(depth, ply, alpha, beta, board) != -1)
-    {
-        if (ply == 0)
-        {
-            tt::entry hashEntry = transpositionTabel.getEntry(board);
-            return hashEntry.score;
-        }
-    }
-    if (board.inCheck())
-    {
-        return checkQuiescenceSearch(depth, alpha, beta, ply, board);
-    }
-
-	int score = evaluate(board);
-
-	if (score >= beta)
+	if (depth == 0)
 	{
-		return beta;
+		return evaluate(board);
 	}
 
-	if (alpha < score)
-	{
-		alpha = score;
-	}
+	bool bSearchPv = true;
 
 	Movelist moveList;
-	movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
+	movegen::legalmoves(moveList, board);
 
-	for (const Move& move : moveList) 
-    {
-        board.makeMove(move);
-        countNodes++;
-        int score = -quiescenceSearch(depth, -beta, -alpha, ply, board);
-        board.unmakeMove(move);
+	for (const Move& move : moveList)
+	{
+		board.makeMove(move);
+		int score;
+		if (bSearchPv)
+		{
+			score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
+		}
+		else
+		{
+			score = -pvs(-alpha - 1, -alpha, depth - 1, ply + 1, board);
+			if (beta == alpha + 1)
+			{
+				score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
+			}
+		}
 
-        if (score >= beta)
-        {
-            countNodes++;
-            transpositionTabel.storeEvaluation(depth, ply, beta, transpositionTabel.lowerBound, move, board);
-            return beta;
-        }
-        if (score > alpha)
-        {
-            alpha = score;
-        }
+		board.unmakeMove(move);
+
+		if (score >= beta)
+		{
+			return beta;
+		}
+
+		if (score > alpha)
+		{
+			alpha = score;
+			bSearchPv = false;
+			if (ply == 0)
+			{
+				bestMove = move;
+			}
+		}
 	}
+
 	return alpha;
-}
-
-
-int searcher::checkQuiescenceSearch(int depth, int alpha, int beta, int ply, Board& board)
-{
-    Movelist moveList;
-    movegen::legalmoves<movegen::MoveGenType::ALL>(moveList, board);
-    int bestScore = -infinity;
-    int score = -infinity;
-    countNodes++;
-    for (const Move& move : moveList)
-    {
-        if (bestScore > ply - infinity && !board.isCapture(move))
-        {
-            continue;
-        }
-        board.makeMove(move);
-        score = -quiescenceSearch(depth, -beta, -alpha, ply, board);
-        board.unmakeMove(move);
-
-        if (score >= beta)
-        {
-            return score;
-        }
-            
-
-        if (score > bestScore) {
-            bestScore = score;
-            if (score > alpha)
-            {
-                alpha = score;
-            }
-        }
-    }
-
-    if (bestScore == -infinity) {
-        return ply - infinity;
-    }
-
-    return bestScore;
 }
 
 void searcher::iterativeDeepening(Board& board)
@@ -216,7 +86,7 @@ void searcher::iterativeDeepening(Board& board)
 
     if (timeForMove == -20)
     {
-        search(1, -32767, 32767, 0, board);
+        pvs(-32767, 32767, 1, 0, board);
         if (bestMove != Move::NULL_MOVE)
         {
             std::cout << "bestmove " << bestMove << std::endl;
@@ -226,7 +96,7 @@ void searcher::iterativeDeepening(Board& board)
 
     for (int i = 1; i <= 256; i++)
     {
-        search(i, -32767, 32767, 0, board);
+		pvs(-32767, 32767, i, 0, board);
 
         if (bestMove != Move::NULL_MOVE)
         {
@@ -250,7 +120,7 @@ void searcher::iterativeDeepening(Board& board)
             shouldStop = true;
             break;
         }
-        
+
     }
     shouldStop = false;
     isNormalSearch = true;

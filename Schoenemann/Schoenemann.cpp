@@ -147,7 +147,7 @@ int main(int argc, char* argv[]) {
 				else if (token == "depth")
 				{
 					is >> token;
-					seracher.search(std::stoi(token), -32767, 32767, 0, board);
+					seracher.pvs(-32767, 32767, std::stoi(token), 0, board);
 					std::cout << "bestmove " << seracher.getBestMove() << std::endl;
 				}
 				if (!(is >> token)) break;
@@ -181,7 +181,7 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "nodes")
 		{
-			std::cout << seracher.getNodes() << std::endl;
+			//std::cout << seracher.getNodes() << std::endl;
 		}
 		else if (token == "datagen")
 		{
@@ -190,12 +190,12 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "tt")
 		{
-			std::cout << seracher.getTranspositions() << std::endl;
+			//std::cout << seracher.getTranspositions() << std::endl;
 		}
 		else if (token == "test")
 		{
 			Board test_board;
-			test_board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			test_board.setFen("8/4R3/6kp/6p1/8/7P/3r4/6K1 w - - 0 28");
 			//seracher.search(1, -32767, 32767, 0, test_board);
 			//std::cout << "\nbestmove " << seracher.getBestMove() << "\nNodes: " << seracher.getNodes() << std::endl;
 
@@ -230,16 +230,16 @@ void uciRunner::run_benchmark() {
 
 	Board bench_board;
 	auto start = std::chrono::high_resolution_clock::now();
-	seracher.setNodes(0);
+	//seracher.setNodes(0);
 	for (const auto& test : testStrings) {
 		bench_board.setFen(test);
-		seracher.search(3, -32767, 32767, 0, bench_board);
+		//seracher.search(3, -32767, 32767, 0, bench_board);
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> timeElapsed = end - start;
 	int timeInMs = static_cast<int>(timeElapsed.count());
-	int NPS = static_cast<int>(seracher.getNodes() / timeElapsed.count() * 1000);
-	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << seracher.getNodes() << "\nNPS   : " << NPS << std::endl;
+	int NPS = static_cast<int>(/*seracher.getNodes() / */  timeElapsed.count() * 1000);
+	//std::cout << "Time  : " << timeInMs << " ms\nNodes : " << seracher.getNodes() << "\nNPS   : " << NPS << std::endl;
 }
 
 int getTime()
