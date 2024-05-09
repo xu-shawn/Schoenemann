@@ -38,6 +38,19 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 	Movelist moveList;
 	movegen::legalmoves(moveList, board);
 
+
+    if (moveList.size() == 0)
+    {
+        if (board.inCheck() == true)
+        {
+            return ply - infinity;
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
 	for (const Move& move : moveList)
 	{
 		board.makeMove(move);
