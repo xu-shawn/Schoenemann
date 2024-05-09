@@ -30,7 +30,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
 	if (depth == 0)
 	{
-		return evaluate(board);
+		return qs(alpha, beta, board);
 	}
 
 	bool bSearchPv = true;
@@ -87,6 +87,45 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 	}
 
 	return alpha;
+}
+
+int searcher::qs(int alpha, int beta, Board& board)
+{
+    int standPat = evaluate(board);
+
+    if (standPat >= beta)
+    {
+        return beta;
+    }
+
+    if (alpha < standPat)
+    {
+        alpha = standPat;
+    }
+
+    Movelist moveList;
+    movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
+
+    for (const Move& move : moveList)
+    {
+        board.makeMove(move);
+
+        int score = -qs(-beta, -alpha, board);
+
+        board.unmakeMove(move);
+
+        if (score >= beta)
+        {
+            return beta;
+        }
+
+        if (score > alpha)
+        {
+            alpha = score;
+        }
+    }
+
+    return alpha;
 }
 
 void searcher::iterativeDeepening(Board& board)
