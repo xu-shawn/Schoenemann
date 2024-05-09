@@ -61,7 +61,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 		}
 		else
 		{
-			score = -pvs(-alpha - 1, -alpha, depth - 1, ply + 1, board);
+			score = -zws(-alpha, depth -1, board);
 			if (score > alpha && score < beta)
 			{
 				score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
@@ -126,6 +126,31 @@ int searcher::qs(int alpha, int beta, Board& board)
     }
 
     return alpha;
+}
+
+int searcher::zws(int beta, int depth, Board& board)
+{
+    if (depth == 0)
+    {
+        return qs(beta - 1, beta, board);
+    }
+
+    Movelist moveList;
+    movegen::legalmoves(moveList, board);
+
+    for (const Move& move : moveList)
+    {
+        board.makeMove(move);
+        int score = -zws(1 - beta, depth - 1, board);
+        board.unmakeMove(move);
+
+        if (score >= beta)
+        {
+            return beta;
+        }
+    }
+
+    return beta - 1;
 }
 
 void searcher::iterativeDeepening(Board& board)

@@ -14,6 +14,7 @@ public:
 
 	int pvs(int alpha, int beta, int depth, int ply, Board& board);
 	int qs(int alpha, int beta, Board& board);
+	int zws(int beta, int depth, Board& board);
 	void iterativeDeepening(Board& board);
 
 	Move getBestMove()
