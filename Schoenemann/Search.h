@@ -21,6 +21,19 @@ public:
 	int qs(int alpha, int beta, Board& board, int ply, int plies);
 	void iterativeDeepening(Board& board);
 
+
+	int scoreMate(bool isInCheck, int ply) 
+	{
+		if (isInCheck)
+		{
+			return (-MATE_SCORE + ply);
+		}
+		else
+		{
+			return 0;
+		}
+	}
+
 	Move getBestMove()
 	{
 		return bestMove;

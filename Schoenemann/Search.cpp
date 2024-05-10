@@ -108,7 +108,6 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
             || (nodeType == PV_NODE))
         {
             staticEval = hashScore;
-            transpositions++;
         }
             
     }
@@ -122,19 +121,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
 	Movelist moveList;
 	movegen::legalmoves(moveList, board);
-
-
-    if (moveList.size() == 0)
-    {
-        if (board.inCheck() == true)
-        {
-            return ply - infinity;
-        }
-        else
-        {
-            return 0;
-        }
-    }
+    int bestScore = 0;
 
 	for (const Move& move : moveList)
 	{
@@ -163,6 +150,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
 		if (score > alpha)
 		{
+            bestScore = score;
 			alpha = score;
 			bSearchPv = false;
 			if (ply == 0)
@@ -171,6 +159,11 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 			}
 		}
 	}
+
+    if (bestScore == -infinity)
+    {
+        return scoreMate(board.inCheck(), ply);
+    }
 
 	return alpha;
 }
