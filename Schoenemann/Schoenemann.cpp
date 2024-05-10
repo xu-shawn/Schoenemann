@@ -13,7 +13,7 @@
 using namespace chess;
 
 searcher seracher;
-tt transpositionTabel;
+tt transpositionTabel(64);
 uciRunner mainRunner;
 
 int time_left = 0;
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	transpositionTabel.init(8);
+	transpositionTabel.setSize(8);
 
 	do
 	{
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 		{
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 			transpositionTabel.clear();
-			transpositionTabel.init(newTranspositionTableSize);
+			//transpositionTabel.setSize(newTranspositionTableSize);
 		}
 		else if (token == "setoption")
 		{
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 						is >> token;
 						newTranspositionTableSize = std::stoi(token);
 						transpositionTabel.clear();
-						transpositionTabel.init(newTranspositionTableSize);
+						transpositionTabel.setSize(newTranspositionTableSize);
 					}
 				}
 			}
@@ -147,7 +147,9 @@ int main(int argc, char* argv[]) {
 				else if (token == "depth")
 				{
 					is >> token;
+					//std::cout << "hashfull " << transpositionTabel.estimateHashfull() << std::endl;
 					seracher.pvs(-32767, 32767, std::stoi(token), 0, board);
+					//std::cout << "hashfull " << transpositionTabel.estimateHashfull() << std::endl;
 					std::cout << "bestmove " << seracher.getBestMove() << std::endl;
 				}
 				if (!(is >> token)) break;
@@ -190,7 +192,7 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "tt")
 		{
-			//std::cout << seracher.getTranspositions() << std::endl;
+			std::cout << seracher.transpositions << std::endl;
 		}
 		else if (token == "test")
 		{

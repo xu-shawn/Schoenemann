@@ -3,6 +3,7 @@
 
 Movelist orderMoves(Movelist moveList, Board& board)
 {
+	/*
 	Move hashMove = transpositionTabel.getEntry(board).move;
 
 	if (hashMove != Move::NO_MOVE && hashMove != Move::NULL_MOVE)
@@ -18,5 +19,6 @@ Movelist orderMoves(Movelist moveList, Board& board)
 			}
 		}
 	}
+	*/
 	return moveList;
 }

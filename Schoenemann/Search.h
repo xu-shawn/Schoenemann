@@ -3,6 +3,9 @@
 
 using namespace chess;
 
+
+constexpr int MATE_SCORE = 32766;
+
 class searcher {
 public:
 	const short infinity = 32767;
@@ -12,9 +15,10 @@ public:
 	int timeForMove = 0;
 	bool shouldStop = false;
 
+	int transpositions = 0;
+
 	int pvs(int alpha, int beta, int depth, int ply, Board& board);
-	int qs(int alpha, int beta, Board& board);
-	int zws(int beta, int depth, Board& board);
+	int qs(int alpha, int beta, Board& board, int ply, int plies);
 	void iterativeDeepening(Board& board);
 
 	Move getBestMove()

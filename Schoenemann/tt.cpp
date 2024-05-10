@@ -2,118 +2,123 @@
 
 #include "tt.h"
 
-void tt::storeEvaluation(int depth, int ply, int score, int nodeType, Move move, Board& board)
+void tt::storeEvaluation(Board& board, int score, Move move, int eval, int depth, uint8_t nodeType)
 {
-	entry ent;
 
 	//Get the zobrist key for the position
 	std::uint64_t zobristKey = board.zobrist();
+	std::uint64_t index = zobristKey & (size - 1);
 
-	//Set the values of the entry
-	ent.key = zobristKey;
-	ent.score = scoreToTT(ply, score);
-	ent.nodeType = nodeType;
-	ent.depth = depth;
-	ent.move = move;
+	HashNode* node = table + index;
 
-	//Store the entry in the lookup Table
-	entries[zobristKey % ttSize] = ent;
-}
-
-int tt::lookUpEvaluation(int depth, int ply, int alpha, int beta, Board& board)
-{
-	//Get the zobrist key for the position
-	std::uint64_t zobristKey = board.zobrist();
-	
-	//Get the entry
-	entry ent = entries[zobristKey % ttSize];
-
-	if (ent.key == zobristKey)
+	//Replacment if the first slot hase the same zobrist key
+	if (node->slot1.key == zobristKey)
 	{
-		if (ent.depth >= depth)
+		node->slot1.setEntry(board, score, move, eval, depth, nodeType, age);
+	}
+	//Replacment if the second slot hase the same zobrist key
+	else if (node->slot2.key == zobristKey)
+	{
+		node->slot2.setEntry(board, score, move, eval, depth, nodeType, age);
+	}
+	//Add a position to the hash
+	//Also replaces the node
+	else
+	{
+		HashEntry* replace = &(node->slot1);
+
+		//Calculates the different scorese for the tow bucket system
+		int score1 = 16 * ((int)((uint8_t)(age - (node->slot1.ageNodeType >> 2)))) + depth - node->slot1.depth;
+		int score2 = 16 * ((int)((uint8_t)(age - (node->slot2.ageNodeType >> 2)))) + depth - node->slot2.depth;
+
+		if (score1 < score2)
 		{
-			int score = scoreFromTT(ply, ent.score);
-			if (ent.nodeType == exact)
-			{
-				return score;
-			}
-			if (ent.nodeType == uppperBound && score <= alpha)
-			{
-				return score;
-			}
-			if (ent.nodeType == lowerBound && score >= beta)
-			{
-				return score;
-			}
+			replace = &(node->slot2);
+		}
+
+		if (score1 >= -2 || score2 >= -2)
+		{
+			replace->setEntry(board, score, move, eval, depth, nodeType, age);
 		}
 	}
-
-	//No transposition was found
-	return lookupFaild;
 }
 
-tt::entry tt::getEntry(Board& board)
+HashEntry *tt::getHash(Board& board)
 {
-	//Returns an entry based on the board
-	return entries[board.zobrist() % ttSize];
+	uint64_t zobristKey = board.hash();
+	uint64_t index = zobristKey & (size - 1);
+
+	HashNode* node = table + index;
+
+	if (node->slot1.key == zobristKey)
+	{
+		return &(node->slot1);
+	}
+	else if (node->slot2.key == zobristKey)
+	{
+		return &(node->slot2);
+	}
+
+	return nullptr;
 }
 
-int tt::scoreToTT(int ply, int score)
+void tt::incrementAge() 
 {
-	if (score >= infinity)
-	{
-		return ply + score;
-	}
-	else if (score <= -infinity)
-	{
-		return ply - score;;
-	}
-	else
-	{
-		return score;
-	}
+	age++;
 }
 
-int tt::scoreFromTT(int ply, int score)
+void tt::clear() 
 {
-	
-	if (score >= infinity)
-	{
-		return ply - score;
-	}
-	else if (score <= -infinity)
-	{
-		return ply + score;;
-	}
-	else
-	{
-		return score;
-	}
+	std::memset(static_cast<void*>(table), 0, size * sizeof(HashNode));
+	age = 0;
 }
 
-void tt::clear()
+void tt::init(uint64_t MB) 
 {
-	//Clears every element in the array
-	delete[] entries;
-	entries = nullptr;
+	uint64_t bytes = MB << 20;
+	uint64_t maxSize = bytes / sizeof(HashNode);
+
+	size = 1;
+	while (size <= maxSize)
+	{
+		size <<= 1;
+	}
+		
+	size >>= 1;
+
+	table = (HashNode*)calloc(size, sizeof(HashNode));
+	clear();
+}
+
+uint64_t tt::getSize() const 
+{
+	return (2 * size);
+}
+
+void tt::setSize(uint64_t MB) 
+{
+	free(table);
+	init(MB);
+}
+
+int tt::estimateHashfull() const 
+{
+	int used = 0;
+	for (int i = 0; i < 500; i++) 
+	{
+		used += ((table + i)->slot1.ageNodeType >> 2) == age;
+		used += ((table + i)->slot2.ageNodeType >> 2) == age;
+	}
+	return used;
 }
 
 
-void tt::init(int size)
+tt::tt(uint64_t MB) 
 {
-	if (entries != nullptr) {
-		clear();
-	}
+	init(MB);
+}
 
-	//The entry size
-	int entrySize = sizeof(entry);
-
-	//Calculate the size in bytes
-	long long sizeInBytes = static_cast<long long>(size) * 1024 * 1024;
-
-	//Calculate the transposition table size
-	ttSize = sizeInBytes / entrySize;
-
-	//Initialize the tranpsosition table
-	entries = new entry[ttSize];
+tt::~tt() 
+{
+	free(table);
 }
