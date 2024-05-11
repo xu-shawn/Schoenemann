@@ -154,6 +154,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 		if (bSearchPv)
 		{
 			score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
+
 		}
 		else
 		{
