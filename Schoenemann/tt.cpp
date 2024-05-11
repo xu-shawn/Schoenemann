@@ -7,20 +7,26 @@ void tt::storeEvaluation(Board& board, int score, Move move, int eval, int depth
 
 	//Get the zobrist key for the position
 	std::uint64_t zobristKey = board.zobrist();
+
+	//Get the index
 	std::uint64_t index = zobristKey & (size - 1);
 
-	HashNode* node = table + index;
+	//Get the HashNode
+	HashNode *node = table + index;
 
 	//Replacment if the first slot hase the same zobrist key
+	//Because a more up to date position should always been choosen
 	if (node->slot1.key == zobristKey)
 	{
 		node->slot1.setEntry(board, score, move, eval, depth, nodeType, age);
 	}
+
 	//Replacment if the second slot hase the same zobrist key
 	else if (node->slot2.key == zobristKey)
 	{
 		node->slot2.setEntry(board, score, move, eval, depth, nodeType, age);
 	}
+
 	//Add a position to the hash
 	//Also replaces the node
 	else
@@ -28,6 +34,7 @@ void tt::storeEvaluation(Board& board, int score, Move move, int eval, int depth
 		HashEntry* replace = &(node->slot1);
 
 		//Calculates the different scorese for the tow bucket system
+		//Uses the ageing method https://www.chessprogramming.org/Transposition_Table (Aging)
 		int score1 = 16 * ((int)((uint8_t)(age - (node->slot1.ageNodeType >> 2)))) + depth - node->slot1.depth;
 		int score2 = 16 * ((int)((uint8_t)(age - (node->slot2.ageNodeType >> 2)))) + depth - node->slot2.depth;
 
@@ -45,11 +52,16 @@ void tt::storeEvaluation(Board& board, int score, Move move, int eval, int depth
 
 HashEntry *tt::getHash(Board& board)
 {
+	//Calculates the zobrish key
 	uint64_t zobristKey = board.hash();
+
+	//Gets the index based on the zobrist key
 	uint64_t index = zobristKey & (size - 1);
 
+	//Getting the node by the index
 	HashNode* node = table + index;
 
+	//Check all two buckets
 	if (node->slot1.key == zobristKey)
 	{
 		return &(node->slot1);
@@ -59,11 +71,13 @@ HashEntry *tt::getHash(Board& board)
 		return &(node->slot2);
 	}
 
+	//Returns a nullptr if nothing was found in the hash
 	return nullptr;
 }
 
 void tt::incrementAge() 
 {
+	//Increments the age by on
 	age++;
 }
 
@@ -86,7 +100,7 @@ void tt::init(uint64_t MB)
 		
 	size >>= 1;
 
-	table = (HashNode*)calloc(size, sizeof(HashNode));
+	table = (HashNode *) calloc(size, sizeof(HashNode));
 	clear();
 }
 
@@ -104,6 +118,7 @@ void tt::setSize(uint64_t MB)
 int tt::estimateHashfull() const 
 {
 	int used = 0;
+
 	for (int i = 0; i < 500; i++) 
 	{
 		used += ((table + i)->slot1.ageNodeType >> 2) == age;

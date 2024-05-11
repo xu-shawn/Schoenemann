@@ -58,13 +58,13 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     HashEntry* hashEntry = transpositionTabel.getHash(board);
     if (hashEntry != nullptr) {
+
         hashScore = hashEntry->score;
         nodeType = hashEntry->ageNodeType & 0x3;
         hashDepth = hashEntry->depth;
         hashed = hashEntry->move;
 
         if (hashScore != -infinity) {
-            // Adjust the hash score to mate distance from root if necessary
             if (hashScore >= MAX_PLY_MATE_SCORE)
             {
                 hashScore -= ply;
@@ -76,9 +76,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
             if (!isPVNode && hashDepth >= depth) 
             {
-                if ((nodeType == ALL_NODE && hashScore <= alpha)
-                    || (nodeType == CUT_NODE && hashScore >= beta)
-                    || (nodeType == PV_NODE)) 
+                if ((nodeType == ALL_NODE && hashScore <= alpha) || (nodeType == CUT_NODE && hashScore >= beta) || (nodeType == PV_NODE)) 
                 {
                     return hashScore;
                 }
@@ -88,6 +86,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
 
     int staticEval = infinity;
+
     if (!board.inCheck())
     {
         if (hashEntry != nullptr && hashEntry->eval != infinity) 
@@ -103,9 +102,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (hashScore != -infinity && staticEval != infinity) 
     {
-        if ((nodeType == ALL_NODE && hashScore < staticEval)
-            || (nodeType == CUT_NODE && hashScore > staticEval)
-            || (nodeType == PV_NODE))
+        if ((nodeType == ALL_NODE && hashScore < staticEval) || (nodeType == CUT_NODE && hashScore > staticEval) || (nodeType == PV_NODE))
         {
             staticEval = hashScore;
         }
@@ -155,6 +152,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 			bSearchPv = false;
 			if (ply == 0)
 			{
+                transpositionTabel.incrementAge();
 				bestMove = move;
 			}
 		}
@@ -172,13 +170,15 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int plies)
 {
 
     int hashScore = -infinity;
-    HashEntry* hashEntry = transpositionTabel.getHash(board);
+    HashEntry  *hashEntry = transpositionTabel.getHash(board);
     uint8_t nodeType = NO_NODE_INFO;
     if (hashEntry != nullptr) 
     {
         hashScore = hashEntry->score;
+
         if (hashScore != -infinity) 
         {
+            //Adjust the score if it is a mate score
             if (hashScore >= MAX_PLY_MATE_SCORE)
             {
                 hashScore -= ply + plies;
@@ -189,11 +189,10 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int plies)
             }
 
             nodeType = hashEntry->ageNodeType & 0x3;
+
             if (hashEntry->depth >= -plies) 
             {
-                if ((nodeType == ALL_NODE && hashScore <= alpha)
-                    || (nodeType == CUT_NODE && hashScore >= beta)
-                    || (nodeType == PV_NODE))
+                if ((nodeType == ALL_NODE && hashScore <= alpha) || (nodeType == CUT_NODE && hashScore >= beta) || (nodeType == PV_NODE))
                 {
                     return hashScore;
                 }
@@ -225,9 +224,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int plies)
     }
 
     if (hashScore != -infinity) {
-        if ((nodeType == ALL_NODE && hashScore < staticEval)
-            || (nodeType == CUT_NODE && hashScore > staticEval)
-            || (nodeType == PV_NODE))
+        if ((nodeType == ALL_NODE && hashScore < staticEval) || (nodeType == CUT_NODE && hashScore > staticEval) || (nodeType == PV_NODE))
         {
             staticEval = hashScore;
             transpositions++;
@@ -249,6 +246,8 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int plies)
     Movelist moveList;
     movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
 
+    int bestScore = staticEval;
+
     for (const Move& move : moveList)
     {
         board.makeMove(move);
@@ -257,18 +256,25 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int plies)
 
         board.unmakeMove(move);
 
+        
+
         if (score >= beta)
         {
+            transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(score, ply + plies), move, hashEval, -plies, CUT_NODE);
             return beta;
         }
 
-        if (score > alpha)
+        if (score > bestScore)
         {
-            alpha = score;
+            bestScore = score;
+            if (score > alpha)
+            {
+                alpha = score;
+            }
         }
     }
 
-    return alpha;
+    return bestScore;
 }
 
 void searcher::iterativeDeepening(Board& board)
@@ -293,7 +299,7 @@ void searcher::iterativeDeepening(Board& board)
     for (int i = 1; i <= 256; i++)
     {
 		pvs(-32767, 32767, i, 0, board);
-                                                       
+
         if (!shouldStop)
         {
             bestMoveThisIteration = bestMove;
