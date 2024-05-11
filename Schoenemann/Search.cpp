@@ -15,6 +15,11 @@ std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
 
+    if (depth <= 0 || ply >= 127)
+    {
+        return qs(alpha, beta, board, ply, 0);
+    }
+
     if (shouldStop)
     {
         return alpha;
@@ -27,7 +32,6 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         shouldStop = true;
     }
-
 
     // Mate distance pruning
     int matingScore = MATE_SCORE - ply;
@@ -51,22 +55,29 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     }
 
     bool isPVNode = (beta - alpha != 1);
+
     Move hashed = Move::NULL_MOVE;
+
     int hashScore = -infinity;
     int hashDepth = 0;
+
     uint8_t nodeType = NO_NODE_INFO;
 
+    //The previos alpha is our current alpha
     int prevAlpha = alpha;
 
     HashEntry* hashEntry = transpositionTabel.getHash(board);
     if (hashEntry != nullptr) {
 
+        //Get all the informations out of the entry
         hashScore = hashEntry->score;
         nodeType = hashEntry->ageNodeType & 0x3;
         hashDepth = hashEntry->depth;
         hashed = hashEntry->move;
 
-        if (hashScore != -infinity) {
+        if (hashScore != -infinity) 
+        {
+            //Correct the score of the hash if it is a mate score
             if (hashScore >= MAX_PLY_MATE_SCORE)
             {
                 hashScore -= ply;
@@ -91,17 +102,20 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (!board.inCheck())
     {
+        //Checks for a saved position
         if (hashEntry != nullptr && hashEntry->eval != infinity) 
         {
             staticEval = hashEntry->eval;
         }
         else 
         {
+            //Store the evaluation if no position was found
             staticEval = (board.sideToMove() == Color::WHITE) ? evaluate(board) : -evaluate(board);
             transpositionTabel.storeEvaluation(board, -infinity, Move::NULL_MOVE, staticEval, -8, NO_NODE_INFO);
         }
     }
 
+    //Use the hashed transposition score
     if (hashScore != -infinity && staticEval != infinity) 
     {
         if ((nodeType == ALL_NODE && hashScore < staticEval) || (nodeType == CUT_NODE && hashScore > staticEval) || (nodeType == PV_NODE))
@@ -111,33 +125,37 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
             
     }
 
-	if (depth == 0)
-	{
-		return qs(alpha, beta, board, ply, 0);
-	}
+    if (hashed == Move::NULL_MOVE && !board.inCheck() && ((isPVNode && depth >= 6) || (!isPVNode && depth >= 8))) 
+    {
+        int iidDepth = isPVNode ? depth - depth / 4 - 1 : (depth - 5) / 2;
+        pvs(alpha, beta, iidDepth, ply, board);
 
-	bool bSearchPv = true;
+        HashEntry* iidEntry = transpositionTabel.getHash(board);
+        if (iidEntry != nullptr) 
+        {
+            hashScore = iidEntry->score;
+            nodeType = iidEntry->ageNodeType & 0x3;
+            hashDepth = iidEntry->depth;
+            hashed = iidEntry->move;
+        }
+    }
 
 	Movelist moveList;
 	movegen::legalmoves(moveList, board);
     int bestScore = -infinity;
+    int score = -infinity;
     Move toHash = Move::NULL_MOVE;
 
 	for (const Move& move : moveList)
 	{
 		board.makeMove(move);
-		int score;
-		if (bSearchPv)
+        nodes++;
+		score = -pvs(-alpha - 1, -alpha, depth - 1, ply + 1, board);
+
+        //Null Windows Search
+		if (beta == alpha + 1)
 		{
 			score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
-		}
-		else
-		{
-			score = -pvs(-alpha - 1, -alpha, depth - 1, ply + 1, board);
-			if (score > alpha && score < beta)
-			{
-				score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
-			}
 		}
 
 		board.unmakeMove(move);
@@ -145,7 +163,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 		if (score >= beta)
 		{
             transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(score, ply), move, staticEval, depth, CUT_NODE);
-			return beta;
+			return score;
 		}
 
         if (score > bestScore)
@@ -154,13 +172,8 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
             if (score > alpha)
             {
                 alpha = score;
-                bSearchPv = false;
                 toHash = move;
-                if (ply == 0)
-                {
-                    transpositionTabel.incrementAge();
-                    bestMove = move;
-                }
+                bestMove = move;
             }
         }
 	}
@@ -171,18 +184,22 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     }
 
     // Exact scores indicate a principal variation
-    if (prevAlpha < alpha && alpha < beta) {
+    if (prevAlpha < alpha && alpha < beta) 
+    {
         transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(alpha, ply), toHash, staticEval, depth, PV_NODE);
     }
 
     //Store the All NODE
-    else if (alpha <= prevAlpha) {
+    else if (alpha <= prevAlpha) 
+    {
         // If we had a hash move, save it in case the node becomes a PV or cut node next time
-        if (!isPVNode && hashed != Move::NULL_MOVE) {
+        if (!isPVNode && hashed != Move::NULL_MOVE) 
+        {
             transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(bestScore, ply), hashed, staticEval, depth, ALL_NODE);
         }
         // Otherwise, just store no best move as expected
-        else {
+        else 
+        {
             transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(bestScore, ply), Move::NULL_MOVE, staticEval, depth, ALL_NODE);
         }
     }
@@ -212,6 +229,8 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int plies)
                 hashScore += ply + plies;
             }
 
+
+            //Get the node type
             nodeType = hashEntry->ageNodeType & 0x3;
 
             if (hashEntry->depth >= -plies) 
@@ -276,7 +295,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int plies)
     {
         board.makeMove(move);
 
-        int score = -qs(-beta, -alpha, board, ply, 0);
+        int score = -qs(-beta, -alpha, board, ply, plies + 1);
 
         board.unmakeMove(move);
 
@@ -309,6 +328,8 @@ void searcher::iterativeDeepening(Board& board)
     Move bestMoveThisIteration = Move::NULL_MOVE;
     isNormalSearch = false;
     bool hasFoundMove = false;
+
+    transpositionTabel.incrementAge();
 
     if (timeForMove == -20)
     {

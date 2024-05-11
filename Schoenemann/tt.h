@@ -6,11 +6,11 @@
 
 using namespace chess;
 
-constexpr uint8_t PV_NODE = 0;
-constexpr uint8_t CUT_NODE = 1;
-constexpr uint8_t ALL_NODE = 2;
-constexpr uint8_t NO_NODE_INFO = 3;
-constexpr int MAX_PLY_MATE_SCORE = 32500;
+const uint8_t PV_NODE = 0;
+const uint8_t CUT_NODE = 1;
+const uint8_t ALL_NODE = 2;
+const uint8_t NO_NODE_INFO = 3;
+const int MAX_PLY_MATE_SCORE = 32500;
 
 struct HashEntry {
     std::uint64_t key;
@@ -58,9 +58,13 @@ public:
 
     int adjustHashScore(int score, int plies) {
         if (score >= MAX_PLY_MATE_SCORE)
+        {
             return score + plies;
+        }
         if (score <= -MAX_PLY_MATE_SCORE)
+        {
             return score - plies;
+        }
         return score;
     }
 

@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "nodes")
 		{
-			//std::cout << seracher.getNodes() << std::endl;
+			std::cout << seracher.nodes << std::endl;
 		}
 		else if (token == "datagen")
 		{
