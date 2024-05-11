@@ -56,6 +56,8 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     int hashDepth = 0;
     uint8_t nodeType = NO_NODE_INFO;
 
+    int prevAlpha = alpha;
+
     HashEntry* hashEntry = transpositionTabel.getHash(board);
     if (hashEntry != nullptr) {
 
@@ -118,7 +120,8 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
 	Movelist moveList;
 	movegen::legalmoves(moveList, board);
-    int bestScore = 0;
+    int bestScore = -infinity;
+    Move toHash = Move::NULL_MOVE;
 
 	for (const Move& move : moveList)
 	{
@@ -145,17 +148,21 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 			return beta;
 		}
 
-		if (score > alpha)
-		{
+        if (score > bestScore)
+        {
             bestScore = score;
-			alpha = score;
-			bSearchPv = false;
-			if (ply == 0)
-			{
-                transpositionTabel.incrementAge();
-				bestMove = move;
-			}
-		}
+            if (score > alpha)
+            {
+                alpha = score;
+                bSearchPv = false;
+                toHash = move;
+                if (ply == 0)
+                {
+                    transpositionTabel.incrementAge();
+                    bestMove = move;
+                }
+            }
+        }
 	}
 
     if (bestScore == -infinity)
@@ -163,7 +170,24 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         return scoreMate(board.inCheck(), ply);
     }
 
-	return alpha;
+    // Exact scores indicate a principal variation
+    if (prevAlpha < alpha && alpha < beta) {
+        transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(alpha, ply), toHash, staticEval, depth, PV_NODE);
+    }
+
+    //Store the All NODE
+    else if (alpha <= prevAlpha) {
+        // If we had a hash move, save it in case the node becomes a PV or cut node next time
+        if (!isPVNode && hashed != Move::NULL_MOVE) {
+            transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(bestScore, ply), hashed, staticEval, depth, ALL_NODE);
+        }
+        // Otherwise, just store no best move as expected
+        else {
+            transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(bestScore, ply), Move::NULL_MOVE, staticEval, depth, ALL_NODE);
+        }
+    }
+
+	return bestScore;
 }
 
 int searcher::qs(int alpha, int beta, Board& board, int ply, int plies)
