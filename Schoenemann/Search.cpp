@@ -139,6 +139,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
             hashed = iidEntry->move;
         }
     }
+	bool bSearchPv = true;
 
 	Movelist moveList;
 	movegen::legalmoves(moveList, board);
@@ -150,12 +151,17 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 	{
 		board.makeMove(move);
         nodes++;
-		score = -pvs(-alpha - 1, -alpha, depth - 1, ply + 1, board);
-
-        //Null Windows Search
-		if (beta == alpha + 1)
+		if (bSearchPv)
 		{
 			score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
+		}
+		else
+		{
+			score = -pvs(-alpha - 1, -alpha, depth - 1, ply + 1, board);
+			if (beta == alpha + 1)
+			{
+				score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
+			}
 		}
 
 		board.unmakeMove(move);
@@ -169,6 +175,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         if (score > bestScore)
         {
             bestScore = score;
+            bSearchPv = false;
             if (score > alpha)
             {
                 alpha = score;
