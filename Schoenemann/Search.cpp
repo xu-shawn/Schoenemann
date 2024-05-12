@@ -33,11 +33,21 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         if (entry->key == board.hash())
         {
-            transpositions++;
-            if (entry->score >= beta)
+            if (entry->depth >= depth)
             {
-                return entry->score;
+                uint8_t nodeType = entry->ageNodeType & 0x3;
+                if (entry->score >= beta && nodeType == CUT_NODE)
+                {
+                    transpositions++;
+                    return entry->score;
+                }
+                else if (entry->score <= alpha && nodeType == ALL_NODE)
+                {
+                    transpositions++;
+                    return entry->score;
+                }
             }
+            
         }
     }
 
