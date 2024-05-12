@@ -35,7 +35,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         {
             if (entry->depth >= depth)
             {
-                uint8_t nodeType = entry->ageNodeType & 0x3;
+                uint8_t nodeType = entry->ageNodeType;
                 if (entry->score >= beta && nodeType == CUT_NODE)
                 {
                     transpositions++;
