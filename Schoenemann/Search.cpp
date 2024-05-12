@@ -14,11 +14,6 @@ std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
 int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
-    if (depth == 0)
-    {
-        return qs(alpha, beta, board, ply, 0);
-    }
-
     if (shouldStop)
     {
         return alpha;
@@ -32,7 +27,24 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         shouldStop = true;
     }
 
+    HashEntry* entry = transpositionTabel.getHash(board);
 
+    if (entry != nullptr)
+    {
+        if (entry->key == board.hash())
+        {
+            transpositions++;
+            if (entry->score >= beta)
+            {
+                return entry->score;
+            }
+        }
+    }
+
+    if (depth == 0)
+    {
+        return qs(alpha, beta, board, ply, 0);
+    }
 
     bool bSearchPv = true;
 
@@ -74,12 +86,14 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
         if (score >= beta)
         {
+            transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(score, ply), move, score, depth, CUT_NODE);
             return beta;
         }
 
         if (score > alpha)
         {
             alpha = score;
+            transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(score, ply), move, score, depth, ALL_NODE);
             bSearchPv = false;
             if (ply == 0)
             {
