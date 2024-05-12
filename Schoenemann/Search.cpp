@@ -53,7 +53,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (depth == 0)
     {
-        return qs(alpha, beta, board, ply, 0);
+        return qs(alpha, beta, board, ply, 0, depth);
     }
 
     bool bSearchPv = true;
@@ -115,8 +115,33 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     return alpha;
 }
 
-int searcher::qs(int alpha, int beta, Board& board, int ply, int plies)
+int searcher::qs(int alpha, int beta, Board& board, int ply, int plies, int depth)
 {
+
+    HashEntry* entry = transpositionTabel.getHash(board);
+
+    if (entry != nullptr)
+    {
+        if (entry->key == board.hash())
+        {
+            if (entry->depth >= -plies)
+            {
+                uint8_t nodeType = entry->ageNodeType;
+                if (entry->score >= beta && nodeType == CUT_NODE)
+                {
+                    transpositions++;
+                    return entry->score;
+                }
+                else if (entry->score <= alpha && nodeType == ALL_NODE)
+                {
+                    transpositions++;
+                    return entry->score;
+                }
+            }
+
+        }
+    }
+
     int standPat = evaluate(board);
 
     if (standPat >= beta)
@@ -136,12 +161,13 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int plies)
     {
         board.makeMove(move);
 
-        int score = -qs(-beta, -alpha, board, ply, plies + 1);
+        int score = -qs(-beta, -alpha, board, ply, plies + 1, depth);
 
         board.unmakeMove(move);
 
         if (score >= beta)
         {
+            transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(score, ply), move, score, -plies, CUT_NODE);
             return beta;
         }
 
