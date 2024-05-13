@@ -39,11 +39,11 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
             }
             if ((entry->type == ALPHA) && (entry->score <= alpha))
             {
-                return alpha;
+                return entry->score;
             }
             if ((entry->type == BETA) && (entry->score >= alpha))
             {
-                return alpha;
+                return entry->score;
             }
         }
     }
@@ -74,12 +74,11 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
             return 0;
         }
     }
-
+    int score;
     for (const Move& move : moveList)
     {
         board.makeMove(move);
         nodes++;
-        int score;
         if (bSearchPv)
         {
             score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
@@ -95,11 +94,6 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
         board.unmakeMove(move);
 
-        if (score >= beta)
-        {
-            transpositionTabel.storeEvaluation(board.hash(), depth, BETA, transpositionTabel.adjustHashScore(beta, ply), move);
-            return beta;
-        }
 
         if (score > alpha)
         {
@@ -111,9 +105,15 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
                 bestMove = move;
             }
         }
+
+        if (score >= beta)
+        {
+            transpositionTabel.storeEvaluation(board.hash(), depth, BETA, transpositionTabel.adjustHashScore(score, ply), move);
+            break;
+        }
     }
 
-    transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.adjustHashScore(alpha, ply), bestMove);
+    transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.adjustHashScore(score, ply), bestMove);
 
     return alpha;
 }
