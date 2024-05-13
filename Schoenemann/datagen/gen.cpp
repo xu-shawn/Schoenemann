@@ -74,7 +74,7 @@ void generateDataSet(int epochs)
 			}
 			//search.setNodes(0);
 			//search.search(1, -32767, 32767, 0, board);
-			board.makeMove(search.getBestMove());
+			board.makeMove(search.bestMove);
 			fens[x] = board.getFen() + "; ";
 			genFens++;
 

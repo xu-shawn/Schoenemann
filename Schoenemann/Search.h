@@ -3,9 +3,6 @@
 
 using namespace chess;
 
-
-constexpr int MATE_SCORE = 32766;
-
 class searcher {
 public:
 	const short infinity = 32767;
@@ -21,23 +18,5 @@ public:
 	int pvs(int alpha, int beta, int depth, int ply, Board& board);
 	int qs(int alpha, int beta, Board& board, int ply, int plies, int depth);
 	void iterativeDeepening(Board& board);
-
-
-	int scoreMate(bool isInCheck, int ply) 
-	{
-		if (isInCheck)
-		{
-			return (-MATE_SCORE + ply);
-		}
-		else
-		{
-			return 0;
-		}
-	}
-
-	Move getBestMove()
-	{
-		return bestMove;
-	}
 private:
 };

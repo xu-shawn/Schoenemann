@@ -150,7 +150,7 @@ int main(int argc, char* argv[]) {
 					//std::cout << "hashfull " << transpositionTabel.estimateHashfull() << std::endl;
 					seracher.pvs(-32767, 32767, std::stoi(token), 0, board);
 					//std::cout << "hashfull " << transpositionTabel.estimateHashfull() << std::endl;
-					std::cout << "bestmove " << seracher.getBestMove() << std::endl;
+					std::cout << "bestmove " << seracher.bestMove << std::endl;
 				}
 				if (!(is >> token)) break;
 			}

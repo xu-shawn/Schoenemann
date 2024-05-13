@@ -6,36 +6,27 @@
 
 using namespace chess;
 
-const uint8_t PV_NODE = 0;
-const uint8_t CUT_NODE = 1;
-const uint8_t ALL_NODE = 2;
-const uint8_t NO_NODE_INFO = 3;
+const short EXACT = 0;
+const short ALPHA = 1;
+const short BETA = 2;
+const int MATE_SCORE = 32766;
 const int MAX_PLY_MATE_SCORE = 32500;
 
-struct HashEntry {
+struct Hash {
     std::uint64_t key;
+    short depth;
+    short type; //Ether EXACT, ALPHA or BETA
     int score;
     Move move;
-    int eval;
-    short depth;
-    uint8_t ageNodeType;
 
-    void setEntry(Board& board, int _score, Move _move, int _eval, int _depth, uint8_t _nodeType, uint8_t _age) {
-        key = board.hash();
-        score = (int16_t)_score;
+    void setEntry(std::uint64_t _key, short _depth, short _type, int _score, Move _move)
+    {
+        key = _key;
+        depth = _depth;
+        type = _type;
+        score = _score;
         move = _move;
-        eval = (int16_t)_eval;
-        depth = (int8_t)_depth;
-        ageNodeType = (_age << 2) | _nodeType;
     }
-};
-
-// For each side we have a a HashEntry
-//So we are using a two bucket system
-class HashNode {
-public:
-    HashEntry slot1;
-    HashEntry slot2;
 };
 
 class tt {
@@ -45,18 +36,16 @@ public:
     tt& operator=(const tt& other) = delete;
     ~tt();
 
-    void storeEvaluation(Board& board, int score, Move move, int eval, int depth, uint8_t nodeType);
-    HashEntry* getHash(Board& board);
-
+    void storeEvaluation(std::uint64_t key, short depth, short type, int score, Move move);
+    Hash* getHash(Board& board);
     uint64_t getSize() const;
     void setSize(uint64_t MB);
-
-    void incrementAge();
 
     void clear();
     int estimateHashfull() const;
 
-    int adjustHashScore(int score, int plies) {
+    int adjustHashScore(int score, int plies) 
+    {
         if (score >= MAX_PLY_MATE_SCORE)
         {
             return score + plies;
@@ -68,10 +57,21 @@ public:
         return score;
     }
 
+    int scoreMate(bool isInCheck, int ply)
+    {
+        if (isInCheck)
+        {
+            return (-MATE_SCORE + ply);
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
 private:
-    HashNode* table;
     uint64_t size;
-    uint8_t age;
+    Hash *table;
 
     void init(uint64_t MB);
 };

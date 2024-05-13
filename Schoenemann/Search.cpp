@@ -27,43 +27,34 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         shouldStop = true;
     }
 
-    HashEntry* entry = transpositionTabel.getHash(board);
+    Hash* entry = transpositionTabel.getHash(board);
 
     if (entry != nullptr)
     {
-        if (entry->key == board.hash())
+        if (board.hash() == entry->key)
         {
-            int hashScore = entry->score;
-            if (hashScore >= MAX_PLY_MATE_SCORE)
+            if (entry->type == EXACT)
             {
-                hashScore -= ply;
+                return entry->score;
             }
-            else if (hashScore <= -MAX_PLY_MATE_SCORE)
+            if ((entry->type == ALPHA) && (entry->score <= alpha))
             {
-                hashScore += ply;
+                return alpha;
             }
-
-            if (entry->depth >= depth)
+            if ((entry->type == BETA) && (entry->score >= alpha))
             {
-                uint8_t nodeType = entry->ageNodeType;
-                if (hashScore >= beta && nodeType == CUT_NODE)
-                {
-                    transpositions++;
-                    return hashScore;
-                }
-                else if (hashScore <= alpha && nodeType == ALL_NODE)
-                {
-                    transpositions++;
-                    return hashScore;
-                }
+                return alpha;
             }
-            
         }
     }
 
+    short type = EXACT;
+
     if (depth == 0)
     {
-        return qs(alpha, beta, board, ply, 0, depth);
+        int qsScore = qs(alpha, beta, board, ply, 0, depth);
+        
+        return qsScore;
     }
 
     bool bSearchPv = true;
@@ -76,7 +67,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         if (board.inCheck() == true)
         {
-            return scoreMate(board.inCheck(), ply);
+            return transpositionTabel.scoreMate(board.inCheck(), ply);
         }
         else
         {
@@ -106,21 +97,23 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
         if (score >= beta)
         {
-            transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(score, ply), move, score, depth, CUT_NODE);
+            transpositionTabel.storeEvaluation(board.hash(), depth, BETA, transpositionTabel.adjustHashScore(beta, ply), move);
             return beta;
         }
 
         if (score > alpha)
         {
             alpha = score;
-            transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(score, ply), move, score, depth, ALL_NODE);
             bSearchPv = false;
+            type = EXACT;
             if (ply == 0)
             {
                 bestMove = move;
             }
         }
     }
+
+    transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.adjustHashScore(alpha, ply), bestMove);
 
     return alpha;
 }
@@ -184,8 +177,6 @@ void searcher::iterativeDeepening(Board& board)
             return;
         }
     }
-
-    transpositionTabel.incrementAge();
 
     for (int i = 1; i <= 256; i++)
     {
