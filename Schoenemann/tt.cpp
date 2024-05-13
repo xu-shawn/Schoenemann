@@ -32,7 +32,7 @@ void tt::storeEvaluation(Board& board, int score, Move move, int eval, int depth
 	else
 	{
 		HashEntry* replace = &(node->slot1);
-
+		/*
 		//Calculates the different scorese for the tow bucket system
 		//Uses the ageing method https://www.chessprogramming.org/Transposition_Table (Aging)
 		int score1 = 16 * ((int)((uint8_t)(age - (node->slot1.ageNodeType >> 2)))) + depth - node->slot1.depth;
@@ -45,8 +45,10 @@ void tt::storeEvaluation(Board& board, int score, Move move, int eval, int depth
 
 		if (score1 >= -2 || score2 >= -2)
 		{
-			replace->setEntry(board, score, move, eval, depth, nodeType, age);
+			
 		}
+		*/
+		replace->setEntry(board, score, move, eval, depth, nodeType, age);
 	}
 }
 
