@@ -232,16 +232,16 @@ void uciRunner::run_benchmark() {
 
 	Board bench_board;
 	auto start = std::chrono::high_resolution_clock::now();
-	//seracher.setNodes(0);
+	seracher.nodes = 0;
 	for (const auto& test : testStrings) {
 		bench_board.setFen(test);
-		//seracher.search(3, -32767, 32767, 0, bench_board);
+		seracher.pvs(-32767, 32767, 3, 0, bench_board);
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> timeElapsed = end - start;
 	int timeInMs = static_cast<int>(timeElapsed.count());
-	int NPS = static_cast<int>(/*seracher.getNodes() / */  timeElapsed.count() * 1000);
-	//std::cout << "Time  : " << timeInMs << " ms\nNodes : " << seracher.getNodes() << "\nNPS   : " << NPS << std::endl;
+	int NPS = static_cast<int>(seracher.nodes / timeElapsed.count() * 1000);
+	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << seracher.nodes << "\nNPS   : " << NPS << std::endl;
 }
 
 int getTime()
