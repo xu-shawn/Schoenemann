@@ -202,7 +202,7 @@ int main(int argc, char* argv[]) {
 
 			//Store the information
 
-			transpositionTabel.storeEvaluation(key, 2, BETA, 200, Move::NULL_MOVE);
+			transpositionTabel.storeEvaluation(key, 2, BETA, 200, uci::uciToMove(board, "d5e4"));
 
 			//Try to get the information out of the table
 
@@ -221,11 +221,47 @@ int main(int argc, char* argv[]) {
 
 			if (hashedKey == key)
 			{
-				std::cout << "Test for the key passed.\n" << "Original key: \n" << key << "\n Hash key: \n" << hashedKey << std::endl;
+				std::cout << "Test for the key PASSED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
 			}
 			else
 			{
-				std::cout << "Test for the key faild." << "Original key: \n" << key << "\n Hash key: \n" << hashedKey << std::endl;
+				std::cout << "Test for the key FAILED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
+			}
+
+			if (hashedDepth == 2)
+			{
+				std::cout << "Test for the depth PASSED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the depth FAILED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+			}
+
+			if (hashedType == BETA)
+			{
+				std::cout << "Test for the type PASSED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the type FAILED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+			}
+
+			if (hashedScore == 200)
+			{
+				std::cout << "Test for the score PASSED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the score FAILED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+			}
+
+			if (hashedMove == uci::uciToMove(board, "d5e4"))
+			{
+				std::cout << "Test for the move PASSED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the move FAILED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
 			}
 
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
