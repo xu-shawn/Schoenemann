@@ -4,17 +4,15 @@
 
 void tt::storeEvaluation(std::uint64_t key, short depth, short type, int score, Move move)
 {
-	std::uint64_t index = key & (size - 1);
+	std::uint64_t index = key % size;
 
 	//Get the HashNode
 	Hash* node = table + index;
 
-	if (node->key == key)
-	{
-		node->setEntry(key, depth, type, score, move);
-	}
-
+	//Store the entry
+	node->setEntry(key, depth, type, score, move);
 }
+
 
 Hash *tt::getHash(Board& board)
 {
@@ -22,7 +20,7 @@ Hash *tt::getHash(Board& board)
 	uint64_t zobristKey = board.hash();
 
 	//Gets the index based on the zobrist key
-	uint64_t index = zobristKey & (size - 1);
+	uint64_t index = zobristKey % size;
 
 	//Getting the node by the index
 	Hash* node = table + index;

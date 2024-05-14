@@ -194,6 +194,42 @@ int main(int argc, char* argv[]) {
 		{
 			std::cout << seracher.transpositions << std::endl;
 		}
+		else if (token == "ttest")
+		{
+			//Set up a unice position
+			board.setFen("3N4/2p5/5K2/k1PB3p/3Pr3/1b5p/6p1/5nB1 w - - 0 1");
+			std::uint64_t key = board.hash();
+
+			//Store the information
+
+			transpositionTabel.storeEvaluation(key, 2, BETA, 200, Move::NULL_MOVE);
+
+			//Try to get the information out of the table
+
+			Hash* entry = transpositionTabel.getHash(board);
+			
+			if (entry == nullptr)
+			{
+				std::cout << "The entry is a nullptr" << std::endl;
+				continue;
+			}
+			std::uint64_t hashedKey = entry->key;
+			short hashedDepth = entry->depth;
+			short hashedType = entry->type;
+			int hashedScore = entry->score;
+			Move hashedMove = entry->move;
+
+			if (hashedKey == key)
+			{
+				std::cout << "Test for the key passed.\n" << "Original key: \n" << key << "\n Hash key: \n" << hashedKey << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the key faild." << "Original key: \n" << key << "\n Hash key: \n" << hashedKey << std::endl;
+			}
+
+			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+		}
 		else if (token == "test")
 		{
 			Board test_board;
