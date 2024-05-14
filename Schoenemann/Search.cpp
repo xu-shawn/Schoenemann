@@ -35,17 +35,18 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         {
             if (entry->depth >= depth)
             {
+                int adjustedScore = transpositionTabel.adjustHashScore(entry->score, ply);
                 if (entry->type == EXACT)
                 {
-                    return entry->score;
+                    return adjustedScore;
                 }
-                if ((entry->type == ALPHA) && (entry->score <= alpha))
+                if ((entry->type == ALPHA) && (adjustedScore <= alpha))
                 {
-                    return alpha;
+                    return adjustedScore;
                 }
-                if ((entry->type == BETA) && (entry->score >= beta))
+                if ((entry->type == BETA) && (adjustedScore >= beta))
                 {
-                    return beta;
+                    return adjustedScore;
                 }
             }
         }
