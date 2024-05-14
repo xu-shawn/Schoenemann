@@ -33,17 +33,20 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         if (board.hash() == entry->key)
         {
-            if (entry->type == EXACT)
+            if (entry->depth >= depth)
             {
-                return entry->score;
-            }
-            if ((entry->type == ALPHA) && (entry->score <= alpha))
-            {
-                return entry->score;
-            }
-            if ((entry->type == BETA) && (entry->score >= alpha))
-            {
-                return entry->score;
+                if (entry->type == EXACT)
+                {
+                    return entry->score;
+                }
+                if ((entry->type == ALPHA) && (entry->score <= alpha))
+                {
+                    return alpha;
+                }
+                if ((entry->type == BETA) && (entry->score >= beta))
+                {
+                    return beta;
+                }
             }
         }
     }
@@ -108,12 +111,12 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
         if (score >= beta)
         {
-            transpositionTabel.storeEvaluation(board.hash(), depth, BETA, transpositionTabel.adjustHashScore(score, ply), move);
+            transpositionTabel.storeEvaluation(board.hash(), depth, BETA, transpositionTabel.adjustHashScore(beta, ply), move);
             break;
         }
     }
 
-    transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.adjustHashScore(score, ply), bestMove);
+    transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.adjustHashScore(alpha, ply), bestMove);
 
     return alpha;
 }
