@@ -16,7 +16,7 @@ public:
 	int nodes = 0;
 
 	int pvs(int alpha, int beta, int depth, int ply, Board& board);
-	int qs(int alpha, int beta, Board& board, int ply, int plies, int depth);
+	int qs(int alpha, int beta, Board& board);
 	void iterativeDeepening(Board& board);
 private:
 };

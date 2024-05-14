@@ -51,12 +51,12 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
-    short type = EXACT;
+    short type = ALPHA;
 
     if (depth == 0)
     {
-        int qsScore = qs(alpha, beta, board, ply, 0, depth);
-        
+        int qsScore = qs(alpha, beta, board);
+        transpositionTabel.storeEvaluation(board.hash(), depth, EXACT, qsScore, Move::NULL_MOVE);
         return qsScore;
     }
 
@@ -121,7 +121,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     return alpha;
 }
 
-int searcher::qs(int alpha, int beta, Board& board, int ply, int plies, int depth)
+int searcher::qs(int alpha, int beta, Board& board)
 {
 
     int standPat = evaluate(board);
@@ -143,7 +143,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int plies, int dept
     {
         board.makeMove(move);
 
-        int score = -qs(-beta, -alpha, board, ply, plies + 1, depth);
+        int score = -qs(-beta, -alpha, board);
 
         board.unmakeMove(move);
 
