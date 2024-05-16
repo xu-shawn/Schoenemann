@@ -26,29 +26,25 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         shouldStop = true;
     }
-
+    int ttScore;
     Hash* entry = transpositionTabel.getHash(board);
-
     if (entry != nullptr)
     {
         if (board.hash() == entry->key)
         {
-            if (entry->depth >= depth)
-            {
-                int adjustedScore = transpositionTabel.adjustHashScore(entry->score, ply);
-                if (entry->type == EXACT)
-                {
-                    return adjustedScore;
-                }
-                if ((entry->type == ALPHA) && (adjustedScore <= alpha))
-                {
-                    return adjustedScore;
-                }
-                if ((entry->type == BETA) && (adjustedScore >= beta))
-                {
-                    return adjustedScore;
-                }
-            }
+            ttScore = transpositionTabel.ScoreFromTT(entry->score, ply);
+        }
+    }
+
+    const bool pvNode = alpha != beta - 1;
+    const bool root = ply == 0;
+
+    if (entry != nullptr)
+    {
+        if (!pvNode && entry->depth >= depth)
+        {
+            transpositions++;
+            return ttScore;
         }
     }
 
@@ -56,9 +52,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (depth == 0)
     {
-        int qsScore = qs(alpha, beta, board);
-        transpositionTabel.storeEvaluation(board.hash(), depth, EXACT, qsScore, Move::NULL_MOVE);
-        return qsScore;
+        return qs(alpha, beta, board);
     }
 
     bool bSearchPv = true;
@@ -71,7 +65,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         if (board.inCheck() == true)
         {
-            return transpositionTabel.scoreMate(board.inCheck(), ply);
+            return -MATE + ply;
         }
         else
         {
@@ -79,6 +73,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
     int score;
+    int bestScore = -infinity;
     for (const Move& move : moveList)
     {
         board.makeMove(move);
@@ -90,7 +85,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         else
         {
             score = -pvs(-alpha - 1, -alpha, depth - 1, ply + 1, board);
-            if (beta == alpha + 1)
+            if (score > alpha && score < beta)
             {
                 score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
             }
@@ -98,27 +93,30 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
         board.unmakeMove(move);
 
-        if (score > alpha)
+        if (score > bestScore)
         {
-            alpha = score;
-            bSearchPv = false;
-            type = EXACT;
-            if (ply == 0)
+            bestScore = score;
+            if (score > alpha)
             {
-                bestMove = move;
+                alpha = score;
+                bSearchPv = false;
+                type = EXACT;
+                if (ply == 0)
+                {
+                    bestMove = move;
+                }
+                if (score >= beta)
+                {
+                    break;
+                }
             }
         }
 
-        if (score >= beta)
-        {
-            transpositionTabel.storeEvaluation(board.hash(), depth, BETA, transpositionTabel.adjustHashScore(beta, ply), Move::NULL_MOVE);
-            break;
-        }
     }
+    bestScore = MIN(bestScore, infinity);
+    transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.ScoreToTT(bestScore, ply), bestMove);
 
-    transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.adjustHashScore(alpha, ply), bestMove);
-
-    return alpha;
+    return bestScore;
 }
 
 int searcher::qs(int alpha, int beta, Board& board)
@@ -149,7 +147,6 @@ int searcher::qs(int alpha, int beta, Board& board)
 
         if (score >= beta)
         {
-            //transpositionTabel.storeEvaluation(board, transpositionTabel.adjustHashScore(score, ply), move, score, -plies, CUT_NODE);
             return beta;
         }
 

@@ -9,8 +9,11 @@ using namespace chess;
 const short EXACT = 0;
 const short ALPHA = 1;
 const short BETA = 2;
-const int MATE_SCORE = 32766;
-const int MAX_PLY_MATE_SCORE = 32500;
+const int TBWIN = 30000;
+const int TBWIN_IN_MAX = TBWIN - 999;
+
+const int MATE = 31000;
+const int MATE_IN_MAX = MATE - 999;
 
 struct Hash {
     std::uint64_t key;
@@ -44,29 +47,17 @@ public:
     void clear();
     int estimateHashfull() const;
 
-    int adjustHashScore(int score, int plies) 
-    {
-        if (score >= MAX_PLY_MATE_SCORE)
-        {
-            return score + plies;
-        }
-        if (score <= -MAX_PLY_MATE_SCORE)
-        {
-            return score - plies;
-        }
-        return score;
+    int ScoreToTT(const int score, const uint8_t ply) {
+        return score >= TBWIN_IN_MAX ? score + ply
+            : score <= -TBWIN_IN_MAX ? score - ply
+            : score;
     }
 
-    int scoreMate(bool isInCheck, int ply)
-    {
-        if (isInCheck)
-        {
-            return (-MATE_SCORE + ply);
-        }
-        else
-        {
-            return 0;
-        }
+    // Add the distance from root to terminal scores get the total distance to mate/TB
+    int ScoreFromTT(const int score, const uint8_t ply) {
+        return score >= TBWIN_IN_MAX ? score - ply
+            : score <= -TBWIN_IN_MAX ? score + ply
+            : score;
     }
 
 private:
