@@ -26,13 +26,10 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         shouldStop = true;
     }
-
+    int hashedScore;
     const bool pvNode = alpha != beta - 1;
     const bool root = ply == 0;
     Hash* entry = transpositionTabel.getHash(board);
-
-    int hashedScore;
-
     if (entry != nullptr)
     {
         if (board.hash() == entry->key)
@@ -54,7 +51,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (depth == 0)
     {
-        return qs(alpha, beta, board, ply);
+        return qs(alpha, beta, board, ply, depth);
     }
 
     bool bSearchPv = true;
@@ -121,7 +118,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     return bestScore;
 }
 
-int searcher::qs(int alpha, int beta, Board& board, int ply)
+int searcher::qs(int alpha, int beta, Board& board, int ply, int depth)
 {
     Hash* entry = transpositionTabel.getHash(board);
 
@@ -134,9 +131,10 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
         }
     }
+
     if (entry != nullptr)
     {
-        if (!pvNode)
+        if (!pvNode && entry->depth >= depth)
         {
             return hashedScore;
         }
@@ -157,26 +155,39 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
     Movelist moveList;
     movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
 
+    int bestScore = -infinity;
+
     for (const Move& move : moveList)
     {
         board.makeMove(move);
 
-        int score = -qs(-beta, -alpha, board, ply);
+        int score = -qs(-beta, -alpha, board, ply, depth);
 
         board.unmakeMove(move);
 
-        if (score >= beta)
+        if (score > bestScore)
         {
-            return beta;
-        }
+            bestScore = score;
 
-        if (score > alpha)
-        {
-            alpha = score;
+            if (score > alpha)
+            {
+                alpha = score;
+                if (score >= beta)
+                {
+                    break;
+                }
+            }
         }
     }
 
-    return alpha;
+    if (board.inCheck() && bestScore == -infinity)
+    {
+        return -MATE + ply;
+    }
+
+    transpositionTabel.storeEvaluation(board.hash(), depth, bestScore >= beta ? BETA : ALPHA , transpositionTabel.ScoreToTT(bestScore, ply), Move::NULL_MOVE);
+
+    return bestScore;
 }
 
 void searcher::iterativeDeepening(Board& board)
