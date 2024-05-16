@@ -9,10 +9,10 @@ using namespace chess;
 const short EXACT = 0;
 const short ALPHA = 1;
 const short BETA = 2;
-const int TBWIN = 30000;
+const int TBWIN = 33000;
 const int TBWIN_IN_MAX = TBWIN - 999;
 
-const int MATE = 31000;
+const int MATE = 34000;
 const int MATE_IN_MAX = MATE - 999;
 
 struct Hash {
@@ -47,14 +47,14 @@ public:
     void clear();
     int estimateHashfull() const;
 
-    int ScoreToTT(const int score, const uint8_t ply) {
+    int ScoreToTT(int score, int ply) {
         return score >= TBWIN_IN_MAX ? score + ply
             : score <= -TBWIN_IN_MAX ? score - ply
             : score;
     }
 
-    // Add the distance from root to terminal scores get the total distance to mate/TB
-    int ScoreFromTT(const int score, const uint8_t ply) {
+    
+    int ScoreFromTT(int score, int ply) {
         return score >= TBWIN_IN_MAX ? score - ply
             : score <= -TBWIN_IN_MAX ? score + ply
             : score;

@@ -26,28 +26,21 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         shouldStop = true;
     }
-    int ttScore;
+
+    const bool pvNode = alpha != beta - 1;
+    const bool root = ply == 0;
     Hash* entry = transpositionTabel.getHash(board);
     if (entry != nullptr)
     {
         if (board.hash() == entry->key)
         {
-            ttScore = transpositionTabel.ScoreFromTT(entry->score, ply);
+            if (!pvNode && entry->depth >= depth)
+            {
+                transpositions++;
+                return transpositionTabel.ScoreFromTT(entry->score, ply);;
+            }
         }
     }
-
-    const bool pvNode = alpha != beta - 1;
-    const bool root = ply == 0;
-
-    if (entry != nullptr)
-    {
-        if (!pvNode && entry->depth >= depth)
-        {
-            transpositions++;
-            return ttScore;
-        }
-    }
-
     short type = ALPHA;
 
     if (depth == 0)
@@ -111,9 +104,9 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
                 }
             }
         }
-
     }
     bestScore = MIN(bestScore, infinity);
+
     transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.ScoreToTT(bestScore, ply), bestMove);
 
     return bestScore;
