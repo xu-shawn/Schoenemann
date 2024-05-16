@@ -30,22 +30,31 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     const bool pvNode = alpha != beta - 1;
     const bool root = ply == 0;
     Hash* entry = transpositionTabel.getHash(board);
+
+    int hashedScore;
+
     if (entry != nullptr)
     {
         if (board.hash() == entry->key)
         {
-            if (!pvNode && entry->depth >= depth)
-            {
-                transpositions++;
-                return transpositionTabel.ScoreFromTT(entry->score, ply);;
-            }
+            hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
         }
     }
+
+    if (entry != nullptr)
+    {
+        if (!pvNode && entry->depth >= depth)
+        {
+            transpositions++;
+            return hashedScore;
+        }
+    }
+
     short type = ALPHA;
 
     if (depth == 0)
     {
-        return qs(alpha, beta, board);
+        return qs(alpha, beta, board, ply);
     }
 
     bool bSearchPv = true;
@@ -112,8 +121,26 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     return bestScore;
 }
 
-int searcher::qs(int alpha, int beta, Board& board)
+int searcher::qs(int alpha, int beta, Board& board, int ply)
 {
+    Hash* entry = transpositionTabel.getHash(board);
+
+    int hashedScore = 0;
+    const bool pvNode = alpha != beta - 1;
+    if (entry != nullptr)
+    {
+        if (board.hash() == entry->key)
+        {
+            hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
+        }
+    }
+    if (entry != nullptr)
+    {
+        if (!pvNode)
+        {
+            return hashedScore;
+        }
+    }
 
     int standPat = evaluate(board);
 
@@ -134,7 +161,7 @@ int searcher::qs(int alpha, int beta, Board& board)
     {
         board.makeMove(move);
 
-        int score = -qs(-beta, -alpha, board);
+        int score = -qs(-beta, -alpha, board, ply);
 
         board.unmakeMove(move);
 
