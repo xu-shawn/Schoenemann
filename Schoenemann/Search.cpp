@@ -26,7 +26,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         shouldStop = true;
     }
-    int hashedScore;
+    int hashedScore = 0;
     const bool pvNode = alpha != beta - 1;
     const bool root = ply == 0;
     Hash* entry = transpositionTabel.getHash(board);
@@ -136,6 +136,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int depth)
     {
         if (!pvNode && entry->depth >= depth)
         {
+            transpositions++;
             return hashedScore;
         }
     }
@@ -155,7 +156,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int depth)
     Movelist moveList;
     movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
 
-    int bestScore = -infinity;
+    int bestScore = standPat;
 
     for (const Move& move : moveList)
     {
