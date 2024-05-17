@@ -104,14 +104,14 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
                 {
                     bestMove = move;
                 }
-                if (score >= beta)
-                {
-                    break;
-                }
+            }
+            if (score >= beta)
+            {
+                break;
             }
         }
     }
-    bestScore = MIN(bestScore, infinity);
+    //bestScore = MIN(bestScore, infinity);
 
     transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.ScoreToTT(bestScore, ply), bestMove);
 
@@ -173,10 +173,11 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int depth)
             if (score > alpha)
             {
                 alpha = score;
-                if (score >= beta)
-                {
-                    break;
-                }
+            }
+
+            if (score >= beta)
+            {
+                break;
             }
         }
     }
@@ -186,7 +187,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int depth)
         return -MATE + ply;
     }
 
-    transpositionTabel.storeEvaluation(board.hash(), depth, bestScore >= beta ? BETA : ALPHA , transpositionTabel.ScoreToTT(bestScore, ply), Move::NULL_MOVE);
+    //transpositionTabel.storeEvaluation(board.hash(), depth, EXACT, transpositionTabel.ScoreToTT(bestScore, ply), Move::NULL_MOVE);
 
     return bestScore;
 }
