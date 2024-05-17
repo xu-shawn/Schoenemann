@@ -71,8 +71,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
             return 0;
         }
     }
-    int score;
-    int bestScore = -infinity;
+    int score = 0;
     for (const Move& move : moveList)
     {
         board.makeMove(move);
@@ -91,31 +90,27 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
 
         board.unmakeMove(move);
-
-        if (score > bestScore)
+        if (score > alpha)
         {
-            bestScore = score;
-            if (score > alpha)
+            alpha = score;
+            bSearchPv = false;
+            type = EXACT;
+            if (ply == 0)
             {
-                alpha = score;
-                bSearchPv = false;
-                type = EXACT;
-                if (ply == 0)
-                {
-                    bestMove = move;
-                }
-            }
-            if (score >= beta)
-            {
-                break;
+                bestMove = move;
             }
         }
+        if (score >= beta)
+        {
+            break;
+        }
+            
     }
     //bestScore = MIN(bestScore, infinity);
 
-    transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.ScoreToTT(bestScore, ply), bestMove);
+    transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.ScoreToTT(score, ply), bestMove);
 
-    return bestScore;
+    return score;
 }
 
 int searcher::qs(int alpha, int beta, Board& board, int ply, int depth)
