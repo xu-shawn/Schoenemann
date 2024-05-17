@@ -40,7 +40,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (entry != nullptr)
     {
-        if (!pvNode && entry->depth >= depth)
+        if (entry->depth >= depth)
         {
             transpositions++;
             return hashedScore;
@@ -129,7 +129,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int depth)
 
     if (entry != nullptr)
     {
-        if (!pvNode && entry->depth >= depth)
+        if (entry->depth >= depth)
         {
             transpositions++;
             return hashedScore;
