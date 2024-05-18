@@ -2,7 +2,7 @@
 
 #include "tt.h"
 
-void tt::storeEvaluation(std::uint64_t key, short depth, short type, int score, Move move)
+void tt::storeEvaluation(std::uint64_t key, short depth, short type, int score, Move move, int eval)
 {
 	std::uint64_t index = key % size;
 
@@ -10,7 +10,7 @@ void tt::storeEvaluation(std::uint64_t key, short depth, short type, int score, 
 	Hash* node = table + index;
 
 	//Store the entry
-	node->setEntry(key, depth, type, score, move);
+	node->setEntry(key, depth, type, score, move, eval);
 }
 
 

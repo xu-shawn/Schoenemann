@@ -7,8 +7,8 @@
 using namespace chess;
 
 const short EXACT = 0;
-const short ALPHA = 1;
-const short BETA = 2;
+const short UPPER_BOUND = 1;
+const short LOWER_BOUND = 2; //Lower
 const int TBWIN = 33000;
 const int TBWIN_IN_MAX = TBWIN - 999;
 
@@ -18,17 +18,19 @@ const int MATE_IN_MAX = MATE - 999;
 struct Hash {
     std::uint64_t key;
     short depth;
-    short type; //Ether EXACT, ALPHA or BETA
+    short type; //Ether EXACT, UPPER_BOUND or LOWER_BOUND
     int score;
     Move move;
+    int eval;
 
-    void setEntry(std::uint64_t _key, short _depth, short _type, int _score, Move _move)
+    void setEntry(std::uint64_t _key, short _depth, short _type, int _score, Move _move, int _eval)
     {
         key = _key;
         depth = _depth;
         type = _type;
         score = _score;
         move = _move;
+        eval = _eval;
     }
 };
 
@@ -39,7 +41,7 @@ public:
     tt& operator=(const tt& other) = delete;
     ~tt();
 
-    void storeEvaluation(std::uint64_t key, short depth, short type, int score, Move move);
+    void storeEvaluation(std::uint64_t key, short depth, short type, int score, Move move, int eval);
     Hash* getHash(Board& board);
     uint64_t getSize() const;
     void setSize(uint64_t MB);
@@ -47,17 +49,34 @@ public:
     void clear();
     int estimateHashfull() const;
 
-    int ScoreToTT(int score, int ply) {
+    int ScoreToTT(int score, int ply) 
+    {
         return score >= TBWIN_IN_MAX ? score + ply
             : score <= -TBWIN_IN_MAX ? score - ply
             : score;
     }
 
     
-    int ScoreFromTT(int score, int ply) {
+    int ScoreFromTT(int score, int ply) 
+    {
         return score >= TBWIN_IN_MAX ? score - ply
             : score <= -TBWIN_IN_MAX ? score + ply
             : score;
+    }
+
+    bool checkForMoreInformation(short type, int ttScore, int score)
+    {
+        short tempType;
+        if (ttScore >= score)
+        {
+            tempType = LOWER_BOUND;
+        }
+        else
+        {
+            tempType = UPPER_BOUND;
+        }
+
+        return type & tempType;
     }
 
 private:

@@ -3,9 +3,6 @@
 
 using namespace chess;
 
-#define MIN(A, B) ((A) < (B) ? (A) : (B))
-#define MAX(A, B) ((A) > (B) ? (A) : (B))
-
 class searcher {
 public:
 	const short infinity = 32767;
@@ -18,7 +15,7 @@ public:
 	int nodes = 0;
 
 	int pvs(int alpha, int beta, int depth, int ply, Board& board);
-	int qs(int alpha, int beta, Board& board, int ply, int depth);
+	int qs(int alpha, int beta, Board& board, int ply);
 	void iterativeDeepening(Board& board);
 private:
 };

@@ -202,7 +202,7 @@ int main(int argc, char* argv[]) {
 
 			//Store the information
 
-			transpositionTabel.storeEvaluation(key, 2, BETA, 200, uci::uciToMove(board, "d5e4"));
+			transpositionTabel.storeEvaluation(key, 2, LOWER_BOUND, transpositionTabel.ScoreToTT(200, 1), uci::uciToMove(board, "d5e4"), 1);
 
 			//Try to get the information out of the table
 
@@ -237,7 +237,7 @@ int main(int argc, char* argv[]) {
 				std::cout << "Test for the depth FAILED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
 			}
 
-			if (hashedType == BETA)
+			if (hashedType == LOWER_BOUND)
 			{
 				std::cout << "Test for the type PASSED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
 			}

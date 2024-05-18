@@ -26,32 +26,50 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         shouldStop = true;
     }
+
+    if (depth == 0)
+    {
+        return qs(alpha, beta, board, ply);
+    }
+
     int hashedScore = 0;
+    int hashedEval = 0;
+    short hashedType = 0;
+    int hashedDepth = 0;
+
     const bool pvNode = alpha != beta - 1;
     const bool root = ply == 0;
+
+
     Hash* entry = transpositionTabel.getHash(board);
+
     if (entry != nullptr)
     {
         if (board.hash() == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
+            hashedType = entry->type;
+            hashedDepth = entry->depth;
+            hashedEval = entry->eval;
         }
     }
 
     if (entry != nullptr)
     {
-        if (entry->depth >= depth)
+        if (!pvNode && hashedDepth >= depth && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
             transpositions++;
             return hashedScore;
         }
     }
 
-    short type = ALPHA;
+    short type = UPPER_BOUND;
 
-    if (depth == 0)
+    int staticEval = !board.inCheck() ? evaluate(board) : MATE + 2;
+
+    if (hashedScore != (MATE + 2) && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, staticEval))
     {
-        return qs(alpha, beta, board, ply, depth);
+        staticEval = hashedScore;
     }
 
     bool bSearchPv = true;
@@ -72,6 +90,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
     int score = 0;
+    int bestScore = -infinity;
     for (const Move& move : moveList)
     {
         board.makeMove(move);
@@ -90,46 +109,56 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
 
         board.unmakeMove(move);
-        if (score > alpha)
+
+        if (score > bestScore)
         {
-            alpha = score;
-            bSearchPv = false;
-            type = EXACT;
-            if (ply == 0)
+            bestScore = score;
+            if (score > alpha)
             {
-                bestMove = move;
+                alpha = score;
+
+                bSearchPv = false;
+                type = EXACT;
+
+                if (ply == 0)
+                {
+                    bestMove = move;
+                }
+
+                //Beta cutoff
+                if (score >= beta)
+                {
+                    break;
+                }
             }
-        }
-        if (score >= beta)
-        {
-            break;
-        }
-            
+        }   
     }
-    //bestScore = MIN(bestScore, infinity);
 
-    transpositionTabel.storeEvaluation(board.hash(), depth, type, transpositionTabel.ScoreToTT(score, ply), bestMove);
+    transpositionTabel.storeEvaluation(board.hash(), depth, bestScore >= beta ? LOWER_BOUND : pvNode && (type == EXACT) ? EXACT : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
 
-    return score;
+    return bestScore;
 }
 
-int searcher::qs(int alpha, int beta, Board& board, int ply, int depth)
+int searcher::qs(int alpha, int beta, Board& board, int ply)
 {
     Hash* entry = transpositionTabel.getHash(board);
 
     int hashedScore = 0;
+    short hashedType = 0;
     const bool pvNode = alpha != beta - 1;
+
     if (entry != nullptr)
     {
         if (board.hash() == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
+            hashedType = entry->type;
         }
     }
 
     if (entry != nullptr)
     {
-        if (entry->depth >= depth)
+        if (!pvNode && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
             transpositions++;
             return hashedScore;
@@ -137,6 +166,11 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int depth)
     }
 
     int standPat = evaluate(board);
+
+    if (!board.inCheck() && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
+    {
+        standPat = hashedScore;
+    }
 
     if (standPat >= beta)
     {
@@ -152,37 +186,44 @@ int searcher::qs(int alpha, int beta, Board& board, int ply, int depth)
     movegen::legalmoves<movegen::MoveGenType::CAPTURE>(moveList, board);
 
     int bestScore = standPat;
+    Move bestMoveInQs = Move::NULL_MOVE;
 
     for (const Move& move : moveList)
     {
         board.makeMove(move);
 
-        int score = -qs(-beta, -alpha, board, ply, depth);
+        int score = -qs(-beta, -alpha, board, ply);
 
         board.unmakeMove(move);
 
+        //Our current Score is better then the previos bestScore so we update it 
         if (score > bestScore)
         {
             bestScore = score;
 
+            //Score is greater than alpha so we update alpha to the score
             if (score > alpha)
             {
                 alpha = score;
-            }
+                
+                bestMoveInQs = move;
 
-            if (score >= beta)
-            {
-                break;
+                //Beta cutoff
+                if (score >= beta)
+                {
+                    break;
+                }
             }
         }
     }
 
+    //Checks for checkmate
     if (board.inCheck() && bestScore == -infinity)
     {
         return -MATE + ply;
     }
 
-    //transpositionTabel.storeEvaluation(board.hash(), depth, EXACT, transpositionTabel.ScoreToTT(bestScore, ply), Move::NULL_MOVE);
+    transpositionTabel.storeEvaluation(board.hash(), 0, bestScore >= beta ? LOWER_BOUND : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInQs, standPat);
 
     return bestScore;
 }
