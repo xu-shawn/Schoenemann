@@ -51,7 +51,7 @@ int count_material(Board& board, Color color) {
 
     if (bishopAmount >= 2)
     {
-        material += 15;
+        material += 50;
     }
 
     int valueBishop = bishopValue + bouns.getPieceBounus(board, PieceType::BISHOP, color);
