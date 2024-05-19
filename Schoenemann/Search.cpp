@@ -58,19 +58,25 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         if (!pvNode && hashedDepth >= depth && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
-            transpositions++;
-            return hashedScore;
+            if (hashedType == EXACT)
+            {
+                transpositions++;
+                return hashedScore;
+            }
+            if (hashedType == UPPER_BOUND && hashedScore <= alpha)
+            {
+                transpositions++;
+                return hashedScore;
+            }
+            if (hashedType == LOWER_BOUND && hashedScore >= beta)
+            {
+                transpositions++;
+                return hashedScore;
+            }
         }
     }
 
     short type = UPPER_BOUND;
-
-    int staticEval = !board.inCheck() ? evaluate(board) : MATE + 2;
-
-    if (hashedScore != (MATE + 2) && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, staticEval))
-    {
-        staticEval = hashedScore;
-    }
 
     bool bSearchPv = true;
 
@@ -120,21 +126,25 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
                 bSearchPv = false;
                 type = EXACT;
 
+                //If we are ate the root we set the bestMove
                 if (ply == 0)
                 {
                     bestMove = move;
                 }
+            }
 
-                //Beta cutoff
-                if (score >= beta)
-                {
-                    break;
-                }
+            //Beta cutoff
+            if (score >= beta)
+            {
+                break;
             }
         }   
     }
 
-    transpositionTabel.storeEvaluation(board.hash(), depth, bestScore >= beta ? LOWER_BOUND : pvNode && (type == EXACT) ? EXACT : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
+    if (!root)
+    {
+        transpositionTabel.storeEvaluation(board.hash(), depth, bestScore >= beta ? LOWER_BOUND : pvNode && (type == EXACT) ? EXACT : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, evaluate(board));
+    }
 
     return bestScore;
 }
@@ -160,8 +170,21 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
     {
         if (!pvNode && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
-            transpositions++;
-            return hashedScore;
+            if (hashedType == EXACT)
+            {
+                transpositions++;
+                return hashedScore;
+            }
+            if (hashedType == UPPER_BOUND && hashedScore <= alpha)
+            {
+                transpositions++;
+                return hashedScore;
+            }
+            if (hashedType == LOWER_BOUND && hashedScore >= beta)
+            {
+                transpositions++;
+                return hashedScore;
+            }
         }
     }
 
@@ -207,12 +230,12 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
                 alpha = score;
                 
                 bestMoveInQs = move;
+            }
 
-                //Beta cutoff
-                if (score >= beta)
-                {
-                    break;
-                }
+            //Beta cutoff
+            if (score >= beta)
+            {
+                break;
             }
         }
     }
