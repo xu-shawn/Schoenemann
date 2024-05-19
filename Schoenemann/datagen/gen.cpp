@@ -15,8 +15,8 @@ void generateDataSet(int epochs)
 	Board board;
 	std::string result;
 	std::uint64_t genFens = 0;
-	search.hasNodeLimit = true;
-	search.nodeLimit = 5000;
+	//search.hasNodeLimit = true;
+	//search.nodeLimit = 5000;
 	for (int i = 0; i < epochs; i++)
 	{
 		//Playing a game
@@ -72,9 +72,9 @@ void generateDataSet(int epochs)
 				}
 				break;
 			}
-			search.setNodes(0);
-			search.search(1, -32767, 32767, 0, board);
-			board.makeMove(search.getBestMove());
+			//search.setNodes(0);
+			//search.search(1, -32767, 32767, 0, board);
+			board.makeMove(search.bestMove);
 			fens[x] = board.getFen() + "; ";
 			genFens++;
 
@@ -84,7 +84,7 @@ void generateDataSet(int epochs)
 
 	}
 
-	search.hasNodeLimit = false;
+	//search.hasNodeLimit = false;
 }
 
 void writeFile(std::string fens[], std::string gameResult)

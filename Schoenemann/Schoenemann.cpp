@@ -13,7 +13,7 @@
 using namespace chess;
 
 searcher seracher;
-tt transpositionTabel;
+tt transpositionTabel(64);
 uciRunner mainRunner;
 
 int time_left = 0;
@@ -32,7 +32,7 @@ int main(int argc, char* argv[]) {
 		return 0;
 	}
 
-	transpositionTabel.init(8);
+	transpositionTabel.setSize(8);
 
 	do
 	{
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 		{
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 			transpositionTabel.clear();
-			transpositionTabel.init(newTranspositionTableSize);
+			//transpositionTabel.setSize(newTranspositionTableSize);
 		}
 		else if (token == "setoption")
 		{
@@ -81,7 +81,7 @@ int main(int argc, char* argv[]) {
 						is >> token;
 						newTranspositionTableSize = std::stoi(token);
 						transpositionTabel.clear();
-						transpositionTabel.init(newTranspositionTableSize);
+						transpositionTabel.setSize(newTranspositionTableSize);
 					}
 				}
 			}
@@ -147,8 +147,10 @@ int main(int argc, char* argv[]) {
 				else if (token == "depth")
 				{
 					is >> token;
-					seracher.search(std::stoi(token), -32767, 32767, 0, board);
-					std::cout << "bestmove " << seracher.getBestMove() << std::endl;
+					//std::cout << "hashfull " << transpositionTabel.estimateHashfull() << std::endl;
+					seracher.pvs(-32767, 32767, std::stoi(token), 0, board);
+					//std::cout << "hashfull " << transpositionTabel.estimateHashfull() << std::endl;
+					std::cout << "bestmove " << seracher.bestMove << std::endl;
 				}
 				if (!(is >> token)) break;
 			}
@@ -181,7 +183,7 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "nodes")
 		{
-			std::cout << seracher.getNodes() << std::endl;
+			std::cout << seracher.nodes << std::endl;
 		}
 		else if (token == "datagen")
 		{
@@ -190,12 +192,84 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "tt")
 		{
-			std::cout << seracher.getTranspositions() << std::endl;
+			std::cout << seracher.transpositions << std::endl;
+		}
+		else if (token == "ttest")
+		{
+			//Set up a unice position
+			board.setFen("3N4/2p5/5K2/k1PB3p/3Pr3/1b5p/6p1/5nB1 w - - 0 1");
+			std::uint64_t key = board.hash();
+
+			//Store the information
+
+			transpositionTabel.storeEvaluation(key, 2, LOWER_BOUND, transpositionTabel.ScoreToTT(200, 1), uci::uciToMove(board, "d5e4"), 1);
+
+			//Try to get the information out of the table
+
+			Hash* entry = transpositionTabel.getHash(board);
+			
+			if (entry == nullptr)
+			{
+				std::cout << "The entry is a nullptr" << std::endl;
+				continue;
+			}
+			std::uint64_t hashedKey = entry->key;
+			short hashedDepth = entry->depth;
+			short hashedType = entry->type;
+			int hashedScore = entry->score;
+			Move hashedMove = entry->move;
+
+			if (hashedKey == key)
+			{
+				std::cout << "Test for the key PASSED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the key FAILED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
+			}
+
+			if (hashedDepth == 2)
+			{
+				std::cout << "Test for the depth PASSED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the depth FAILED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+			}
+
+			if (hashedType == LOWER_BOUND)
+			{
+				std::cout << "Test for the type PASSED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the type FAILED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+			}
+
+			if (hashedScore == 200)
+			{
+				std::cout << "Test for the score PASSED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the score FAILED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+			}
+
+			if (hashedMove == uci::uciToMove(board, "d5e4"))
+			{
+				std::cout << "Test for the move PASSED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the move FAILED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
+			}
+
+			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		}
 		else if (token == "test")
 		{
 			Board test_board;
-			test_board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			test_board.setFen("8/4R3/6kp/6p1/8/7P/3r4/6K1 w - - 0 28");
 			//seracher.search(1, -32767, 32767, 0, test_board);
 			//std::cout << "\nbestmove " << seracher.getBestMove() << "\nNodes: " << seracher.getNodes() << std::endl;
 
@@ -230,16 +304,16 @@ void uciRunner::run_benchmark() {
 
 	Board bench_board;
 	auto start = std::chrono::high_resolution_clock::now();
-	seracher.setNodes(0);
+	seracher.nodes = 0;
 	for (const auto& test : testStrings) {
 		bench_board.setFen(test);
-		seracher.search(3, -32767, 32767, 0, bench_board);
+		seracher.pvs(-32767, 32767, 3, 0, bench_board);
 	}
 	auto end = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double, std::milli> timeElapsed = end - start;
 	int timeInMs = static_cast<int>(timeElapsed.count());
-	int NPS = static_cast<int>(seracher.getNodes() / timeElapsed.count() * 1000);
-	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << seracher.getNodes() << "\nNPS   : " << NPS << std::endl;
+	int NPS = static_cast<int>(seracher.nodes / timeElapsed.count() * 1000);
+	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << seracher.nodes << "\nNPS   : " << NPS << std::endl;
 }
 
 int getTime()
