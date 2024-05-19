@@ -9,11 +9,9 @@ using namespace chess;
 const short EXACT = 0;
 const short UPPER_BOUND = 1;
 const short LOWER_BOUND = 2; //Lower
-const int TBWIN = 33000;
-const int TBWIN_IN_MAX = TBWIN - 999;
+const short infinity = 32767;
 
-const int MATE = 34000;
-const int MATE_IN_MAX = MATE - 999;
+const int MATE = infinity;
 
 struct Hash {
     std::uint64_t key;
@@ -51,16 +49,16 @@ public:
 
     int ScoreToTT(int score, int ply) 
     {
-        return score >= TBWIN_IN_MAX ? score + ply
-            : score <= -TBWIN_IN_MAX ? score - ply
+        return score >= infinity ? score + ply
+            : score <= -infinity ? score - ply
             : score;
     }
 
     
     int ScoreFromTT(int score, int ply) 
     {
-        return score >= TBWIN_IN_MAX ? score - ply
-            : score <= -TBWIN_IN_MAX ? score + ply
+        return score >= infinity ? score - ply
+            : score <= -infinity ? score + ply
             : score;
     }
 
