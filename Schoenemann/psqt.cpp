@@ -55,7 +55,7 @@ int psqt::getPieceBounus(Board& board, PieceType piece, Color& color)
 			middleGameBounus = middlegameKingTable[index];
 			endGameBounus = endgameKingTable[index];
 		}
-		short factor = pieces.count() / 32;
+		short factor = pieces.count() / 8;
 		bounus += factor * middleGameBounus + (1 - factor) * endGameBounus;
 	}
 
