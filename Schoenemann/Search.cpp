@@ -143,7 +143,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (!root)
     {
-        transpositionTabel.storeEvaluation(board.hash(), depth, bestScore >= beta ? LOWER_BOUND : pvNode && (type == EXACT) ? EXACT : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, evaluate(board));
+        transpositionTabel.storeEvaluation(board.hash(), depth, bestScore >= beta ? LOWER_BOUND : pvNode && (type == EXACT) ? EXACT : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, nnueEvaluation(board));
     }
 
     return bestScore;
@@ -188,7 +188,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
         }
     }
 
-    int standPat = evaluate(board);
+    int standPat = nnueEvaluation(board);
 
     if (!board.inCheck() && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
     {
