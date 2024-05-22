@@ -10,45 +10,56 @@ const int QB = 64;
 
 inline int32_t crelu(int16_t x);
 
-struct Accumulator {
-    std::array<int16_t, HIDDEN_SIZE> vals;
-
-    Accumulator(const std::array<int16_t, HIDDEN_SIZE>& bias) : vals(bias) {}
-
-    void add_feature(size_t feature_idx, const std::array<std::array<int16_t, HIDDEN_SIZE>, 768>& feature_weights) {
-        for (int i = 0; i < HIDDEN_SIZE; ++i) {
-            vals[i] += feature_weights[feature_idx][i];
-        }
-    }
-
-    void remove_feature(size_t feature_idx, const std::array<std::array<int16_t, HIDDEN_SIZE>, 768>& feature_weights) {
-        for (int i = 0; i < HIDDEN_SIZE; ++i) {
-            vals[i] -= feature_weights[feature_idx][i];
-        }
-    }
-};
-
+// Network structure
 struct Network {
     std::array<std::array<int16_t, HIDDEN_SIZE>, 768> feature_weights;
     std::array<int16_t, HIDDEN_SIZE> feature_bias;
     std::array<int16_t, 2 * HIDDEN_SIZE> output_weights;
     int16_t output_bias;
 
-    int32_t evaluate(const Accumulator& us, const Accumulator& them) const {
-        int32_t output = output_bias;
+    // Evaluate function
+    int evaluate(const std::array<int16_t, HIDDEN_SIZE>& us, const std::array<int16_t, HIDDEN_SIZE>& them) const {
+        int output = output_bias;
 
-        for (int i = 0; i < HIDDEN_SIZE; ++i) {
-            output += crelu(us.vals[i]) * output_weights[i];
+        // Side-To-Move Accumulator -> Output.
+        for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
+            output += crelu(us[i]) * output_weights[i];
         }
 
-        for (int i = 0; i < HIDDEN_SIZE; ++i) {
-            output += crelu(them.vals[i]) * output_weights[HIDDEN_SIZE + i];
+        // Not-Side-To-Move Accumulator -> Output.
+        for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
+            output += crelu(them[i]) * output_weights[HIDDEN_SIZE + i];
         }
 
+        // Apply eval scale.
         output *= SCALE;
-        output /= (QA * QB);
+
+        // Remove quantisation.
+        output /= QA * QB;
 
         return output;
+    }
+};
+
+// Accumulator structure
+struct Accumulator {
+    std::array<int16_t, HIDDEN_SIZE> vals;
+
+    // Constructor
+    Accumulator(const Network& net) : vals(net.feature_bias) {}
+
+    // Add a feature to an accumulator.
+    void add_feature(size_t feature_idx, const Network& net) {
+        for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
+            vals[i] += net.feature_weights[feature_idx][i];
+        }
+    }
+
+    // Remove a feature from an accumulator.
+    void remove_feature(size_t feature_idx, const Network& net) {
+        for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
+            vals[i] -= net.feature_weights[feature_idx][i];
+        }
     }
 };
 

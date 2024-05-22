@@ -268,19 +268,10 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "nn")
 		{
-			// Beispiel FEN-Notation
 			std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-
-
 			board.setFen(fen);
-
-
-			uint64_t boardHash = board.hash();
-
-			
-			//int result = evaluate_position(boardHash, nnue);
-
-			//std::cout << "Evaluation result: " << result << std::endl;
+			int result = nnueEvaluation(board);
+			std::cout << "Evaluation result: " << result << std::endl;
 		}
 		else if (token == "test")
 		{

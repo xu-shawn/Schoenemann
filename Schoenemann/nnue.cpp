@@ -27,21 +27,19 @@ void load_network(Network& network, const std::string& filepath) {
 }
 
 int evaluate_position(uint64_t hash, const Network& network) {
-    Accumulator us(network.feature_bias);
-    Accumulator them(network.feature_bias);
 
-    // Füge den Hashwert als Feature hinzu. Dies ist ein vereinfachtes Beispiel,
-    // wie man den Hashwert in das Netzwerk einspeisen könnte.
-    // In der Praxis müsstest du eine Methode haben, um den Hashwert in die Feature-Matrix zu integrieren.
+    // Convert Zobrist hash to two side-to-move accumulators
+    std::array<int16_t, HIDDEN_SIZE> us = {}, them = {};
+    for (size_t i = 0; i < 64; ++i) {
+        if ((hash >> i) & 1) {
+            us[i % HIDDEN_SIZE]++;
+        }
+        else {
+            them[i % HIDDEN_SIZE]++;
+        }
+    }
 
-    // Hier könnte man den Hashwert in Teile zerlegen und als Features hinzufügen.
-    // us.add_feature(hash % 768, network.feature_weights);  // Beispiel für Modulo-Operation
-    // them.add_feature((hash / 768) % 768, network.feature_weights);  // Beispiel für Division und Modulo
-
-    // Beispielhafte einfache Nutzung:
-    us.add_feature(hash % 768, network.feature_weights);
-    them.add_feature((hash / 768) % 768, network.feature_weights);
-
+    // Evaluate using the network
     return network.evaluate(us, them);
 }
 
