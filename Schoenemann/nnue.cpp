@@ -28,19 +28,24 @@ void load_network(Network& network, const std::string& filepath) {
 
 int evaluate_position(uint64_t hash, const Network& network) {
 
-    // Convert Zobrist hash to two side-to-move accumulators
-    std::array<int16_t, HIDDEN_SIZE> us = {}, them = {};
-    for (size_t i = 0; i < 64; ++i) {
-        if ((hash >> i) & 1) {
-            us[i % HIDDEN_SIZE]++;
-        }
-        else {
-            them[i % HIDDEN_SIZE]++;
+    Accumulator us(network);
+    Accumulator them(network);
+
+    zobrist_to_accumulators(hash, us, them, network);
+
+    return network.evaluate(us.vals, them.vals);
+}
+
+void zobrist_to_accumulators(uint64_t zobrist, Accumulator& us, Accumulator& them, const Network& net) {
+    // Here we assume that each bit in the Zobrist hash corresponds to a feature
+    // This is a simple example. In a real case, you would map this more meaningfully.
+    for (std::size_t i = 0; i < 64; ++i) {
+        if (zobrist & (1ULL << i)) {
+            us.add_feature(i % 768, net);  // Modulo 768 to wrap around features if necessary
+            them.add_feature(i % 768, net);
         }
     }
-
-    // Evaluate using the network
-    return network.evaluate(us, them);
 }
+
 
 
