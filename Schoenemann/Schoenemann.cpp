@@ -40,11 +40,12 @@ int main(int argc, char* argv[]) {
 		{
 			cmd = "quit";
 		}
-
+		/*
 		std::ofstream debug;
 		debug.open("outputlog.txt", std::ios_base::app);
 		debug << cmd << "\n";
 		debug.close();
+		*/
 
 		std::istringstream is(cmd);
 		cmd.clear();

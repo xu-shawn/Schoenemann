@@ -39,11 +39,21 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     const bool pvNode = alpha != beta - 1;
     const bool root = ply == 0;
-
+    bool isNullptr;
 
     Hash* entry = transpositionTabel.getHash(board);
 
-    if (entry != nullptr)
+
+    if (entry == nullptr)
+    {
+        isNullptr = true;
+    }
+    else
+    {
+        isNullptr = false;
+    }
+
+    if (!isNullptr)
     {
         if (board.hash() == entry->key)
         {
@@ -54,7 +64,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
-    if (entry != nullptr)
+    if (!isNullptr)
     {
         if (!pvNode && hashedDepth >= depth && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
@@ -143,7 +153,21 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (!root)
     {
-        transpositionTabel.storeEvaluation(board.hash(), depth, bestScore >= beta ? LOWER_BOUND : pvNode && (type == EXACT) ? EXACT : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, evaluate(board));
+        short finalType;
+        //Calculate the node type
+        if (bestScore >= beta)
+        {
+            finalType = LOWER_BOUND;
+        }
+        else if (pvNode && (type == EXACT))
+        {
+            finalType = EXACT;
+        }
+        else
+        {
+            finalType = UPPER_BOUND;
+        }
+        transpositionTabel.storeEvaluation(board.hash(), depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, evaluate(board));
     }
 
     return bestScore;
@@ -157,7 +181,18 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
     short hashedType = 0;
     const bool pvNode = alpha != beta - 1;
 
-    if (entry != nullptr)
+    bool isNullptr;
+
+    if (entry == nullptr)
+    {
+        isNullptr = true;
+    }
+    else
+    {
+        isNullptr = false;
+    }
+
+    if (!isNullptr)
     {
         if (board.hash() == entry->key)
         {
@@ -166,7 +201,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
         }
     }
 
-    if (entry != nullptr)
+    if (!isNullptr)
     {
         if (!pvNode && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
