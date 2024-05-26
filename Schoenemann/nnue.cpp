@@ -54,62 +54,36 @@ int32_t Network::evaluate(const Accumulator& us, const Accumulator& them) const
 }
 int evaluatePosition(Board& board)
 {
-    // Get the side to move
-    bool isWhiteToMove = (board.sideToMove() == Color::WHITE);
+    //Get the side to move
+    bool isWhiteToMove = board.sideToMove() == Color::WHITE;
 
-    // Initialize accumulators for the side to move and the opponent
+    //Initialize accumulators for the side to move and the opponent
     Accumulator us(nnue_params);
     Accumulator them(nnue_params);
 
-    // Helper function to flip the square vertically
-    auto flipVertical = [](size_t square) 
-        {
-        return (square ^ 56);
-        };
-
-    // Add features to the accumulators based on the current board state
-    for (size_t square = 0; square < 64; ++square)
+    //Add features to the accumulators based on the current board state
+    for (uint8_t square = 0; square < 64; ++square)
     {
-        // Flip the square if it's black's turn
-        size_t currentSquare = isWhiteToMove ? square : flipVertical(square);
-
-        Piece piece = board.at(currentSquare);
+        square = isWhiteToMove ? square : square ^ 56;
+        Piece piece = board.at(square);
 
         if (piece != Piece::NONE)
         {
-            size_t featureIdx = 0;
             bool isPieceWhite = piece.color() == Color::WHITE;
+            bool isFriendly = (isWhiteToMove && isPieceWhite) || (!isWhiteToMove && !isPieceWhite);
 
-            // If we are white and it is a white piece, it is our piece
-            if (isPieceWhite && isWhiteToMove)
+            //Determine the feature index based on the perspective of the side to move
+            if (isFriendly)
             {
-                // Friendly piece
-                featureIdx = static_cast<size_t>(piece.type()) * 64 + square;
-                us.addFeature(featureIdx, nnue_params);
+                //Friendly piece
+                int featureIndex = piece.type() * 64 + square;
+                us.addFeature(featureIndex, nnue_params);
             }
-
-            // If we are white but the piece is black, it is an opponent piece
-            if (!isPieceWhite && isWhiteToMove)
+            else
             {
-                // Opponent piece
-                featureIdx = static_cast<size_t>(piece.type() + 6) * 64 + square;
-                them.addFeature(featureIdx, nnue_params);
-            }
-
-            // If we are black and it is a black piece, it is our piece
-            if (!isPieceWhite && !isWhiteToMove)
-            {
-                // Friendly piece
-                featureIdx = static_cast<size_t>(piece.type()) * 64 + square;
-                us.addFeature(featureIdx, nnue_params);
-            }
-
-            // If we are black but the piece is white, it is an opponent piece
-            if (isPieceWhite && !isWhiteToMove)
-            {
-                // Opponent piece
-                featureIdx = static_cast<size_t>(piece.type() + 6) * 64 + square;
-                them.addFeature(featureIdx, nnue_params);
+                //Opponent piece
+                int featureIndex = (piece.type() + 6) * 64 + square;
+                them.addFeature(featureIndex, nnue_params);
             }
         }
     }
