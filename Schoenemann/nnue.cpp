@@ -65,7 +65,7 @@ int evaluatePosition(Board& board)
     for (uint8_t square = 0; square < 64; ++square)
     {
         size_t newSq = isWhiteToMove ? square : square ^ 56;
-        Piece piece = board.at(newSq);
+        Piece piece = board.at(square);
 
         if (piece != Piece::NONE)
         {
