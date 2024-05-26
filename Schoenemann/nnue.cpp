@@ -64,8 +64,8 @@ int evaluatePosition(Board& board)
     //Add features to the accumulators based on the current board state
     for (uint8_t square = 0; square < 64; ++square)
     {
-        square = isWhiteToMove ? square : square ^ 56;
-        Piece piece = board.at(square);
+        size_t newSq = isWhiteToMove ? square : square ^ 56;
+        Piece piece = board.at(newSq);
 
         if (piece != Piece::NONE)
         {
@@ -76,13 +76,13 @@ int evaluatePosition(Board& board)
             if (isFriendly)
             {
                 //Friendly piece
-                int featureIndex = piece.type() * 64 + square;
+                int featureIndex = piece.type() * 64 + newSq;
                 us.addFeature(featureIndex, nnue_params);
             }
             else
             {
                 //Opponent piece
-                int featureIndex = (piece.type() + 6) * 64 + square;
+                int featureIndex = (piece.type() + 6) * 64 + newSq;
                 them.addFeature(featureIndex, nnue_params);
             }
         }
