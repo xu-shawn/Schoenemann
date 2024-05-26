@@ -77,7 +77,20 @@ int evaluatePosition(chess::Board& board)
                 featureIdx = static_cast<size_t>(piece.type()) * 64 + square;
                 us.addFeature(featureIdx, nnue_params);
             }
-            else 
+            else
+            {
+                //Enemy pieces
+                featureIdx = (static_cast<size_t>(piece.type()) + 6) * 64 + square;
+                them.addFeature(featureIdx, nnue_params);
+            }
+
+            if (!isPieceWhite && !isWhiteToMove)
+            {
+                //Friendly pieces
+                featureIdx = (static_cast<size_t>(piece.type()) + 6) * 64 + square;
+                them.addFeature(featureIdx, nnue_params);
+            }
+            else
             {
                 //Enemy pieces
                 featureIdx = (static_cast<size_t>(piece.type()) + 6) * 64 + square;

@@ -24,6 +24,19 @@ const short SCALE = 400;
 const int32_t QA = 255;
 const short QB = 64;
 
+const uint8_t usPawn = 0;
+const uint8_t usKnight = 1;
+const uint8_t usBishop = 2;
+const uint8_t usRook = 3;
+const uint8_t usQueen = 4;
+const uint8_t usKing = 5;
+const uint8_t opponentPawn = 6;
+const uint8_t opponentKnight = 7;
+const uint8_t opponentBishop = 8;
+const uint8_t opponentRook = 9;
+const uint8_t opponentKing = 10;
+const uint8_t opponentQueen = 11;
+
 //The Activation function
 //Gets a 16 bit number as an input and outputs the corresponding number as a 32 bit number
 //It also make sure that it is not outside the bound of QA
