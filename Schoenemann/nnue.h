@@ -9,6 +9,7 @@
 #include <vector>
 #include <array> 
 
+using namespace chess;
 
 //Forward deklaration
 struct Network;
@@ -76,6 +77,8 @@ struct Network
     int32_t evaluate(const Accumulator& us, const Accumulator& them) const;
 };
 
-int evaluatePosition(chess::Board& board);
+int evaluatePosition(Board& board);
+uint8_t getOpponentPiece(PieceType type);
+uint8_t getFriendlyPiece(PieceType type);
 
 #endif // NNUE_H
