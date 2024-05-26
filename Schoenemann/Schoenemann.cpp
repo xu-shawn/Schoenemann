@@ -191,10 +191,6 @@ int main(int argc, char* argv[]) {
 			is >> token;
 			generateDataSet(std::stoi(token));
 		}
-		else if (token == "pr")
-		{
-			std::cout << crelu(300) << std::endl;
-		}
 		else if (token == "tt")
 		{
 			std::cout << seracher.transpositions << std::endl;
@@ -277,6 +273,21 @@ int main(int argc, char* argv[]) {
 			board.setFen(fen);
 			int result = nnueEvaluation(board);
 			std::cout << "Evaluation result: " << result << std::endl;
+			for (size_t square = 0; square < 64; ++square)
+			{
+				Piece piece = board.at(square);
+
+				if (piece != Piece::NONE)
+				{
+					size_t featureIdx = 0;
+					bool isPieceWhite = piece.color() == Color::WHITE;
+					bool isWhiteToMove = (board.sideToMove() == Color::WHITE);
+					if (isPieceWhite && isWhiteToMove)
+					{
+						std::cout << static_cast<size_t>(piece.type()) << std::endl;
+					}
+				}
+			}
 		}
 		else if (token == "test")
 		{

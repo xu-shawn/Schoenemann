@@ -69,34 +69,36 @@ int evaluatePosition(Board& board)
         if (piece != Piece::NONE) 
         {
             size_t featureIdx = 0;
-            bool isPieceWhite = (piece.color() == Color::WHITE);
+            bool isPieceWhite = piece.color() == Color::WHITE;
+
+            //If we are white and it is a white piece it is a our piece
             if (isPieceWhite && isWhiteToMove) 
             {
-                //Friendly pieces
-                PieceType type = piece.type();
-                uint8_t tempValue;
-
+                //Friendly piece
                 featureIdx = static_cast<size_t>(piece.type()) * 64 + square;
                 us.addFeature(featureIdx, nnue_params);
             }
 
+            //If we are white but the piece is black it is a opponent piece
             if (!isPieceWhite && isWhiteToMove)
             {
-                //Enemy pieces
-                featureIdx = (static_cast<size_t>(piece.type()) + 6) * 64 + square;
+                //Opponent piece
+                featureIdx = static_cast<size_t>(piece.type() + 6) * 64 + square;
                 them.addFeature(featureIdx, nnue_params);
             }
 
+            //If we are black and it is a black piece it is a our piece
             if (!isPieceWhite && !isWhiteToMove)
             {
-                //Friendly pieces
-                featureIdx = (static_cast<size_t>(piece.type()) + 6) * 64 + square;
-                them.addFeature(featureIdx, nnue_params);
+                //Friendly piece
+                featureIdx = (static_cast<size_t>(piece.type())) * 64 + square;
+                us.addFeature(featureIdx, nnue_params);
             }
 
+            //If we are black but the piece is white it is a opponent piece
             if (isPieceWhite && !isWhiteToMove)
             {
-                //Enemy pieces
+                //Opponent piece
                 featureIdx = (static_cast<size_t>(piece.type()) + 6) * 64 + square;
                 them.addFeature(featureIdx, nnue_params);
             }
@@ -104,60 +106,4 @@ int evaluatePosition(Board& board)
     }
 
     return nnue_params.evaluate(us, them);
-}
-
-uint8_t getFriendlyPiece(PieceType type)
-{
-    if (type == PieceType::PAWN)
-    {
-        return usPawn;
-    }
-    else if (type == PieceType::KNIGHT)
-    {
-        return usKnight;
-    }
-    else if (type == PieceType::BISHOP)
-    {
-        return usBishop;
-    }
-    else if (type == PieceType::ROOK)
-    {
-        return usRook;
-    }
-    else if (type == PieceType::QUEEN)
-    {
-        return usQueen;
-    }
-    else if (type == PieceType::KING)
-    {
-        return usKing;
-    }
-}
-
-uint8_t getOpponentPiece(PieceType type)
-{
-    if (type == PieceType::PAWN)
-    {
-        return opponentPawn;
-    }
-    else if (type == PieceType::KNIGHT)
-    {
-        return opponentKnight;
-    }
-    else if (type == PieceType::BISHOP)
-    {
-        return opponentBishop;
-    }
-    else if (type == PieceType::ROOK)
-    {
-        return opponentRook;
-    }
-    else if (type == PieceType::QUEEN)
-    {
-        return opponentQueen;
-    }
-    else if (type == PieceType::KING)
-    {
-        return opponentKing;
-    }
 }

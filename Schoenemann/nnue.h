@@ -35,8 +35,8 @@ const uint8_t opponentPawn = 6;
 const uint8_t opponentKnight = 7;
 const uint8_t opponentBishop = 8;
 const uint8_t opponentRook = 9;
-const uint8_t opponentKing = 10;
-const uint8_t opponentQueen = 11;
+const uint8_t opponentQueen = 10;
+const uint8_t opponentKing = 11;
 
 //The Activation function
 //Gets a 16 bit number as an input and outputs the corresponding number as a 32 bit number
@@ -78,7 +78,5 @@ struct Network
 };
 
 int evaluatePosition(Board& board);
-uint8_t getOpponentPiece(PieceType type);
-uint8_t getFriendlyPiece(PieceType type);
 
 #endif // NNUE_H
