@@ -1,51 +1,90 @@
 #include "nnue.h"
-#include "movegen/chess.hpp"
-#include <algorithm>
-#include <array>
-#include <cstdint>
-#include <iostream>
-#include <vector>
-#include <unordered_map>
-#include <fstream>
+#include "incbin.h"
 
-inline int32_t crelu(int16_t x) {
-    return std::clamp(static_cast<int32_t>(x), 0, QA);
+
+// Including the binary network
+INCBIN(nnue, "simple-10.bin");
+
+const Network& nnue_params = *reinterpret_cast<const Network*>(gnnueData);
+
+int32_t crelu(int16_t x)
+{
+	return std::clamp(static_cast<int32_t>(x), 0, QA);
 }
 
-void load_network(Network& network, const std::string& filepath) {
-    std::ifstream file(filepath, std::ios::binary);
-    if (!file.is_open()) {
-        throw std::runtime_error("Could not open file");
+Accumulator::Accumulator(Network network)
+{
+    vals = network.featureBias;
+}
+
+void Accumulator::addFeature(size_t featureIdx, Network network)
+{
+    for (size_t i = 0; i < HIDDEN_SIZE; i++) {
+        vals[i] += network.featureWeights[featureIdx].vals[i];
+    }
+}
+
+void Accumulator::removeFeature(size_t featureIdx, Network network)
+{
+    for (size_t i = 0; i < HIDDEN_SIZE; i++) {
+        vals[i] -= network.featureWeights[featureIdx].vals[i];
+    }
+}
+
+int32_t Network::evaluate(const Accumulator& us, const Accumulator& them) const
+{
+    int output = static_cast<int32_t>(outputBias);
+
+    //Side-To-Move Accumulator
+    for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
+        output += crelu(us.vals[i]) * static_cast<int32_t>(outputWeights[i]);
     }
 
-    file.read(reinterpret_cast<char*>(network.feature_weights.data()), sizeof(network.feature_weights));
-    file.read(reinterpret_cast<char*>(network.feature_bias.data()), sizeof(network.feature_bias));
-    file.read(reinterpret_cast<char*>(network.output_weights.data()), sizeof(network.output_weights));
-    file.read(reinterpret_cast<char*>(&network.output_bias), sizeof(network.output_bias));
+    //Non-Side-To-Move Accumulator
+    for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
+        output += crelu(them.vals[i]) * static_cast<int32_t>(outputWeights[i]);
+    }
 
-    file.close();
+    //Apply the eval scale
+    output *= SCALE;
+
+    //Remove quantization
+    output /= QA * QB;
+
+    return output;
 }
+int evaluatePosition(chess::Board& board) 
+{
+    //Get the side to move
+    bool isWhiteToMove = (board.sideToMove() == chess::Color::WHITE);
 
-int evaluate_position(uint64_t hash, const Network& network) {
+    //Initialize accumulators for the side to move and the opponent
+    Accumulator us(nnue_params);
+    Accumulator them(nnue_params);
 
-    Accumulator us(network);
-    Accumulator them(network);
+    //Add features to the accumulators based on the current board state
+    for (size_t square = 0; square < 64; ++square) 
+    {
+        chess::Piece piece = board.at(square);
 
-    zobrist_to_accumulators(hash, us, them, network);
-
-    return network.evaluate(us.vals, them.vals);
-}
-
-void zobrist_to_accumulators(uint64_t zobrist, Accumulator& us, Accumulator& them, const Network& net) {
-    // Here we assume that each bit in the Zobrist hash corresponds to a feature
-    // This is a simple example. In a real case, you would map this more meaningfully.
-    for (std::size_t i = 0; i < 64; ++i) {
-        if (zobrist & (1ULL << i)) {
-            us.add_feature(i % 768, net);  // Modulo 768 to wrap around features if necessary
-            them.add_feature(i % 768, net);
+        if (piece != chess::Piece::NONE) 
+        {
+            size_t featureIdx = 0;
+            bool isPieceWhite = (piece.color() == chess::Color::WHITE);
+            if (isPieceWhite && isWhiteToMove) 
+            {
+                //Friendly pieces
+                featureIdx = static_cast<size_t>(piece.type()) * 64 + square;
+                us.addFeature(featureIdx, nnue_params);
+            }
+            else 
+            {
+                //Enemy pieces
+                featureIdx = (static_cast<size_t>(piece.type()) + 6) * 64 + square;
+                them.addFeature(featureIdx, nnue_params);
+            }
         }
     }
+
+    return nnue_params.evaluate(us, them);
 }
-
-
-

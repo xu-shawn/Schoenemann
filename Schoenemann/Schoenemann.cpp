@@ -3,10 +3,12 @@
 #include <fstream>
 #include <chrono>
 #include <sstream>
-#include "Evaluate.h"
+#include "evaluate.h"
 #include "Search.h"
 #include "psqt.h"
 #include "consts.h"
+#include "nnue.h"
+#include <cstring>
 #include "datagen/gen.h"
 #include "movegen/chess.hpp"
 
@@ -25,7 +27,6 @@ int main(int argc, char* argv[]) {
 	std::string token, cmd;
 	board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	board.set960(false);
-	initNNUE("C:\\GitHub\\Schoenemann\\Schoenemann\\simple-10.bin");
 	if (argc > 1 && strcmp(argv[1], "bench") == 0)
 	{
 		std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
@@ -189,6 +190,10 @@ int main(int argc, char* argv[]) {
 		{
 			is >> token;
 			generateDataSet(std::stoi(token));
+		}
+		else if (token == "pr")
+		{
+			std::cout << crelu(300) << std::endl;
 		}
 		else if (token == "tt")
 		{
