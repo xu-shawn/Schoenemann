@@ -20,7 +20,7 @@ extern const Network& nnue_params;
 INCBIN_EXTERN(nnue);
 
 //Consts
-const short HIDDEN_SIZE = 16;
+const short HIDDEN_SIZE = 64;
 const short SCALE = 400;
 const int32_t QA = 255;
 const short QB = 64;

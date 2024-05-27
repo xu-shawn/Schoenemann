@@ -2,7 +2,7 @@
 #include "incbin.h"
 
 // Including the binary network
-INCBIN(nnue, "simple-10.bin");
+INCBIN(nnue, "simple-98.bin");
 
 const Network& nnue_params = *reinterpret_cast<const Network*>(gnnueData);
 
