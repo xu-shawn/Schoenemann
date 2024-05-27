@@ -269,25 +269,12 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "nn")
 		{
-			std::string fen = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-			board.setFen(fen);
+			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 			int result = nnueEvaluation(board);
 			std::cout << "Evaluation result: " << result << std::endl;
-			for (size_t square = 0; square < 64; ++square)
-			{
-				Piece piece = board.at(square);
-
-				if (piece != Piece::NONE)
-				{
-					size_t featureIdx = 0;
-					bool isPieceWhite = piece.color() == Color::WHITE;
-					bool isWhiteToMove = (board.sideToMove() == Color::WHITE);
-					if (isPieceWhite && isWhiteToMove)
-					{
-						std::cout << static_cast<size_t>(piece.type()) << std::endl;
-					}
-				}
-			}
+			board.setFen("8/2q5/8/8/8/4K2k/8/8 w - - 0 1");
+			std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
+			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		}
 		else if (token == "test")
 		{

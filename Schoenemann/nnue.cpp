@@ -41,7 +41,7 @@ int32_t Network::evaluate(const Accumulator& us, const Accumulator& them) const
 
     //Non-Side-To-Move Accumulator
     for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
-        output += crelu(them.vals[i]) * static_cast<int32_t>(outputWeights[i]);
+        output += crelu(them.vals[i]) * static_cast<int32_t>(outputWeights[HIDDEN_SIZE + i]);
     }
 
     //Apply the eval scale
@@ -62,7 +62,7 @@ int evaluatePosition(Board& board)
     Accumulator them(nnue_params);
 
     //Add features to the accumulators based on the current board state
-    for (uint8_t square = 0; square < 64; ++square)
+    for (uint8_t square = 0; square < 64; square++)
     {
         size_t newSq = isWhiteToMove ? square : square ^ 56;
         Piece piece = board.at(square);
