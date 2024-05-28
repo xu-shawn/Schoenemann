@@ -1,10 +1,22 @@
 #include "nnue.h"
 #include "incbin.h"
 
-// Including the binary network
-INCBIN(nnue, "simple-98.bin");
+#ifdef _MSC_VER
+#define SP_MSVC
+#pragma push_macro("_MSC_VER")
+#undef _MSC_VER
+#endif
 
-const Network& nnue_params = *reinterpret_cast<const Network*>(gnnueData);
+#define INCBIN_PREFIX g_
+#include "incbin.h"
+
+#ifdef SP_MSVC
+#pragma pop_macro("_MSC_VER")
+#undef SP_MSVC
+#endif
+
+INCBIN(network, "simple-98.bin");
+const Network& networktpa = *reinterpret_cast<const Network*>(g_networkData);
 
 int32_t crelu(int16_t x)
 {
@@ -52,14 +64,15 @@ int32_t Network::evaluate(const Accumulator& us, const Accumulator& them) const
 
     return output;
 }
+
 int evaluatePosition(Board& board)
 {
     //Get the side to move
     bool isWhiteToMove = board.sideToMove() == Color::WHITE;
 
     //Initialize accumulators for the side to move and the opponent
-    Accumulator us(nnue_params);
-    Accumulator them(nnue_params);
+    Accumulator us(networktpa);
+    Accumulator them(networktpa);
 
     //Add features to the accumulators based on the current board state
     for (uint8_t square = 0; square < 64; square++)
@@ -77,16 +90,16 @@ int evaluatePosition(Board& board)
             {
                 //Friendly piece
                 int featureIndex = piece.type() * 64 + newSq;
-                us.addFeature(featureIndex, nnue_params);
+                us.addFeature(featureIndex, networktpa);
             }
             else
             {
                 //Opponent piece
                 int featureIndex = (piece.type() + 6) * 64 + newSq;
-                them.addFeature(featureIndex, nnue_params);
+                them.addFeature(featureIndex, networktpa);
             }
         }
     }
 
-    return nnue_params.evaluate(us, them);
+    return networktpa.evaluate(us, them);
 }

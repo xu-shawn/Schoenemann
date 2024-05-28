@@ -14,11 +14,6 @@ using namespace chess;
 //Forward deklaration
 struct Network;
 
-extern const Network& nnue_params;
-
-//Declare the external symbols
-INCBIN_EXTERN(nnue);
-
 //Consts
 const short HIDDEN_SIZE = 64;
 const short SCALE = 400;
