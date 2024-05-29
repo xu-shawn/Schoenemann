@@ -1,7 +1,8 @@
 #include "nnue.h"
 #include "incbin.h"
-#include <cmath>
 
+INCBIN(network, "simple-98.bin");
+const Network& networktpa = *reinterpret_cast<const Network*>(gnetworkData);
 
 int32_t crelu(int16_t x)
 {
@@ -44,9 +45,6 @@ int32_t Network::evaluate(const Accumulator& us, const Accumulator& them) const
 
     return output;
 }
-
-INCBIN(network, "simple-98.bin");
-const Network& networktpa = *reinterpret_cast<const Network*>(gnetworkData);
 
 int evaluatePosition(Board& board)
 {

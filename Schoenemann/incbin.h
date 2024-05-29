@@ -70,14 +70,6 @@
 #define INCBIN_VA_ARG_COUNTER(_1, _2, _3, N, ...) N
 #define INCBIN_VA_ARGC(...) INCBIN_VA_ARG_COUNTER(__VA_ARGS__, 3, 2, 1, 0)
 
-#if defined(_MSC_VER)
-#  if defined(__clang__)
-#     define INCBIN_CLANGCL 1
-#  else
-#     define INCBIN_MSCL 1
-#  endif
-#endif
-
 /* Green Hills uses a different directive for including binary data */
 #if defined(__ghs__)
 #  if (__ghs_asm == 2)
@@ -90,7 +82,7 @@
 #  define INCBIN_MACRO ".incbin"
 #endif
 
-#ifndef INCBIN_MSCL
+#ifndef _MSC_VER
 #  define INCBIN_ALIGN \
     __attribute__((aligned(INCBIN_ALIGNMENT)))
 #else
@@ -182,7 +174,7 @@
 #  define INCBIN_TYPE(...)
 #else
 #  define INCBIN_SECTION         ".section " INCBIN_OUTPUT_SECTION "\n"
-#  define INCBIN_GLOBAL(NAME)    ".global " INCBIN_MANGLE INCBIN_STRINGIZE(INCBIN_PREFIX) #NAME "\n"
+#  define INCBIN_GLOBAL(NAME)    ".global " INCBIN_STRINGIZE(INCBIN_PREFIX) #NAME "\n"
 #  if defined(__ghs__)
 #    define INCBIN_INT           ".word "
 #  else
@@ -199,8 +191,6 @@
 #  elif defined(__MINGW32__) || defined(__MINGW64__)
    /* Mingw doesn't support this directive either */
 #    define INCBIN_TYPE(NAME)
-#  elif defined(INCBIN_CLANGCL)
-#     define INCBIN_TYPE(NAME)
 #  else
    /* It's safe to use `@' on other architectures */
 #    define INCBIN_TYPE(NAME)    ".type " INCBIN_STRINGIZE(INCBIN_PREFIX) #NAME ", @object\n"
@@ -406,7 +396,7 @@
     * To externally reference the data included by this in another translation unit
     * please @see INCBIN_EXTERN.
     */
-#ifdef INCBIN_MSCL
+#ifdef _MSC_VER
 #  define INCBIN(NAME, FILENAME) \
       INCBIN_EXTERN(NAME)
 #else
@@ -475,7 +465,7 @@
      * To externally reference the data included by this in another translation unit
      * please @see INCBIN_EXTERN.
      */
-#if defined(INCBIN_MSCL)
+#if defined(_MSC_VER)
 #  define INCTXT(NAME, FILENAME) \
      INCBIN_EXTERN(NAME)
 #else
