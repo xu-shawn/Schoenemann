@@ -5,48 +5,8 @@
 #include <iostream>
 #include <algorithm>
 
-Network net;
-
-void initNNUE(const char* file)
-{
-    FILE* nn = fopen(file, "rb");
-    if (!nn) 
-    {
-        std::cerr << "Error opening the file " << file << "\n";
-        exit(1);
-    }
-
-    size_t read = 0;
-    size_t expectedRead = 0;
-
-    //featureWeights
-    for (size_t i = 0; i < net.featureWeights.size(); ++i) 
-    {
-        read += fread(net.featureWeights[i].vals.data(), sizeof(int16_t), HIDDEN_SIZE, nn);
-        expectedRead += HIDDEN_SIZE;
-    }
-
-    //featureBias
-    read += fread(net.featureBias.data(), sizeof(int16_t), HIDDEN_SIZE, nn);
-    expectedRead += HIDDEN_SIZE;
-
-    //outputWeights
-    read += fread(net.outputWeights.data(), sizeof(int16_t), HIDDEN_SIZE * 2, nn);
-    expectedRead += HIDDEN_SIZE * 2;
-
-    //outputBias
-    read += fread(&net.outputBias, sizeof(int16_t), 1, nn);
-    expectedRead += 1;
-
-    fclose(nn);
-
-    if (read != expectedRead) {
-        std::cerr << "Error loading the net, aborting ";
-        std::cerr << "Expected " << expectedRead << " shorts, got " << read << "\n";
-        exit(1);
-    }
-}
-
+INCBIN(network, "simple-98.bin");
+const Network& net = *reinterpret_cast<const Network*>(gnetworkData);
 
 int32_t crelu(int16_t x)
 {
