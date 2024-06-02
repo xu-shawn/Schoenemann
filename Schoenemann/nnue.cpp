@@ -140,19 +140,14 @@ int evaluatePosition(Board& board)
             uint8_t file = square % 8;
             uint8_t newSq = isWhiteToMove ? square : (7 - rank) * 8 + (7 - file);
 
-            int pieceTypeIndex = getPieceType(piece.type(), isFriendly) % 6;
+            int featureIndex = piece.type() * 64 + newSq;
 
-            int featureIndex = pieceTypeIndex * 64 + newSq;
-
-            if (pieceTypeIndex >= 0) // Ensure valid feature index
-            {
                 if (isFriendly) {
                     us.addFeature(featureIndex, net);
                 }
                 else {
                     them.addFeature(featureIndex, net);
                 }
-            }
         }
     }
 
