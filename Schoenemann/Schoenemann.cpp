@@ -27,6 +27,7 @@ int main(int argc, char* argv[]) {
 	std::string token, cmd;
 	board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	board.set960(false);
+	initNNUE("simple-98.bin");
 	if (argc > 1 && strcmp(argv[1], "bench") == 0)
 	{
 		std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
@@ -270,12 +271,17 @@ int main(int argc, char* argv[]) {
 		else if (token == "nn")
 		{
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-			std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
+			std::cout << "Evaluation result: " << evaluatePosition(board) << std::endl;
 			board.setFen("8/2q5/8/8/8/4K2k/8/8 w - - 0 1");
 			std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
 			board.setFen("rnbqkbnr/ppppp3/6p1/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 4");
 			std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+		}
+		else if (token == "v")
+		{
+			board.setFen("8/6k1/7K/8/8/8/8/Q7 w - - 0 1");
+			std::cout << board.at(0).color();
 		}
 		else if (token == "test")
 		{

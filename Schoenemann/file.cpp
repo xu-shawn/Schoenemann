@@ -3,6 +3,7 @@
 
 #ifdef __cplusplus
 extern "C" {
+
 #endif
 
     /* INCBIN(network, "simple-98.bin"); */
@@ -8242,5 +8243,5 @@ extern "C" {
     INCBIN_CONST unsigned int gnetworkSize = sizeof(gnetworkData);
 
 #ifdef __cplusplus
-}
+    }
 #endif
