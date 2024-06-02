@@ -2,4 +2,7 @@ EXE ?= null
 CC ?= null
 
 all:
-	cd ../Schoenemann && clang++ -fsanitize=address -Wall -O3 -std=c++20 Schoenemann.cpp evaluate.cpp search.cpp timeman.cpp psqt.cpp file.cpp tt.cpp moveorder.cpp datagen/gen.cpp nnue.cpp -o ../src/$(EXE).exe
+	cmake . > cmake_output.txt
+	cmake --build . --config Release >> cmake_output.txt
+	$(eval TARGET = $(shell py find_exe.py cmake_output.txt))
+	cmd /C move /Y $(TARGET) src/$(EXE).exe
