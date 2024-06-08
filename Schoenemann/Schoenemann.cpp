@@ -271,7 +271,7 @@ int main(int argc, char* argv[]) {
 		else if (token == "nn")
 		{
 			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
-			std::cout << "Evaluation result: " << evaluatePosition(board) << std::endl;
+			std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
 			board.setFen("8/2q5/8/8/8/4K2k/8/8 w - - 0 1");
 			std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
 			board.setFen("rnbqkbnr/ppppp3/6p1/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 4");

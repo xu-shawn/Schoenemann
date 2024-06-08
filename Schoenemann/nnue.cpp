@@ -10,7 +10,7 @@ const Network& net = *reinterpret_cast<const Network*>(gnetworkData);
 
 int32_t crelu(int16_t x)
 {
-    return std::clamp(static_cast<int32_t>(x), 0, 64);
+    return std::clamp(static_cast<int32_t>(x), 0, QA);
 }
 
 Accumulator::Accumulator(const Network& network)
@@ -49,37 +49,6 @@ int32_t Network::evaluate(const Accumulator& us, const Accumulator& them) const
 
     return output;
 }
-
-int getPieceType(chess::PieceType type, bool friendly)
-{
-    if (friendly)
-    {
-        switch (type.internal())
-        {
-        case chess::PieceType::PAWN: return usPawn;
-        case chess::PieceType::KNIGHT: return usKnight;
-        case chess::PieceType::BISHOP: return usBishop;
-        case chess::PieceType::ROOK: return usRook;
-        case chess::PieceType::QUEEN: return usQueen;
-        case chess::PieceType::KING: return usKing;
-        default: return -1; // Handle error or unknown piece type
-        }
-    }
-    else
-    {
-        switch (type.internal())
-        {
-        case chess::PieceType::PAWN: return opponentPawn;
-        case chess::PieceType::KNIGHT: return opponentKnight;
-        case chess::PieceType::BISHOP: return opponentBishop;
-        case chess::PieceType::ROOK: return opponentRook;
-        case chess::PieceType::QUEEN: return opponentQueen;
-        case chess::PieceType::KING: return opponentKing;
-        default: return -1; // Handle error or unknown piece type
-        }
-    }
-}
-
 int evaluatePosition(Board& board)
 {
     bool isWhiteToMove = board.sideToMove() == Color::WHITE;
@@ -93,23 +62,30 @@ int evaluatePosition(Board& board)
         if (piece != chess::Piece::NONE)
         {
             bool isPieceWhite = piece.color() == Color::WHITE;
-            bool isFriendly = (isWhiteToMove && isPieceWhite) || (!isWhiteToMove && !isPieceWhite);
 
-            // Correct square transformation for black's perspective
-            uint8_t rank = square / 8;
-            uint8_t file = square % 8;
-            uint8_t newSq = isWhiteToMove ? square : (7 - rank) * 8 + (7 - file);
+            int whiteIndex = 0;
+            int blackIndex = 0;
 
-            int featureIndex = piece.type() * 64 + newSq;
+            constexpr size_t color_offset = 64 * 6;
+            constexpr size_t piece_offset = 64;
 
-                if (isFriendly) {
-                    us.addFeature(featureIndex, net);
-                }
-                else {
-                    them.addFeature(featureIndex, net);
-                }
+            if (isPieceWhite)
+            {
+                whiteIndex += piece.color() * color_offset + piece.type() * piece_offset + square;
+            }
+            else
+            {
+                blackIndex += ~piece.color() * color_offset + piece.type() * piece_offset + square ^ 56;
+            }
+
+
+            if (isPieceWhite) {
+                us.addFeature(whiteIndex, net);
+            }
+            else {
+                them.addFeature(blackIndex, net);
+            }
         }
     }
-
     return net.evaluate(us, them);
 }
