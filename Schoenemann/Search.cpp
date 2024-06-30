@@ -148,7 +148,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
             {
                 break;
             }
-        }   
+        }
     }
 
     if (!root)
@@ -263,7 +263,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
             if (score > alpha)
             {
                 alpha = score;
-                
+
                 bestMoveInQs = move;
             }
 

@@ -3,10 +3,12 @@
 #include <fstream>
 #include <chrono>
 #include <sstream>
-#include "Evaluate.h"
+#include "evaluate.h"
+#include "nnue.h"
 #include "Search.h"
 #include "psqt.h"
 #include "consts.h"
+#include "helper.h"
 #include "datagen/gen.h"
 #include "movegen/chess.hpp"
 
@@ -21,19 +23,34 @@ int increment = 0;
 int newTranspositionTableSize = 8;
 
 int main(int argc, char* argv[]) {
+
+	//The main board
 	Board board;
+
+	//UCI-Command stuff
 	std::string token, cmd;
-	board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+
+	//Reset the board
+	board.setFen(STARTPOS);
+
+	//Disable FRC
 	board.set960(false);
 
+	//Load the neural network
+	LoadNetwork();
+
+	//Move this above the checking for a bench command
+	transpositionTabel.setSize(8);
+
+	//Check for an incoming bench command
 	if (argc > 1 && strcmp(argv[1], "bench") == 0)
 	{
+		//Currently there is a placeholder for simpilcity
 		std::cout << "Time  : 3360 ms\nNodes : 2989157\nNPS   : 889630" << std::endl;
 		return 0;
 	}
 
-	transpositionTabel.setSize(8);
-
+	//Main UCI-Loop
 	do
 	{
 		if (argc == 1 && !getline(std::cin, cmd))
@@ -64,9 +81,11 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "ucinewgame")
 		{
-			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			//Reset the board
+			board.setFen(STARTPOS);
+
+			//Clear the transposition table
 			transpositionTabel.clear();
-			//transpositionTabel.setSize(newTranspositionTableSize);
 		}
 		else if (token == "setoption")
 		{
@@ -89,7 +108,7 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "position")
 		{
-			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			board.setFen(STARTPOS);
 			std::string fen;
 			std::vector<std::string> moves;
 			bool isFen = false;
@@ -197,86 +216,21 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "ttest")
 		{
-			//Set up a unice position
-			board.setFen("3N4/2p5/5K2/k1PB3p/3Pr3/1b5p/6p1/5nB1 w - - 0 1");
-			std::uint64_t key = board.hash();
-
-			//Store the information
-
-			transpositionTabel.storeEvaluation(key, 2, LOWER_BOUND, transpositionTabel.ScoreToTT(200, 1), uci::uciToMove(board, "d5e4"), 1);
-
-			//Try to get the information out of the table
-
-			Hash* entry = transpositionTabel.getHash(board);
-			
-			if (entry == nullptr)
-			{
-				std::cout << "The entry is a nullptr" << std::endl;
-				continue;
-			}
-			std::uint64_t hashedKey = entry->key;
-			short hashedDepth = entry->depth;
-			short hashedType = entry->type;
-			int hashedScore = entry->score;
-			Move hashedMove = entry->move;
-
-			if (hashedKey == key)
-			{
-				std::cout << "Test for the key PASSED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
-			}
-			else
-			{
-				std::cout << "Test for the key FAILED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
-			}
-
-			if (hashedDepth == 2)
-			{
-				std::cout << "Test for the depth PASSED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
-			}
-			else
-			{
-				std::cout << "Test for the depth FAILED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
-			}
-
-			if (hashedType == LOWER_BOUND)
-			{
-				std::cout << "Test for the type PASSED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
-			}
-			else
-			{
-				std::cout << "Test for the type FAILED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
-			}
-
-			if (hashedScore == 200)
-			{
-				std::cout << "Test for the score PASSED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
-			}
-			else
-			{
-				std::cout << "Test for the score FAILED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
-			}
-
-			if (hashedMove == uci::uciToMove(board, "d5e4"))
-			{
-				std::cout << "Test for the move PASSED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
-			}
-			else
-			{
-				std::cout << "Test for the move FAILED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
-			}
-
-			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+			transpositionTableTest(board);
+		}
+		else if (token == "nn")
+		{
+			board.setFen(STARTPOS);
+			std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
+			board.setFen("8/2q5/8/8/8/4K2k/8/8 w - - 0 1");
+			std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
+			board.setFen("rnbqkbnr/ppppp3/6p1/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 4");
+			std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
+			board.setFen(STARTPOS);
 		}
 		else if (token == "test")
 		{
-			Board test_board;
-			test_board.setFen("8/4R3/6kp/6p1/8/7P/3r4/6K1 w - - 0 28");
-			//seracher.search(1, -32767, 32767, 0, test_board);
-			//std::cout << "\nbestmove " << seracher.getBestMove() << "\nNodes: " << seracher.getNodes() << std::endl;
-
-			std::cout << "Starting eval..." << std::endl;
-
-			std::cout << "The evaluation: " << evaluate(test_board) << std::endl;
+			testCommand();
 		}
 
 	} while (token != "quit");
@@ -286,7 +240,7 @@ int main(int argc, char* argv[]) {
 
 void uciRunner::run_benchmark() {
 	const std::string testStrings[] = {
-		"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq -",
+		STARTPOS,
 		"r2q4/pp1k1pp1/2p1r1np/5p2/2N5/1P5Q/5PPP/3RR1K1 b - -",
 		"5k2/1qr2pp1/2Np1n1r/QB2p3/2R4p/3PPRPb/PP2P2P/6K1 w - -",
 		"r2r2k1/2p2pp1/p1n4p/1qbnp3/2Q5/1PPP1RPP/3NN2K/R1B5 b - -",

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 
 #include "tt.h"
 
@@ -36,7 +37,7 @@ Hash *tt::getHash(Board& board)
 }
 void tt::clear() 
 {
-	std::memset(static_cast<void*>(table), 0, size * sizeof(Hash));
+	memset(static_cast<void*>(table), 0, size * sizeof(Hash));
 
 }
 

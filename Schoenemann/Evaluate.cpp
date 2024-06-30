@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "evaluate.h"
+#include "nnue.h"
 #include "movegen/chess.hpp"
 #include "psqt.h"
 
@@ -11,6 +12,7 @@ const short knightValue = 781;
 const short bishopValue = 825;
 const short rookValue = 1276;
 const short queenValue = 2538;
+
 
 int evaluate(Board& board) {
     int evaluation = 0;
@@ -75,4 +77,9 @@ int count_material(Board& board, Color color) {
 int count_amount(Board& board, PieceType type, Color color) {
     Bitboard bitboard = board.pieces(type, color);
     return bitboard.count();
+}
+
+int nnueEvaluation(Board& board)
+{
+    return NNEvaluate(board);
 }
