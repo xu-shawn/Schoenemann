@@ -1,63 +1,38 @@
-#ifndef NNUE_H
-#define NNUE_H
-
-#include "movegen/chess.hpp"
-#include "incbin.h"
+#pragma once
 #include <algorithm>
+#include <array>
+#include <fstream>
+#include <iterator>
+#include <memory>
 #include <iostream>
-#include <cstdint> 
-#include <vector>
-#include <array> 
+#include <bit>
+#include "movegen/chess.hpp"
 
 using namespace chess;
 
-//Forward deklaration
-struct Network;
+// An early attempt at supporting NNUE evaluation.
+// Not meant to be as a permanent solution in its current form.
 
-//Consts
-const short HIDDEN_SIZE = 64;
-const short SCALE = 400;
-const int32_t QA = 255;
-const short QB = 64;
-const int INPUT_WEIGHTS = 768;
+// Network constants
+const int FeatureSize = 768;
+const int HiddenSize = 128;
 
-//The Activation function
-//Gets a 16 bit number as an input and outputs the corresponding number as a 32 bit number
-//It also make sure that it is not outside the bound of QA
-int32_t crelu(int16_t x);
-
-struct Accumulator
-{
-    std::array<int16_t, HIDDEN_SIZE> vals;
-
-    // Default constructor
-    Accumulator() = default;
-
-    // Constructor to get the network bias
-    Accumulator(const Network& network);
-
-    // Add a feature to the Accumulator
-    void addFeature(size_t featureIdx, const Network& network);
-
-    // Remove a feature from the Accumulator
-    void removeFeature(size_t featureIdx, const Network& network);
+struct NetworkRepresentation {
+	std::array<std::array<int16_t, HiddenSize>, FeatureSize> FeatureWeights;
+	std::array<int16_t, HiddenSize> FeatureBias;
+	std::array<int16_t, HiddenSize * 2> OutputWeights;
+	int16_t OutputBias;
 };
 
 
-struct Network
-{
-    std::array<Accumulator, 768> featureWeights;
-    std::array<int16_t, HIDDEN_SIZE> featureBias;
-    std::array<int16_t, 2 * HIDDEN_SIZE> outputWeights;
-    int16_t outputBias;
+static NetworkRepresentation* Network;
 
-    // Default constructor
-    Network() = default;
+void LoadNetwork();
+int NNEvaluate(const Board& board);
 
-    // Evaluates the network
-    int32_t evaluate(const Accumulator& us, const Accumulator& them) const;
-};
+int Popsquare(uint64_t& number);
+uint8_t Mirror(const uint8_t sq);
 
-int evaluatePosition(Board& board);
-
-#endif // NNUE_H
+inline int32_t CReLU(const int16_t value) {
+	return std::clamp<int32_t>(value, 0, 255);
+}

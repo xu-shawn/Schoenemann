@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "evaluate.h"
+#include "nnue.h"
 #include "movegen/chess.hpp"
 #include "psqt.h"
 
@@ -80,5 +81,5 @@ int count_amount(Board& board, PieceType type, Color color) {
 
 int nnueEvaluation(Board& board)
 {
-    return evaluatePosition(board);
+    return NNEvaluate(board);
 }

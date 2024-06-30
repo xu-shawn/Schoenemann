@@ -1,91 +1,73 @@
 #include "nnue.h"
-#include "incbin.h"
-#include <cstdio>
-#include <cstring>
-#include <iostream>
-#include <algorithm>
 
-INCBIN(network, "simple-98.bin");
-const Network& net = *reinterpret_cast<const Network*>(gnetworkData);
-
-int32_t crelu(int16_t x)
-{
-    return std::clamp(static_cast<int32_t>(x), 0, QA);
+int Popsquare(uint64_t& number) {
+	const int place = std::countr_zero(number);
+	number &= (number - 1);
+	return place;
 }
 
-Accumulator::Accumulator(const Network& network)
-{
-    vals = network.featureBias;
+uint8_t Mirror(const uint8_t sq) {
+	return sq ^ 0b111000;
 }
 
-void Accumulator::addFeature(size_t featureIdx, const Network& network)
-{
-    for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
-        vals[i] += network.featureWeights[featureIdx].vals[i];
-    }
+int NNEvaluate(const Board& board) {
+
+	// Initialize arrays
+	std::array<int16_t, HiddenSize> hiddenWhite = std::array<int16_t, HiddenSize>();
+	std::array<int16_t, HiddenSize> hiddenBlack = std::array<int16_t, HiddenSize>();
+	for (int i = 0; i < HiddenSize; i++) hiddenWhite[i] = (Network->FeatureBias[i]);
+	for (int i = 0; i < HiddenSize; i++) hiddenBlack[i] = (Network->FeatureBias[i]);
+
+	// Iterate through inputs
+
+	Bitboard occupancy = board.occ();
+	for (uint8_t _ = 0; _ < 63; _++) {
+		uint64_t bits = occupancy.getBits();
+		const int sq = Popsquare(bits);
+		Piece piece = board.at(sq);
+		const int pieceType = piece.type();
+		Color pieceColor = piece.color();
+		const int colorOffset = 64 * 6;
+
+		// Turn on the right inputs
+		const int whiteActivationIndex = (pieceColor == Color::WHITE ? 0 : colorOffset) + (pieceType - 1) * 64 + sq;
+		const int blackActivationIndex = (pieceColor == Color::BLACK ? 0 : colorOffset) + (pieceType - 1) * 64 + Mirror(sq);
+		for (int i = 0; i < HiddenSize; i++)
+		{
+			hiddenWhite[i] += Network->FeatureWeights[whiteActivationIndex][i];
+		}
+
+		for (int i = 0; i < HiddenSize; i++)
+		{
+			hiddenBlack[i] += Network->FeatureWeights[blackActivationIndex][i];
+		}
+	}
+
+	// Flip
+	std::array<int16_t, HiddenSize>& hiddenFriendly = ((board.sideToMove() == Color::WHITE) ? hiddenWhite : hiddenBlack);
+	std::array<int16_t, HiddenSize>& hiddenOpponent = ((board.sideToMove() == Color::WHITE) ? hiddenBlack : hiddenWhite);
+	int32_t output = 0;
+
+	// Calculate output
+	for (int i = 0; i < HiddenSize; i++)
+	{
+		output += CReLU(hiddenFriendly[i]) * Network->OutputWeights[i];
+	}
+
+	for (int i = 0; i < HiddenSize; i++)
+	{
+		output += CReLU(hiddenOpponent[i]) * Network->OutputWeights[i + HiddenSize];
+	}
+	const int scale = 400;
+	const int qab = 255 * 64;
+	output = (output + Network->OutputBias) * scale / qab;
+
+	return output;
+
 }
 
-void Accumulator::removeFeature(size_t featureIdx, const Network& network)
-{
-    for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
-        vals[i] -= network.featureWeights[featureIdx].vals[i];
-    }
-}
-
-int32_t Network::evaluate(const Accumulator& us, const Accumulator& them) const
-{
-    int32_t output = outputBias;
-
-    for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
-        output += crelu(us.vals[i]) * static_cast<int32_t>(outputWeights[i]);
-    }
-
-    for (size_t i = 0; i < HIDDEN_SIZE; ++i) {
-        output += crelu(them.vals[i]) * static_cast<int32_t>(outputWeights[HIDDEN_SIZE + i]);
-    }
-
-    output *= SCALE;
-    output /= QA * QB;
-
-    return output;
-}
-int evaluatePosition(Board& board)
-{
-    bool isWhiteToMove = board.sideToMove() == Color::WHITE;
-
-    Accumulator us(net);
-    Accumulator them(net);
-
-    for (uint8_t square = 0; square < 64; ++square)
-    {
-        chess::Piece piece = board.at(square);
-        if (piece != chess::Piece::NONE)
-        {
-            bool isPieceWhite = piece.color() == Color::WHITE;
-
-            int whiteIndex = 0;
-            int blackIndex = 0;
-
-            constexpr size_t color_offset = 64 * 6;
-            constexpr size_t piece_offset = 64;
-
-            if (isPieceWhite)
-            {
-                whiteIndex += piece.color() * color_offset + piece.type() * piece_offset + square;
-            }
-            else
-            {
-                blackIndex += ~piece.color() * color_offset + piece.type() * piece_offset + square ^ 56;
-            }
-
-
-            if (isPieceWhite) {
-                us.addFeature(whiteIndex, net);
-            }
-            else {
-                them.addFeature(blackIndex, net);
-            }
-        }
-    }
-    return net.evaluate(us, them);
+void LoadNetwork() {
+	Network = new NetworkRepresentation;
+	std::ifstream file("C:\\GitHub\\Schoenemann\\Schoenemann\\net.bin", std::ios::binary);
+	file.read((char*)Network, sizeof(NetworkRepresentation));
 }
