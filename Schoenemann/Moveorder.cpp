@@ -21,7 +21,8 @@ Movelist orderMoves(Movelist moveList, Board& board)
 			{
 				Move cache = moveList.front();
 				moveList.front() = hashMove;
-				moveList.back() = cache;
+				moveList.add(cache);
+				//std::cout << "hash move is: " << hashMove << "    the front is " << moveList.front() << std::endl;
 				break;
 			}
 		}
