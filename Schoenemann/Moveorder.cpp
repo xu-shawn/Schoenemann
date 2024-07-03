@@ -1,10 +1,7 @@
 #include "Moveorder.h"
-#include "consts.h"
-#include "tt.h"
 
-Movelist orderMoves(Movelist moveList, Board& board)
+Movelist orderMoves(Movelist moveList, Hash* entry)
 {
-	Hash* entry = transpositionTabel.getHash(board);
 
 	if (entry == nullptr)
 	{
