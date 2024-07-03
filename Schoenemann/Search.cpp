@@ -93,6 +93,8 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     Movelist moveList;
     movegen::legalmoves(moveList, board);
 
+    //Sort the list
+    moveList = orderMoves(moveList, board);
 
     if (moveList.size() == 0)
     {
