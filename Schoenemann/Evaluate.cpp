@@ -75,8 +75,7 @@ int count_material(Board& board, Color color) {
 }
 
 int count_amount(Board& board, PieceType type, Color color) {
-    Bitboard bitboard = board.pieces(type, color);
-    return bitboard.count();
+    return board.pieces(type, color).count();
 }
 
 int nnueEvaluation(Board& board)
