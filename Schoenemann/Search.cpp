@@ -88,10 +88,12 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
+    int staticEval = evaluate(board);
+
     //Reverse futility pruning
-    if (!pvNode && !board.inCheck() && depth <= 6 && hashedEval - 70 * depth >= beta)
+    if (!pvNode && !board.inCheck() && depth <= 6 && staticEval - 70 * depth >= beta)
     {
-        return evaluate(board);
+        return staticEval;
     }
 
     short type = UPPER_BOUND;
@@ -177,7 +179,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         {
             finalType = UPPER_BOUND;
         }
-        transpositionTabel.storeEvaluation(board.hash(), depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, evaluate(board));
+        transpositionTabel.storeEvaluation(board.hash(), depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
     }
 
     return bestScore;
