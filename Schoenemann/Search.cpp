@@ -22,6 +22,8 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     std::chrono::time_point end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = end - start;
     bool isOver = elapsed.count() >= timeForMove;
+
+
     if (isOver && !isNormalSearch)
     {
         shouldStop = true;
@@ -84,6 +86,12 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
                 return hashedScore;
             }
         }
+    }
+
+    //Reverse futility pruning
+    if (!pvNode && !board.inCheck() && depth <= 6 && hashedEval - 70 * depth >= beta)
+    {
+        return evaluate(board);
     }
 
     short type = UPPER_BOUND;
