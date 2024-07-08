@@ -1,5 +1,4 @@
-#ifndef TT_H
-#define TT_H
+#pragma once
 
 #include <iostream>
 #include "movegen/chess.hpp"
@@ -8,10 +7,8 @@ using namespace chess;
 
 const short EXACT = 0;
 const short UPPER_BOUND = 1;
-const short LOWER_BOUND = 2; //Lower
+const short LOWER_BOUND = 2; //Lower bound
 const short infinity = 32767;
-
-const int MATE = infinity;
 
 struct Hash {
     std::uint64_t key;
@@ -83,5 +80,3 @@ private:
 
     void init(uint64_t MB);
 };
-
-#endif

@@ -7,11 +7,9 @@ void transpositionTableTest(Board& board)
 	std::uint64_t key = board.hash();
 
 	//Store the information
-
 	transpositionTabel.storeEvaluation(key, 2, LOWER_BOUND, transpositionTabel.ScoreToTT(200, 1), uci::uciToMove(board, "d5e4"), 1);
 
 	//Try to get the information out of the table
-
 	Hash* entry = transpositionTabel.getHash(board);
 
 	if (entry == nullptr)
@@ -74,7 +72,55 @@ void transpositionTableTest(Board& board)
 
 void testCommand()
 {
-
 	Board test_board;
 	test_board.setFen("8/4R3/6kp/6p1/8/7P/3r4/6K1 w - - 0 28");
+}
+
+void nnTest(Board& board)
+{
+	board.setFen(STARTPOS);
+	std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
+	board.setFen("8/2q5/8/8/8/4K2k/8/8 w - - 0 1");
+	std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
+	board.setFen("rnbqkbnr/ppppp3/6p1/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 4");
+	std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
+	board.setFen(STARTPOS);
+}
+
+//Print the uci info
+void uciPrint()
+{
+	std::cout << "id name Schoenemann" << std::endl
+		<< "option name Threads type spin default 1 min 1 max 16" << std::endl
+		<< "option name Hash type spin default 64 min 1 max 4096" << std::endl
+		<< "uciok" << std::endl;
+}
+
+void run_benchmark() {
+	//Setting up the bench Board
+	Board benchBoard;
+
+	//Setting up the clock 
+	auto start = std::chrono::high_resolution_clock::now();
+
+	//Reseting the nodes
+	seracher.nodes = 0;
+
+	//Looping over all bench positions
+	for (const auto& test : testStrings) {
+		benchBoard.setFen(test);
+		seracher.pvs(-infinity, infinity, benchDepth, 0, benchBoard);
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	//Calculates the total time used
+	std::chrono::duration<double, std::milli> timeElapsed = end - start;
+	int timeInMs = static_cast<int>(timeElapsed.count());
+
+	//calculates the Nodes per Second
+	int NPS = static_cast<int>(seracher.nodes / timeElapsed.count() * 1000);
+
+	//Prints out the final bench 
+	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << seracher.nodes << "\nNPS   : " << NPS << std::endl;
 }
