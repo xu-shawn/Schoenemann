@@ -12,7 +12,7 @@ using namespace chess;
 
 std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
-int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
+int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
     if (shouldStop)
     {
@@ -33,6 +33,9 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         return qs(alpha, beta, board, ply);
     }
+
+    //Increment nodes by one
+    nodes++;
 
     int hashedScore = 0;
     int hashedEval = 0;
@@ -110,7 +113,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         if (board.inCheck() == true)
         {
-            return -MATE + ply;
+            return -infinity + ply;
         }
         else
         {
@@ -122,7 +125,6 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     for (const Move& move : moveList)
     {
         board.makeMove(move);
-        nodes++;
 
         short checkExtension = 0;
 
@@ -193,8 +195,11 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     return bestScore;
 }
 
-int searcher::qs(int alpha, int beta, Board& board, int ply)
+int Search::qs(int alpha, int beta, Board& board, int ply)
 {
+    //Increment nodes by one
+    nodes++;
+
     Hash* entry = transpositionTabel.getHash(board);
 
     int hashedScore = 0;
@@ -298,7 +303,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
     //Checks for checkmate
     if (board.inCheck() && bestScore == -infinity)
     {
-        return -MATE + ply;
+        return -infinity + ply;
     }
 
     transpositionTabel.storeEvaluation(board.hash(), 0, bestScore >= beta ? LOWER_BOUND : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInQs, standPat);
@@ -306,7 +311,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
     return bestScore;
 }
 
-void searcher::iterativeDeepening(Board& board)
+void Search::iterativeDeepening(Board& board)
 {
     start = std::chrono::high_resolution_clock::now();
     timeForMove = getTimeForMove();
@@ -315,6 +320,7 @@ void searcher::iterativeDeepening(Board& board)
     isNormalSearch = false;
     bool hasFoundMove = false;
 
+    //If there is no time left make a search at depth 1
     if (timeForMove == -20)
     {
         pvs(-32767, 32767, 1, 0, board);

@@ -1,13 +1,12 @@
 ﻿#pragma once
 
-#include "tt.h"
-#include "Search.h"
 #include <iostream>
+#include <chrono>
 
 class uciRunner
 {
 public:
-	void run_benchmark();
+	
 private:
 
 };

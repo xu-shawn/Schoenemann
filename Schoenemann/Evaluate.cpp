@@ -1,18 +1,4 @@
-#include <iostream>
-
 #include "evaluate.h"
-#include "nnue.h"
-#include "movegen/chess.hpp"
-#include "psqt.h"
-
-using namespace chess;
-
-const short pawnValue = 126;
-const short knightValue = 781;
-const short bishopValue = 825;
-const short rookValue = 1276;
-const short queenValue = 2538;
-
 
 int evaluate(Board& board) {
     int evaluation = 0;
