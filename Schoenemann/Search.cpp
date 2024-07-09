@@ -16,7 +16,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
     if (shouldStop)
     {
-        return alpha;
+        return beta;
     }
 
     std::chrono::time_point end = std::chrono::high_resolution_clock::now();
