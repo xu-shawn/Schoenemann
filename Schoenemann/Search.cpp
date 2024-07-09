@@ -101,11 +101,11 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             {
                 staticEval = hashedEval;
             }
-            if (hashedType == UPPER_BOUND && hashedScore <= alpha)
+            if (hashedType == UPPER_BOUND && hashedScore <= hashedScore)
             {
                 staticEval = hashedEval;
             }
-            if (hashedType == LOWER_BOUND && hashedScore >= beta)
+            if (hashedType == LOWER_BOUND && hashedScore >= hashedScore)
             {
                 staticEval = hashedEval;
             }
