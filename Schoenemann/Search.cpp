@@ -227,6 +227,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     Hash* entry = transpositionTabel.getHash(board);
 
     int hashedScore = 0;
+    int hashedEval = 0;
     short hashedType = 0;
     const bool pvNode = alpha != beta - 1;
 
@@ -247,6 +248,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
+            hashedEval = entry->eval;
         }
     }
 
@@ -272,7 +274,31 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         }
     }
 
-    int standPat = evaluate(board);
+    int standPat = 50000;
+
+    if (!isNullptr)
+    {
+        if (board.hash() == entry->key)
+        {
+            if (hashedType == EXACT)
+            {
+                standPat = hashedEval;
+            }
+            if (hashedType == UPPER_BOUND && hashedScore <= hashedScore)
+            {
+                standPat = hashedEval;
+            }
+            if (hashedType == LOWER_BOUND && hashedScore >= hashedScore)
+            {
+                standPat = hashedEval;
+            }
+        }
+    }
+
+    if (standPat == 50000)
+    {
+        standPat = evaluate(board);
+    }
 
     if (!board.inCheck() && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
     {
