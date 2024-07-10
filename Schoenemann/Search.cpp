@@ -229,18 +229,10 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     int hashedScore = 0;
     int hashedEval = 0;
     short hashedType = 0;
+    int standPat = 50000;
     const bool pvNode = alpha != beta - 1;
 
-    bool isNullptr;
-
-    if (entry == nullptr)
-    {
-        isNullptr = true;
-    }
-    else
-    {
-        isNullptr = false;
-    }
+    bool isNullptr = (entry == nullptr) ? true : false;
 
     if (!isNullptr)
     {
@@ -248,7 +240,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
-            hashedEval = entry->eval;
+            standPat = entry->eval;
         }
     }
 
@@ -270,27 +262,6 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
             {
                 transpositions++;
                 return hashedScore;
-            }
-        }
-    }
-
-    int standPat = 50000;
-
-    if (!isNullptr)
-    {
-        if (board.hash() == entry->key)
-        {
-            if (hashedType == EXACT)
-            {
-                standPat = hashedEval;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= hashedScore)
-            {
-                standPat = hashedEval;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= hashedScore)
-            {
-                standPat = hashedEval;
             }
         }
     }
