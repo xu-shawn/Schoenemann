@@ -91,7 +91,31 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
-    int staticEval = evaluate(board);
+    int staticEval = 50000;
+
+    if (!isNullptr)
+    {
+        if (board.hash() == entry->key)
+        {
+            if (hashedType == EXACT)
+            {
+                staticEval = hashedEval;
+            }
+            if (hashedType == UPPER_BOUND && hashedScore <= hashedScore)
+            {
+                staticEval = hashedEval;
+            }
+            if (hashedType == LOWER_BOUND && hashedScore >= hashedScore)
+            {
+                staticEval = hashedEval;
+            }
+        }
+    }
+
+    if (staticEval == 50000)
+    {
+        staticEval = evaluate(board);
+    }
 
     //Reverse futility pruning
     if (!pvNode && !board.inCheck() && depth <= 6 && staticEval - 70 * depth >= beta)
