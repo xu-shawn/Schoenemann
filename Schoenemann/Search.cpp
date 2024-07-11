@@ -92,11 +92,11 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             {
                 staticEval = hashedEval;
             }
-            if (hashedType == UPPER_BOUND && staticEval <= hashedScore)
+            if (hashedType == UPPER_BOUND && hashedScore <= staticEval)
             {
                 staticEval = hashedEval;
             }
-            if (hashedType == LOWER_BOUND && staticEval >= hashedScore)
+            if (hashedType == LOWER_BOUND && hashedScore >= staticEval)
             {
                 staticEval = hashedEval;
             }
@@ -265,11 +265,11 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
             {
                 standPat = hashedEval;
             }
-            if (hashedType == UPPER_BOUND && standPat <= hashedScore)
+            if (hashedType == UPPER_BOUND && hashedScore <= standPat)
             {
                 standPat = hashedEval;
             }
-            if (hashedType == LOWER_BOUND && standPat >= hashedScore)
+            if (hashedType == LOWER_BOUND && hashedScore >= standPat)
             {
                 standPat = hashedEval;
             }
