@@ -237,15 +237,14 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
             }
         }
     }
+    if (!board.inCheck() && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
+    {
+        standPat = hashedScore;
+    }
 
     if (standPat == 50000)
     {
         standPat = evaluate(board);
-    }
-
-    if (!board.inCheck() && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
-    {
-        standPat = hashedScore;
     }
 
     if (standPat >= beta)
