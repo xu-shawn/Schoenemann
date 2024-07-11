@@ -41,22 +41,14 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     int hashedEval = 0;
     short hashedType = 0;
     int hashedDepth = 0;
+    int staticEval = 50000;
 
     const bool pvNode = alpha != beta - 1;
     const bool root = ply == 0;
-    bool isNullptr;
 
     Hash* entry = transpositionTabel.getHash(board);
 
-
-    if (entry == nullptr)
-    {
-        isNullptr = true;
-    }
-    else
-    {
-        isNullptr = false;
-    }
+    bool isNullptr = (entry == nullptr) ? true : false;
 
     if (!isNullptr)
     {
@@ -66,6 +58,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             hashedType = entry->type;
             hashedDepth = entry->depth;
             hashedEval = entry->eval;
+            staticEval = entry->eval;
         }
     }
 
@@ -91,8 +84,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
-    int staticEval = 50000;
-
     if (!isNullptr)
     {
         if (board.hash() == entry->key)
@@ -101,11 +92,11 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             {
                 staticEval = hashedEval;
             }
-            if (hashedType == UPPER_BOUND && hashedScore <= hashedScore)
+            if (hashedType == UPPER_BOUND && staticEval <= hashedScore)
             {
                 staticEval = hashedEval;
             }
-            if (hashedType == LOWER_BOUND && hashedScore >= hashedScore)
+            if (hashedType == LOWER_BOUND && staticEval >= hashedScore)
             {
                 staticEval = hashedEval;
             }
@@ -262,6 +253,25 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
             {
                 transpositions++;
                 return hashedScore;
+            }
+        }
+    }
+
+    if (!isNullptr)
+    {
+        if (board.hash() == entry->key)
+        {
+            if (hashedType == EXACT)
+            {
+                standPat = hashedEval;
+            }
+            if (hashedType == UPPER_BOUND && standPat <= hashedScore)
+            {
+                standPat = hashedEval;
+            }
+            if (hashedType == LOWER_BOUND && standPat >= hashedScore)
+            {
+                standPat = hashedEval;
             }
         }
     }
