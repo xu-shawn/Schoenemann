@@ -84,25 +84,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
-    if (!isNullptr)
-    {
-        if (board.hash() == entry->key)
-        {
-            if (hashedType == EXACT)
-            {
-                staticEval = hashedEval;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= staticEval)
-            {
-                staticEval = hashedEval;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= staticEval)
-            {
-                staticEval = hashedEval;
-            }
-        }
-    }
-
     if (staticEval == 50000)
     {
         staticEval = evaluate(board);
@@ -253,25 +234,6 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
             {
                 transpositions++;
                 return hashedScore;
-            }
-        }
-    }
-
-    if (!isNullptr)
-    {
-        if (board.hash() == entry->key)
-        {
-            if (hashedType == EXACT)
-            {
-                standPat = hashedEval;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= standPat)
-            {
-                standPat = hashedEval;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= standPat)
-            {
-                standPat = hashedEval;
             }
         }
     }
