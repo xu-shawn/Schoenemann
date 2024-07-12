@@ -58,25 +58,14 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             hashedType = entry->type;
             hashedDepth = entry->depth;
             hashedEval = entry->eval;
-            staticEval = entry->eval;
+            staticEval = hashedEval;
         }
-    }
 
-    if (!isNullptr)
-    {
         if (!pvNode && hashedDepth >= depth && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
-            if (hashedType == EXACT)
-            {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= alpha)
-            {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= beta)
+            if (hashedType == EXACT ||
+                hashedType == UPPER_BOUND && hashedScore <= alpha ||
+                hashedType == LOWER_BOUND && hashedScore >= beta)
             {
                 transpositions++;
                 return hashedScore;
@@ -214,29 +203,19 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
             hashedType = entry->type;
             standPat = entry->eval;
         }
-    }
 
-    if (!isNullptr)
-    {
         if (!pvNode && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
-            if (hashedType == EXACT)
-            {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= alpha)
-            {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= beta)
+            if (hashedType == EXACT ||
+                hashedType == UPPER_BOUND && hashedScore <= alpha ||
+                hashedType == LOWER_BOUND && hashedScore >= beta)
             {
                 transpositions++;
                 return hashedScore;
             }
         }
     }
+
     if (!board.inCheck() && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
     {
         standPat = hashedScore;
