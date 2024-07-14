@@ -14,6 +14,8 @@ std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
 int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
+    //Increment nodes by one
+    nodes++;
     if (shouldStop)
     {
         return beta;
@@ -22,7 +24,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     std::chrono::time_point end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = end - start;
     bool isOver = elapsed.count() >= timeForMove;
-
 
     if (isOver && !isNormalSearch)
     {
@@ -34,9 +35,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         return qs(alpha, beta, board, ply);
     }
 
-    //Increment nodes by one
-    nodes++;
-
     int hashedScore = 0;
     int hashedEval = 0;
     short hashedType = 0;
@@ -46,13 +44,15 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     const bool pvNode = alpha != beta - 1;
     const bool root = ply == 0;
 
-    Hash* entry = transpositionTabel.getHash(board);
+    uint64_t key = board.hash();
+
+    Hash* entry = transpositionTabel.getHash(key);
 
     bool isNullptr = (entry == nullptr) ? true : false;
 
     if (!isNullptr)
     {
-        if (board.hash() == entry->key)
+        if (key == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
@@ -67,7 +67,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
                 hashedType == UPPER_BOUND && hashedScore <= alpha ||
                 hashedType == LOWER_BOUND && hashedScore >= beta)
             {
-                transpositions++;
                 return hashedScore;
             }
         }
@@ -185,19 +184,21 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     //Increment nodes by one
     nodes++;
 
-    Hash* entry = transpositionTabel.getHash(board);
-
     int hashedScore = 0;
     int hashedEval = 0;
     short hashedType = 0;
     int standPat = 50000;
     const bool pvNode = alpha != beta - 1;
 
+    uint64_t key = board.hash();
+
+    Hash* entry = transpositionTabel.getHash(key);
+
     bool isNullptr = (entry == nullptr) ? true : false;
 
     if (!isNullptr)
     {
-        if (board.hash() == entry->key)
+        if (key == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
@@ -210,7 +211,6 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
                 hashedType == UPPER_BOUND && hashedScore <= alpha ||
                 hashedType == LOWER_BOUND && hashedScore >= beta)
             {
-                transpositions++;
                 return hashedScore;
             }
         }

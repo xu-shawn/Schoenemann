@@ -10,7 +10,7 @@ void transpositionTableTest(Board& board)
 	transpositionTabel.storeEvaluation(key, 2, LOWER_BOUND, transpositionTabel.ScoreToTT(200, 1), uci::uciToMove(board, "d5e4"), 1);
 
 	//Try to get the information out of the table
-	Hash* entry = transpositionTabel.getHash(board);
+	Hash* entry = transpositionTabel.getHash(key);
 
 	if (entry == nullptr)
 	{
@@ -25,47 +25,47 @@ void transpositionTableTest(Board& board)
 
 	if (hashedKey == key)
 	{
-		std::cout << "Test for the key PASSED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
+		std::cout << "Key PASSED." << std::endl;
 	}
 	else
 	{
-		std::cout << "Test for the key FAILED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
+		std::cout << "Key FAILED." << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
 	}
 
 	if (hashedDepth == 2)
 	{
-		std::cout << "Test for the depth PASSED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+		std::cout << "Depth PASSED." << std::endl;
 	}
 	else
 	{
-		std::cout << "Test for the depth FAILED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+		std::cout << "Depth FAILED." << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
 	}
 
 	if (hashedType == LOWER_BOUND)
 	{
-		std::cout << "Test for the type PASSED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+		std::cout << "Type PASSED." << std::endl;
 	}
 	else
 	{
-		std::cout << "Test for the type FAILED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+		std::cout << "Type FAILED." << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
 	}
 
 	if (hashedScore == 200)
 	{
-		std::cout << "Test for the score PASSED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+		std::cout << "Score PASSED." << std::endl;
 	}
 	else
 	{
-		std::cout << "Test for the score FAILED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+		std::cout << "Score FAILED." << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
 	}
 
 	if (hashedMove == uci::uciToMove(board, "d5e4"))
 	{
-		std::cout << "Test for the move PASSED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
+		std::cout << "Move PASSED." << std::endl;
 	}
 	else
 	{
-		std::cout << "Test for the move FAILED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
+		std::cout << "Move FAILED." << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
 	}
 	board.setFen(STARTPOS);
 }
