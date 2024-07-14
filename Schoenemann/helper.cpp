@@ -25,47 +25,47 @@ void transpositionTableTest(Board& board)
 
 	if (hashedKey == key)
 	{
-		std::cout << "Test for the key PASSED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
+		std::cout << "Key PASSED.\n" << std::endl;
 	}
 	else
 	{
-		std::cout << "Test for the key FAILED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
+		std::cout << "Key FAILED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
 	}
 
 	if (hashedDepth == 2)
 	{
-		std::cout << "Test for the depth PASSED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+		std::cout << "Depth PASSED.\n" << std::endl;
 	}
 	else
 	{
-		std::cout << "Test for the depth FAILED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+		std::cout << "Depth FAILED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
 	}
 
 	if (hashedType == LOWER_BOUND)
 	{
-		std::cout << "Test for the type PASSED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+		std::cout << "Type PASSED.\n" << std::endl;
 	}
 	else
 	{
-		std::cout << "Test for the type FAILED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+		std::cout << "Type FAILED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
 	}
 
 	if (hashedScore == 200)
 	{
-		std::cout << "Test for the score PASSED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+		std::cout << "Score PASSED.\n" << std::endl;
 	}
 	else
 	{
-		std::cout << "Test for the score FAILED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+		std::cout << "Score FAILED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
 	}
 
 	if (hashedMove == uci::uciToMove(board, "d5e4"))
 	{
-		std::cout << "Test for the move PASSED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
+		std::cout << "Move PASSED.\n" << std::endl;
 	}
 	else
 	{
-		std::cout << "Test for the move FAILED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
+		std::cout << "Move FAILED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
 	}
 	board.setFen(STARTPOS);
 }
