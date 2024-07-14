@@ -10,7 +10,7 @@ void transpositionTableTest(Board& board)
 	transpositionTabel.storeEvaluation(key, 2, LOWER_BOUND, transpositionTabel.ScoreToTT(200, 1), uci::uciToMove(board, "d5e4"), 1);
 
 	//Try to get the information out of the table
-	Hash* entry = transpositionTabel.getHash(board);
+	Hash* entry = transpositionTabel.getHash(key);
 
 	if (entry == nullptr)
 	{

@@ -15,19 +15,17 @@ void tt::storeEvaluation(std::uint64_t key, short depth, short type, int score, 
 }
 
 
-Hash *tt::getHash(Board& board)
+Hash *tt::getHash(uint64_t key)
 {
-	//Calculates the zobrish key
-	uint64_t zobristKey = board.hash();
 
 	//Gets the index based on the zobrist key
-	uint64_t index = zobristKey % size;
+	uint64_t index = key % size;
 
 	//Getting the node by the index
 	Hash* node = table + index;
 
 	//Check all two buckets
-	if (node->key == zobristKey)
+	if (node->key == key)
 	{
 		return node;
 	}
