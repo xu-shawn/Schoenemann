@@ -25,7 +25,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     std::chrono::duration<double, std::milli> elapsed = end - start;
     bool isOver = elapsed.count() >= timeForMove;
 
-
     if (isOver && !isNormalSearch)
     {
         shouldStop = true;

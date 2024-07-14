@@ -25,47 +25,47 @@ void transpositionTableTest(Board& board)
 
 	if (hashedKey == key)
 	{
-		std::cout << "Key PASSED.\n" << std::endl;
+		std::cout << "Key PASSED." << std::endl;
 	}
 	else
 	{
-		std::cout << "Key FAILED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
+		std::cout << "Key FAILED." << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
 	}
 
 	if (hashedDepth == 2)
 	{
-		std::cout << "Depth PASSED.\n" << std::endl;
+		std::cout << "Depth PASSED." << std::endl;
 	}
 	else
 	{
-		std::cout << "Depth FAILED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+		std::cout << "Depth FAILED." << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
 	}
 
 	if (hashedType == LOWER_BOUND)
 	{
-		std::cout << "Type PASSED.\n" << std::endl;
+		std::cout << "Type PASSED." << std::endl;
 	}
 	else
 	{
-		std::cout << "Type FAILED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+		std::cout << "Type FAILED." << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
 	}
 
 	if (hashedScore == 200)
 	{
-		std::cout << "Score PASSED.\n" << std::endl;
+		std::cout << "Score PASSED." << std::endl;
 	}
 	else
 	{
-		std::cout << "Score FAILED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+		std::cout << "Score FAILED." << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
 	}
 
 	if (hashedMove == uci::uciToMove(board, "d5e4"))
 	{
-		std::cout << "Move PASSED.\n" << std::endl;
+		std::cout << "Move PASSED." << std::endl;
 	}
 	else
 	{
-		std::cout << "Move FAILED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
+		std::cout << "Move FAILED." << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
 	}
 	board.setFen(STARTPOS);
 }
