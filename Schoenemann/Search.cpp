@@ -41,22 +41,14 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     int hashedEval = 0;
     short hashedType = 0;
     int hashedDepth = 0;
+    int staticEval = 50000;
 
     const bool pvNode = alpha != beta - 1;
     const bool root = ply == 0;
-    bool isNullptr;
 
     Hash* entry = transpositionTabel.getHash(board);
 
-
-    if (entry == nullptr)
-    {
-        isNullptr = true;
-    }
-    else
-    {
-        isNullptr = false;
-    }
+    bool isNullptr = (entry == nullptr) ? true : false;
 
     if (!isNullptr)
     {
@@ -66,48 +58,17 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             hashedType = entry->type;
             hashedDepth = entry->depth;
             hashedEval = entry->eval;
+            staticEval = hashedEval;
         }
-    }
 
-    if (!isNullptr)
-    {
         if (!pvNode && hashedDepth >= depth && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
-            if (hashedType == EXACT)
+            if (hashedType == EXACT ||
+                hashedType == UPPER_BOUND && hashedScore <= alpha ||
+                hashedType == LOWER_BOUND && hashedScore >= beta)
             {
                 transpositions++;
                 return hashedScore;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= alpha)
-            {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= beta)
-            {
-                transpositions++;
-                return hashedScore;
-            }
-        }
-    }
-
-    int staticEval = 50000;
-
-    if (!isNullptr)
-    {
-        if (board.hash() == entry->key)
-        {
-            if (hashedType == EXACT)
-            {
-                staticEval = hashedEval;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= hashedScore)
-            {
-                staticEval = hashedEval;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= hashedScore)
-            {
-                staticEval = hashedEval;
             }
         }
     }
@@ -227,19 +188,12 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     Hash* entry = transpositionTabel.getHash(board);
 
     int hashedScore = 0;
+    int hashedEval = 0;
     short hashedType = 0;
+    int standPat = 50000;
     const bool pvNode = alpha != beta - 1;
 
-    bool isNullptr;
-
-    if (entry == nullptr)
-    {
-        isNullptr = true;
-    }
-    else
-    {
-        isNullptr = false;
-    }
+    bool isNullptr = (entry == nullptr) ? true : false;
 
     if (!isNullptr)
     {
@@ -247,36 +201,29 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
+            standPat = entry->eval;
         }
-    }
 
-    if (!isNullptr)
-    {
         if (!pvNode && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
-            if (hashedType == EXACT)
-            {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= alpha)
-            {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= beta)
+            if (hashedType == EXACT ||
+                hashedType == UPPER_BOUND && hashedScore <= alpha ||
+                hashedType == LOWER_BOUND && hashedScore >= beta)
             {
                 transpositions++;
                 return hashedScore;
             }
         }
     }
-
-    int standPat = evaluate(board);
 
     if (!board.inCheck() && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
     {
         standPat = hashedScore;
+    }
+
+    if (standPat == 50000)
+    {
+        standPat = evaluate(board);
     }
 
     if (standPat >= beta)
