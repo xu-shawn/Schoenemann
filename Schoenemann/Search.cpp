@@ -44,7 +44,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     const bool pvNode = alpha != beta - 1;
     const bool root = ply == 0;
 
-    uint64_t key = board.hash();
+    uint64_t key = board.zobrist();
 
     Hash* entry = transpositionTabel.getHash(key);
 
@@ -190,7 +190,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     int standPat = 50000;
     const bool pvNode = alpha != beta - 1;
 
-    uint64_t key = board.hash();
+    uint64_t key = board.zobrist();
 
     Hash* entry = transpositionTabel.getHash(key);
 
