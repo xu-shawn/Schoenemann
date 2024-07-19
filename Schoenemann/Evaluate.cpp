@@ -2,10 +2,10 @@
 
 int evaluate(Board& board) {
     int evaluation = 0;
-    int whiteEvaluation = count_material(board, Color::WHITE);
-    int blackEvaluation = count_material(board, Color::BLACK);
 
-    evaluation = whiteEvaluation - blackEvaluation;
+    evaluation = count_material(board, Color::WHITE) - count_material(board, Color::BLACK);
+
+    evaluation += getMobility(board, Color::WHITE) - getMobility(board, Color::BLACK);
 
     int perspective;
 
@@ -19,6 +19,19 @@ int evaluate(Board& board) {
     }
 
     return evaluation * perspective;
+}
+
+int getMobility(Board& borad, Color color)
+{
+    int mobility = 0;
+    for (size_t i = 0; i < 63; i++)
+    {
+        if (borad.isAttacked(i, color))
+        {
+            mobility += 5;
+        }
+    }
+    return mobility;
 }
 
 int count_material(Board& board, Color color) {
