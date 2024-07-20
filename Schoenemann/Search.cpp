@@ -14,9 +14,11 @@ std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
 int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
+    nodes++;
+
     if (shouldStop)
     {
-        return alpha;
+        return beta;
     }
 
     std::chrono::time_point end = std::chrono::high_resolution_clock::now();
@@ -86,6 +88,38 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
+    int staticEval = 50000;
+
+    if (!isNullptr)
+    {
+        if (board.hash() == entry->key)
+        {
+            if (hashedType == EXACT)
+            {
+                staticEval = hashedEval;
+            }
+            if (hashedType == UPPER_BOUND && hashedScore <= hashedScore)
+            {
+                staticEval = hashedEval;
+            }
+            if (hashedType == LOWER_BOUND && hashedScore >= hashedScore)
+            {
+                staticEval = hashedEval;
+            }
+        }
+    }
+
+    if (staticEval == 50000)
+    {
+        staticEval = evaluate(board);
+    }
+
+    //Reverse futility pruning
+    if (!pvNode && !board.inCheck() && depth <= 6 && staticEval - 70 * depth >= beta)
+    {
+        return staticEval;
+    }
+
     short type = UPPER_BOUND;
 
     bool bSearchPv = true;
@@ -93,6 +127,8 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     Movelist moveList;
     movegen::legalmoves(moveList, board);
 
+    //Sort the list
+    moveList = orderMoves(moveList, entry);
 
     if (moveList.size() == 0)
     {
@@ -110,17 +146,24 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     for (const Move& move : moveList)
     {
         board.makeMove(move);
-        nodes++;
+
+        short checkExtension = 0;
+
+        if (board.inCheck() == true)
+        {
+            checkExtension = 1;
+        }
+
         if (bSearchPv)
         {
-            score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
+            score = -pvs(-beta, -alpha, depth - 1 + checkExtension, ply + 1, board);
         }
         else
         {
-            score = -pvs(-alpha - 1, -alpha, depth - 1, ply + 1, board);
+            score = -pvs(-alpha - 1, -alpha, depth - 1 + checkExtension, ply + 1, board);
             if (score > alpha && score < beta)
             {
-                score = -pvs(-beta, -alpha, depth - 1, ply + 1, board);
+                score = -pvs(-beta, -alpha, depth - 1 + checkExtension, ply + 1, board);
             }
         }
 
@@ -167,7 +210,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         {
             finalType = UPPER_BOUND;
         }
-        transpositionTabel.storeEvaluation(board.hash(), depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, evaluate(board));
+        transpositionTabel.storeEvaluation(board.hash(), depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
     }
 
     return bestScore;
@@ -175,6 +218,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
 int searcher::qs(int alpha, int beta, Board& board, int ply)
 {
+    nodes++;
     Hash* entry = transpositionTabel.getHash(board);
 
     int hashedScore = 0;
