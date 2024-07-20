@@ -73,6 +73,7 @@ void transpositionTableTest(Board& board)
 void testCommand()
 {
 	Board test_board;
+	evaluate(test_board);
 	test_board.setFen("8/4R3/6kp/6p1/8/7P/3r4/6K1 w - - 0 28");
 }
 
