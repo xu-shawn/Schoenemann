@@ -14,11 +14,8 @@ void tt::storeEvaluation(std::uint64_t key, short depth, short type, int score, 
 }
 
 
-Hash *tt::getHash(Board& board)
+Hash *tt::getHash(std::uint64_t zobristKey)
 {
-	//Calculates the zobrish key
-	uint64_t zobristKey = board.hash();
-
 	//Gets the index based on the zobrist key
 	uint64_t index = zobristKey % size;
 

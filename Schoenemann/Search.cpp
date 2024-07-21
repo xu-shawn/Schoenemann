@@ -12,7 +12,7 @@ using namespace chess;
 
 std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
-int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
+int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
     nodes++;
 
@@ -39,25 +39,17 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     short hashedType = 0;
     int hashedDepth = 0;
 
-    const bool pvNode = alpha != beta - 1;
-    const bool root = ply == 0;
-    bool isNullptr;
-
-    Hash* entry = transpositionTabel.getHash(board);
+    const bool pvNode = (alpha != beta) - 1;
+    const bool root = (ply == 0);
+    const std::uint64_t zobristKey = board.zobrist();
 
 
-    if (entry == nullptr)
-    {
-        isNullptr = true;
-    }
-    else
-    {
-        isNullptr = false;
-    }
+    Hash* entry = transpositionTabel.getHash(zobristKey);
+    const bool isNullptr = entry == nullptr ? true : false;
 
     if (!isNullptr)
     {
-        if (board.hash() == entry->key)
+        if (zobristKey == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
@@ -210,31 +202,23 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         {
             finalType = UPPER_BOUND;
         }
-        transpositionTabel.storeEvaluation(board.hash(), depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
+        transpositionTabel.storeEvaluation(zobristKey, depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
     }
 
     return bestScore;
 }
 
-int searcher::qs(int alpha, int beta, Board& board, int ply)
+int Search::qs(int alpha, int beta, Board& board, int ply)
 {
     nodes++;
-    Hash* entry = transpositionTabel.getHash(board);
+    const bool pvNode = (alpha != beta) - 1;
+    const std::uint64_t zobristKey = board.zobrist();
+
+    Hash* entry = transpositionTabel.getHash(zobristKey);
+    const bool isNullptr = entry == nullptr ? true : false;
 
     int hashedScore = 0;
     short hashedType = 0;
-    const bool pvNode = alpha != beta - 1;
-
-    bool isNullptr;
-
-    if (entry == nullptr)
-    {
-        isNullptr = true;
-    }
-    else
-    {
-        isNullptr = false;
-    }
 
     if (!isNullptr)
     {
@@ -330,7 +314,7 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
     return bestScore;
 }
 
-void searcher::iterativeDeepening(Board& board)
+void Search::iterativeDeepening(Board& board)
 {
     start = std::chrono::high_resolution_clock::now();
     timeForMove = getTimeForMove();
