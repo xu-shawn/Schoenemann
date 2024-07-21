@@ -3,7 +3,7 @@
 
 using namespace chess;
 
-class Search {
+class searcher {
 public:
 	const short infinity = 32767;
 	Move bestMove = Move::NULL_MOVE;

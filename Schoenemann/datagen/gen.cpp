@@ -8,7 +8,7 @@
 
 using namespace chess;
 
-Search search;
+searcher search;
 
 void generateDataSet(int epochs)
 {

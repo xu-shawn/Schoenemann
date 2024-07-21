@@ -40,7 +40,7 @@ public:
     ~tt();
 
     void storeEvaluation(std::uint64_t key, short depth, short type, int score, Move move, int eval);
-    Hash* getHash(std::uint64_t key);
+    Hash* getHash(Board& board);
     uint64_t getSize() const;
     void setSize(uint64_t MB);
 

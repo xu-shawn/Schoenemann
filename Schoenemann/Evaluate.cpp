@@ -15,7 +15,7 @@ const short queenValue = 2538;
 int evaluate(Board& board) {
     int evaluation = 0;
 
-    evaluation = countMaterial(board, Color::WHITE) - countMaterial(board, Color::BLACK);
+    evaluation = count_material(board, Color::WHITE) - count_material(board, Color::BLACK);
 
     evaluation += getMobility(board, Color::WHITE) - getMobility(board, Color::BLACK);
 
@@ -47,21 +47,21 @@ int getMobility(Board& borad, Color color)
 }
 
 
-int countMaterial(Board& board, Color color) {
+int count_material(Board& board, Color color) {
     int material = 0;
     psqt bouns;
     //Pawn
-    short amountPawn = countAmount(board, PieceType::PAWN, color);
+    short amountPawn = count_amount(board, PieceType::PAWN, color);
     int valuePawn = pawnValue + bouns.getPieceBounus(board, PieceType::PAWN, color);
     material += amountPawn * valuePawn;
     //std::cout << "color " << color << " pawnvalue " << count_amount(board, PieceType::PAWN, color) * (pawnValue + bouns.getPieceBounus(board, PieceType::PAWN, color)) << " amount " << count_amount(board, PieceType::PAWN, color) << " bounus " << bouns.getPieceBounus(board, PieceType::PAWN, color) << std::endl;
     
-    short amountKnight = countAmount(board, PieceType::KNIGHT, color);
+    short amountKnight = count_amount(board, PieceType::KNIGHT, color);
     int valueKnight = knightValue + bouns.getPieceBounus(board, PieceType::KNIGHT, color);
     material += amountKnight * valueKnight;
 
 
-    short bishopAmount = countAmount(board, PieceType::BISHOP, color);
+    short bishopAmount = count_amount(board, PieceType::BISHOP, color);
 
     if (bishopAmount >= 2)
     {
@@ -72,12 +72,12 @@ int countMaterial(Board& board, Color color) {
 
     material += bishopAmount * valueBishop;
 
-    short amountRook = countAmount(board, PieceType::ROOK, color);
+    short amountRook = count_amount(board, PieceType::ROOK, color);
     int valueRook = rookValue + bouns.getPieceBounus(board, PieceType::ROOK, color);
 
     material += amountRook * valueRook;
 
-    short amountQueen = countAmount(board, PieceType::QUEEN, color);
+    short amountQueen = count_amount(board, PieceType::QUEEN, color);
     int valueQueen = queenValue + bouns.getPieceBounus(board, PieceType::QUEEN, color);
 
     material += amountQueen * valueQueen;
@@ -86,6 +86,6 @@ int countMaterial(Board& board, Color color) {
     return material;
 }
 
-int countAmount(Board& board, PieceType type, Color color) {
+int count_amount(Board& board, PieceType type, Color color) {
     return board.pieces(type, color).count();
 }
