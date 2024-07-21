@@ -1,6 +1,7 @@
 #pragma once
 
 #include "tt.h"
+#include "psqt.h"
 #include "movegen/chess.hpp"
 
 const std::string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -36,3 +37,4 @@ const std::string testStrings[] = {
 };
 
 extern tt transpositionTabel;
+extern psqt bouns;

@@ -10,16 +10,7 @@ int evaluate(Board& board) {
 
     evaluation += getMobility(board, Color::WHITE) - getMobility(board, Color::BLACK);
 
-    int perspective;
-
-    if (board.sideToMove() == Color::WHITE)
-    {
-        perspective = 1;
-    }
-    else
-    {
-        perspective = -1;
-    }
+    int perspective = board.sideToMove() == Color::WHITE ? 1 : -1;
 
     return evaluation * perspective;
 }
@@ -40,7 +31,7 @@ int getMobility(Board& borad, Color color)
 
 int countMaterial(Board& board, Color color) {
     int material = 0;
-    psqt bouns;
+
     //Pawn
     short amountPawn = countAmount(board, PieceType::PAWN, color);
     int valuePawn = pawnValue + bouns.getPieceBounus(board, PieceType::PAWN, color);

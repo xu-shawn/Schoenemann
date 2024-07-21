@@ -13,8 +13,9 @@
 using namespace chess;
 
 Search seracher;
-tt transpositionTabel(64);
+tt transpositionTabel(8);
 uciRunner mainRunner;
+psqt bouns;
 
 int timeLeft = 0;
 int increment = 0;
