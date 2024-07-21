@@ -12,8 +12,8 @@ std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
 int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
-    //Increment nodes by one
     nodes++;
+
     if (shouldStop)
     {
         return beta;
@@ -180,7 +180,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
 int Search::qs(int alpha, int beta, Board& board, int ply)
 {
-    //Increment nodes by one
     nodes++;
 
     const std::uint64_t key = board.zobrist();
