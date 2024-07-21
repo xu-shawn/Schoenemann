@@ -1,5 +1,4 @@
-#ifndef TT_H
-#define TT_H
+#pragma once
 
 #include <iostream>
 #include "movegen/chess.hpp"
@@ -34,15 +33,15 @@ struct Hash {
 
 class tt {
 public:
-    tt(uint64_t MB);
+    tt(std::uint64_t MB);
     tt(const tt& other) = delete;
     tt& operator=(const tt& other) = delete;
     ~tt();
 
     void storeEvaluation(std::uint64_t key, short depth, short type, int score, Move move, int eval);
     Hash* getHash(std::uint64_t zobristKey);
-    uint64_t getSize() const;
-    void setSize(uint64_t MB);
+    std::uint64_t getSize() const;
+    void setSize(std::uint64_t MB);
 
     void clear();
     int estimateHashfull() const;
@@ -78,10 +77,8 @@ public:
     }
 
 private:
-    uint64_t size;
+    std::uint64_t size;
     Hash *table;
 
-    void init(uint64_t MB);
+    void init(std::uint64_t MB);
 };
-
-#endif TT_H

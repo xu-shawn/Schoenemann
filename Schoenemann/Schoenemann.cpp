@@ -16,7 +16,7 @@ Search seracher;
 tt transpositionTabel(64);
 uciRunner mainRunner;
 
-int time_left = 0;
+int timeLeft = 0;
 int increment = 0;
 int newTranspositionTableSize = 8;
 
@@ -157,12 +157,12 @@ int main(int argc, char* argv[]) {
 			{
 				if (board.sideToMove() == Color::WHITE)
 				{
-					time_left = number[0];
+					timeLeft = number[0];
 					increment = number[2];
 				}
 				else
 				{
-					time_left = number[1];
+					timeLeft = number[1];
 					increment = number[3];
 				}
 				seracher.iterativeDeepening(board);
@@ -312,7 +312,7 @@ void uciRunner::run_benchmark() {//Setting up the bench Board
 
 int getTime()
 {
-	return time_left;
+	return timeLeft;
 }
 
 int getIncrement()

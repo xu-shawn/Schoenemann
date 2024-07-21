@@ -37,7 +37,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     int hashedScore = 0;
     short hashedType = 0;
     int hashedDepth = 0;
-    int staticEval = 50000;
+    int staticEval = NO_VALUE;
 
     const bool pvNode = (alpha != beta) - 1;
     const bool root = (ply == 0);
@@ -69,7 +69,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
-    if (staticEval == 50000)
+    if (staticEval == NO_VALUE)
     {
         staticEval = evaluate(board);
     }
@@ -187,7 +187,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     int hashedScore = 0;
     short hashedType = 0;
-    int standPat = 50000;
+    int standPat = NO_VALUE;
 
     if (!isNullptr)
     {
@@ -215,7 +215,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         standPat = hashedScore;
     }
 
-    if (standPat == 50000)
+    if (standPat == NO_VALUE)
     {
         standPat = evaluate(board);
     }
