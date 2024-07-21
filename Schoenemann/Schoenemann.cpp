@@ -12,7 +12,7 @@
 
 using namespace chess;
 
-searcher seracher;
+Search seracher;
 tt transpositionTabel(64);
 uciRunner mainRunner;
 
@@ -207,7 +207,7 @@ int main(int argc, char* argv[]) {
 
 			//Try to get the information out of the table
 
-			Hash* entry = transpositionTabel.getHash(board);
+			Hash* entry = transpositionTabel.getHash(board.zobrist());
 			
 			if (entry == nullptr)
 			{

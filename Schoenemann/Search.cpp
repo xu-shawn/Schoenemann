@@ -8,11 +8,9 @@
 #include "Moveorder.h"
 #include "consts.h"
 
-using namespace chess;
-
 std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
-int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
+int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
     nodes++;
 
@@ -24,6 +22,7 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     std::chrono::time_point end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = end - start;
     bool isOver = elapsed.count() >= timeForMove;
+
     if (isOver && !isNormalSearch)
     {
         shouldStop = true;
@@ -38,76 +37,39 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
     int hashedEval = 0;
     short hashedType = 0;
     int hashedDepth = 0;
+    int staticEval = 50000;
 
     const bool pvNode = alpha != beta - 1;
     const bool root = ply == 0;
-    bool isNullptr;
 
-    Hash* entry = transpositionTabel.getHash(board);
+    const std::uint64_t key = board.zobrist();
 
+    Hash* entry = transpositionTabel.getHash(key);
 
-    if (entry == nullptr)
-    {
-        isNullptr = true;
-    }
-    else
-    {
-        isNullptr = false;
-    }
+    bool isNullptr = (entry == nullptr) ? true : false;
 
     if (!isNullptr)
     {
-        if (board.hash() == entry->key)
+        if (key == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
             hashedDepth = entry->depth;
             hashedEval = entry->eval;
+            staticEval = hashedEval;
         }
-    }
 
-    if (!isNullptr)
-    {
         if (!pvNode && hashedDepth >= depth && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
-            if (hashedType == EXACT)
+            if (hashedType == EXACT ||
+                hashedType == UPPER_BOUND && hashedScore <= alpha ||
+                hashedType == LOWER_BOUND && hashedScore >= beta)
             {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= alpha)
-            {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= beta)
-            {
-                transpositions++;
                 return hashedScore;
             }
         }
     }
 
-    int staticEval = 50000;
-
-    if (!isNullptr)
-    {
-        if (board.hash() == entry->key)
-        {
-            if (hashedType == EXACT)
-            {
-                staticEval = hashedEval;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= hashedScore)
-            {
-                staticEval = hashedEval;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= hashedScore)
-            {
-                staticEval = hashedEval;
-            }
-        }
-    }
 
     if (staticEval == 50000)
     {
@@ -210,68 +172,54 @@ int searcher::pvs(int alpha, int beta, int depth, int ply, Board& board)
         {
             finalType = UPPER_BOUND;
         }
-        transpositionTabel.storeEvaluation(board.hash(), depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
+        transpositionTabel.storeEvaluation(key, depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
     }
 
     return bestScore;
 }
 
-int searcher::qs(int alpha, int beta, Board& board, int ply)
+int Search::qs(int alpha, int beta, Board& board, int ply)
 {
     nodes++;
-    Hash* entry = transpositionTabel.getHash(board);
+
+    const std::uint64_t key = board.zobrist();
+
+    Hash* entry = transpositionTabel.getHash(key);
+    bool isNullptr = (entry == nullptr) ? true : false;
 
     int hashedScore = 0;
     short hashedType = 0;
+    int standPat = 50000;
     const bool pvNode = alpha != beta - 1;
-
-    bool isNullptr;
-
-    if (entry == nullptr)
-    {
-        isNullptr = true;
-    }
-    else
-    {
-        isNullptr = false;
-    }
 
     if (!isNullptr)
     {
-        if (board.hash() == entry->key)
+        if (key == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
+            standPat = entry->eval;
         }
-    }
 
-    if (!isNullptr)
-    {
         if (!pvNode && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
-            if (hashedType == EXACT)
+            if (hashedType == EXACT ||
+                hashedType == UPPER_BOUND && hashedScore <= alpha ||
+                hashedType == LOWER_BOUND && hashedScore >= beta)
             {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == UPPER_BOUND && hashedScore <= alpha)
-            {
-                transpositions++;
-                return hashedScore;
-            }
-            if (hashedType == LOWER_BOUND && hashedScore >= beta)
-            {
-                transpositions++;
                 return hashedScore;
             }
         }
     }
-
-    int standPat = evaluate(board);
 
     if (!board.inCheck() && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
     {
         standPat = hashedScore;
+    }
+
+    if (standPat == 50000)
+    {
+        standPat = evaluate(board);
     }
 
     if (standPat >= beta)
@@ -325,12 +273,12 @@ int searcher::qs(int alpha, int beta, Board& board, int ply)
         return -MATE + ply;
     }
 
-    transpositionTabel.storeEvaluation(board.hash(), 0, bestScore >= beta ? LOWER_BOUND : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInQs, standPat);
+    transpositionTabel.storeEvaluation(key, 0, bestScore >= beta ? LOWER_BOUND : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInQs, standPat);
 
     return bestScore;
 }
 
-void searcher::iterativeDeepening(Board& board)
+void Search::iterativeDeepening(Board& board)
 {
     start = std::chrono::high_resolution_clock::now();
     timeForMove = getTimeForMove();
