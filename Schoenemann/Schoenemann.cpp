@@ -25,14 +25,12 @@ int main(int argc, char* argv[]) {
 	std::string token, cmd;
 	board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 	board.set960(false);
-
+	transpositionTabel.setSize(8);
 	if (argc > 1 && strcmp(argv[1], "bench") == 0)
 	{
 		mainRunner.run_benchmark();
 		return 0;
 	}
-
-	transpositionTabel.setSize(8);
 
 	do
 	{
