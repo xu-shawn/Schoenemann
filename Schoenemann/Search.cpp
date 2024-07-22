@@ -70,6 +70,15 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
+    if (!isNullptr)
+    {
+        int probCutBeta = beta + 390;
+        if (hashedDepth >= depth - 2 && hashedScore >= probCutBeta && std::abs(beta) < infinity)
+        {
+            return probCutBeta;
+        }
+    }
+
     if (staticEval == NO_VALUE)
     {
         staticEval = evaluate(board);
