@@ -68,8 +68,3 @@ int countAmount(Board& board, PieceType type, Color color)
 {
     return board.pieces(type, color).count();
 }
-
-int nnueEvaluation(Board& board)
-{
-    return NNEvaluate(board);
-}

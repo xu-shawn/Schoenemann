@@ -3,7 +3,6 @@
 #include <iostream>
 
 #include "consts.h"
-#include "nnue.h"
 #include "psqt.h"
 #include "consts.h"
 #include "movegen/chess.hpp"
@@ -14,4 +13,3 @@ int evaluate(Board& board);
 int countMaterial(Board& board, Color color);
 int countAmount(Board& board, PieceType type, Color color);
 int getMobility(Board& borad, Color color);
-int nnueEvaluation(Board& board);

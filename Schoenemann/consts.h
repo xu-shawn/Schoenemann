@@ -2,6 +2,7 @@
 
 #include "tt.h"
 #include "psqt.h"
+#include "Search.h"
 #include <iostream>
 #include "movegen/chess.hpp"
 
@@ -37,6 +38,5 @@ const std::string testStrings[] = {
 };
 
 extern tt transpositionTabel;
-
+extern Search seracher;
 extern psqt bouns;
-

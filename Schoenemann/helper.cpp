@@ -77,17 +77,6 @@ void testCommand()
 	test_board.setFen("8/4R3/6kp/6p1/8/7P/3r4/6K1 w - - 0 28");
 }
 
-void nnTest(Board& board)
-{
-	board.setFen(STARTPOS);
-	std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
-	board.setFen("8/2q5/8/8/8/4K2k/8/8 w - - 0 1");
-	std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
-	board.setFen("rnbqkbnr/ppppp3/6p1/8/8/8/PPPP1PPP/RNBQKBNR w KQkq - 0 4");
-	std::cout << "Evaluation result: " << nnueEvaluation(board) << std::endl;
-	board.setFen(STARTPOS);
-}
-
 //Print the uci info
 void uciPrint()
 {
@@ -97,7 +86,7 @@ void uciPrint()
 		<< "uciok" << std::endl;
 }
 
-void run_benchmark() {
+void runBenchmark() {
 	//Setting up the bench Board
 	Board benchBoard;
 

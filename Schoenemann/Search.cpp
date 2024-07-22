@@ -65,7 +65,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
                 hashedType == UPPER_BOUND && hashedScore <= alpha ||
                 hashedType == LOWER_BOUND && hashedScore >= beta)
             {
-                transpositions++;
                 return hashedScore;
             }
         }
@@ -194,7 +193,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     if (!isNullptr)
     {
-        if (key == entry->key)
+        if (zobristKey == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
@@ -207,7 +206,6 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
                 hashedType == UPPER_BOUND && hashedScore <= alpha ||
                 hashedType == LOWER_BOUND && hashedScore >= beta)
             {
-                transpositions++;
                 return hashedScore;
             }
         }
@@ -274,7 +272,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         return -infinity + ply;
     }
 
-    transpositionTabel.storeEvaluation(key, 0, bestScore >= beta ? LOWER_BOUND : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInQs, standPat);
+    transpositionTabel.storeEvaluation(zobristKey, 0, bestScore >= beta ? LOWER_BOUND : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInQs, standPat);
 
     return bestScore;
 }

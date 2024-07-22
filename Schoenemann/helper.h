@@ -1,3 +1,5 @@
+#pragma once
+
 #include "consts.h"
 #include "evaluate.h"
 #include "movegen/chess.hpp"
@@ -6,6 +8,5 @@
 
 void transpositionTableTest(Board& board);
 void testCommand();
-void run_benchmark();
-void nnTest(Board& board);
+void runBenchmark();
 void uciPrint();
