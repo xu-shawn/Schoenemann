@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstring>
 
 #include "tt.h"
 
@@ -12,7 +13,6 @@ void tt::storeEvaluation(std::uint64_t key, short depth, short type, int score, 
 	//Store the entry
 	node->setEntry(key, depth, type, score, move, eval);
 }
-
 
 Hash *tt::getHash(std::uint64_t zobristKey)
 {
@@ -33,8 +33,7 @@ Hash *tt::getHash(std::uint64_t zobristKey)
 }
 void tt::clear() 
 {
-	std::memset(static_cast<void*>(table), 0, size * sizeof(Hash));
-
+	memset(static_cast<void*>(table), 0, size * sizeof(Hash));
 }
 
 void tt::init(std::uint64_t MB) 

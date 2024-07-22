@@ -3,6 +3,8 @@
 #include "tt.h"
 
 #include "movegen/chess.hpp"
+#include "consts.h"
+#include "tt.h"
 
 using namespace chess;
 

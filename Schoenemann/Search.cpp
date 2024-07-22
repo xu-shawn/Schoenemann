@@ -14,6 +14,7 @@ std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
 int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
+    //Increment nodes by one
     nodes++;
 
     if (shouldStop)
@@ -24,6 +25,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     std::chrono::time_point end = std::chrono::high_resolution_clock::now();
     std::chrono::duration<double, std::milli> elapsed = end - start;
     bool isOver = elapsed.count() >= timeForMove;
+
     if (isOver && !isNormalSearch)
     {
         shouldStop = true;
@@ -94,7 +96,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     {
         if (board.inCheck() == true)
         {
-            return -MATE + ply;
+            return -infinity + ply;
         }
         else
         {
@@ -151,7 +153,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             {
                 break;
             }
-        }   
+        }
     }
 
     if (!root)
@@ -186,12 +188,13 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     const bool isNullptr = entry == nullptr ? true : false;
 
     int hashedScore = 0;
+    int hashedEval = 0;
     short hashedType = 0;
     int standPat = NO_VALUE;
 
     if (!isNullptr)
     {
-        if (board.hash() == entry->key)
+        if (key == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
@@ -253,7 +256,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
             if (score > alpha)
             {
                 alpha = score;
-                
+
                 bestMoveInQs = move;
             }
 
@@ -268,10 +271,10 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     //Checks for checkmate
     if (board.inCheck() && bestScore == -infinity)
     {
-        return -MATE + ply;
+        return -infinity + ply;
     }
 
-    transpositionTabel.storeEvaluation(board.hash(), 0, bestScore >= beta ? LOWER_BOUND : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInQs, standPat);
+    transpositionTabel.storeEvaluation(key, 0, bestScore >= beta ? LOWER_BOUND : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInQs, standPat);
 
     return bestScore;
 }
@@ -285,6 +288,7 @@ void Search::iterativeDeepening(Board& board)
     isNormalSearch = false;
     bool hasFoundMove = false;
 
+    //If there is no time left make a search at depth 1
     if (timeForMove == -20)
     {
         pvs(-32767, 32767, 1, 0, board);

@@ -1,13 +1,10 @@
-#include <iostream>
-
 #include "evaluate.h"
 #include "psqt.h"
 
+
 int evaluate(Board& board) {
     int evaluation = 0;
-
     evaluation = countMaterial(board, Color::WHITE) - countMaterial(board, Color::BLACK);
-
     evaluation += getMobility(board, Color::WHITE) - getMobility(board, Color::BLACK);
 
     int perspective = board.sideToMove() == Color::WHITE ? 1 : -1;
@@ -27,7 +24,6 @@ int getMobility(Board& borad, Color color)
     }
     return mobility;
 }
-
 
 int countMaterial(Board& board, Color color) {
     int material = 0;
@@ -68,6 +64,12 @@ int countMaterial(Board& board, Color color) {
     return material;
 }
 
-int countAmount(Board& board, PieceType type, Color color) {
+int countAmount(Board& board, PieceType type, Color color) 
+{
     return board.pieces(type, color).count();
+}
+
+int nnueEvaluation(Board& board)
+{
+    return NNEvaluate(board);
 }
