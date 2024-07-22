@@ -14,18 +14,16 @@ void tt::storeEvaluation(std::uint64_t key, short depth, short type, int score, 
 	node->setEntry(key, depth, type, score, move, eval);
 }
 
-
-Hash *tt::getHash(uint64_t key)
+Hash *tt::getHash(std::uint64_t zobristKey)
 {
-
 	//Gets the index based on the zobrist key
-	uint64_t index = key % size;
+	std::uint64_t index = zobristKey % size;
 
 	//Getting the node by the index
 	Hash* node = table + index;
 
 	//Check all two buckets
-	if (node->key == key)
+	if (node->key == zobristKey)
 	{
 		return node;
 	}
@@ -36,13 +34,12 @@ Hash *tt::getHash(uint64_t key)
 void tt::clear() 
 {
 	memset(static_cast<void*>(table), 0, size * sizeof(Hash));
-
 }
 
-void tt::init(uint64_t MB) 
+void tt::init(std::uint64_t MB) 
 {
-	uint64_t bytes = MB << 20;
-	uint64_t maxSize = bytes / sizeof(Hash);
+	std::uint64_t bytes = MB << 20;
+	std::uint64_t maxSize = bytes / sizeof(Hash);
 
 	size = 1;
 	while (size <= maxSize)
@@ -56,12 +53,12 @@ void tt::init(uint64_t MB)
 	clear();
 }
 
-uint64_t tt::getSize() const 
+std::uint64_t tt::getSize() const 
 {
 	return (2 * size);
 }
 
-void tt::setSize(uint64_t MB) 
+void tt::setSize(std::uint64_t MB) 
 {
 	free(table);
 	init(MB);
@@ -75,7 +72,7 @@ int tt::estimateHashfull() const
 }
 
 
-tt::tt(uint64_t MB) 
+tt::tt(std::uint64_t MB) 
 {
 	init(MB);
 }

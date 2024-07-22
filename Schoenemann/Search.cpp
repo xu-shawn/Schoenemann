@@ -16,6 +16,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 {
     //Increment nodes by one
     nodes++;
+
     if (shouldStop)
     {
         return beta;
@@ -36,29 +37,26 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     }
 
     int hashedScore = 0;
-    int hashedEval = 0;
     short hashedType = 0;
     int hashedDepth = 0;
-    int staticEval = 50000;
+    int staticEval = NO_VALUE;
 
-    const bool pvNode = alpha != beta - 1;
-    const bool root = ply == 0;
+    const bool pvNode = (alpha != beta) - 1;
+    const bool root = (ply == 0);
+    const std::uint64_t zobristKey = board.zobrist();
 
-    uint64_t key = board.zobrist();
 
-    Hash* entry = transpositionTabel.getHash(key);
-
-    bool isNullptr = (entry == nullptr) ? true : false;
+    Hash* entry = transpositionTabel.getHash(zobristKey);
+    const bool isNullptr = entry == nullptr ? true : false;
 
     if (!isNullptr)
     {
-        if (key == entry->key)
+        if (zobristKey == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
             hashedType = entry->type;
             hashedDepth = entry->depth;
-            hashedEval = entry->eval;
-            staticEval = hashedEval;
+            staticEval = entry->eval;
         }
 
         if (!pvNode && hashedDepth >= depth && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
@@ -67,12 +65,13 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
                 hashedType == UPPER_BOUND && hashedScore <= alpha ||
                 hashedType == LOWER_BOUND && hashedScore >= beta)
             {
+                transpositions++;
                 return hashedScore;
             }
         }
     }
 
-    if (staticEval == 50000)
+    if (staticEval == NO_VALUE)
     {
         staticEval = evaluate(board);
     }
@@ -173,7 +172,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         {
             finalType = UPPER_BOUND;
         }
-        transpositionTabel.storeEvaluation(key, depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
+        transpositionTabel.storeEvaluation(zobristKey, depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
     }
 
     return bestScore;
@@ -181,20 +180,17 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
 int Search::qs(int alpha, int beta, Board& board, int ply)
 {
-    //Increment nodes by one
     nodes++;
+    const bool pvNode = (alpha != beta) - 1;
+    const std::uint64_t zobristKey = board.zobrist();
+
+    Hash* entry = transpositionTabel.getHash(zobristKey);
+    const bool isNullptr = entry == nullptr ? true : false;
 
     int hashedScore = 0;
     int hashedEval = 0;
     short hashedType = 0;
-    int standPat = 50000;
-    const bool pvNode = alpha != beta - 1;
-
-    uint64_t key = board.zobrist();
-
-    Hash* entry = transpositionTabel.getHash(key);
-
-    bool isNullptr = (entry == nullptr) ? true : false;
+    int standPat = NO_VALUE;
 
     if (!isNullptr)
     {
@@ -211,6 +207,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
                 hashedType == UPPER_BOUND && hashedScore <= alpha ||
                 hashedType == LOWER_BOUND && hashedScore >= beta)
             {
+                transpositions++;
                 return hashedScore;
             }
         }
@@ -221,7 +218,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         standPat = hashedScore;
     }
 
-    if (standPat == 50000)
+    if (standPat == NO_VALUE)
     {
         standPat = evaluate(board);
     }

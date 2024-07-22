@@ -9,8 +9,9 @@
 using namespace chess;
 
 Search seracher;
-tt transpositionTabel(64);
+tt transpositionTabel(8);
 uciRunner mainRunner;
+psqt bouns;
 
 int timeLeft = 0;
 int increment = 0;
@@ -29,17 +30,10 @@ int main(int argc, char* argv[]) {
 
 	//Disable FRC (Fisher-Random-Chess)
 	board.set960(false);
-
-	//Load the neural network
-	LoadNetwork();
-
-	//Move this above the checking for a bench command
 	transpositionTabel.setSize(8);
-
-	//Check for an incoming bench command
 	if (argc > 1 && strcmp(argv[1], "bench") == 0)
 	{
-		run_benchmark();
+		mainRunner.run_benchmark();
 		return 0;
 	}
 
@@ -201,7 +195,75 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "nn")
 		{
-			nnTest(board);
+			//Set up a unice position
+			board.setFen("3N4/2p5/5K2/k1PB3p/3Pr3/1b5p/6p1/5nB1 w - - 0 1");
+			std::uint64_t key = board.zobrist();
+
+			//Store the information
+
+			transpositionTabel.storeEvaluation(key, 2, LOWER_BOUND, transpositionTabel.ScoreToTT(200, 1), uci::uciToMove(board, "d5e4"), 1);
+
+			//Try to get the information out of the table
+
+			Hash* entry = transpositionTabel.getHash(key);
+			
+			if (entry == nullptr)
+			{
+				std::cout << "The entry is a nullptr" << std::endl;
+				continue;
+			}
+			std::uint64_t hashedKey = entry->key;
+			short hashedDepth = entry->depth;
+			short hashedType = entry->type;
+			int hashedScore = entry->score;
+			Move hashedMove = entry->move;
+
+			if (hashedKey == key)
+			{
+				std::cout << "Test for the key PASSED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the key FAILED.\n" << "Original key: \n" << key << "\nHash key: \n" << hashedKey << std::endl;
+			}
+
+			if (hashedDepth == 2)
+			{
+				std::cout << "Test for the depth PASSED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the depth FAILED.\n" << "Original depth: 2" << "\nHash key: " << hashedDepth << std::endl;
+			}
+
+			if (hashedType == LOWER_BOUND)
+			{
+				std::cout << "Test for the type PASSED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the type FAILED.\n" << "Original type: 2" << "\nHash type: " << hashedType << std::endl;
+			}
+
+			if (hashedScore == 200)
+			{
+				std::cout << "Test for the score PASSED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the score FAILED.\n" << "Original score: 200" << "\nHash score: " << hashedScore << std::endl;
+			}
+
+			if (hashedMove == uci::uciToMove(board, "d5e4"))
+			{
+				std::cout << "Test for the move PASSED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
+			}
+			else
+			{
+				std::cout << "Test for the move FAILED.\n" << "Original move: d5e4" << "\nHash move: " << hashedMove << std::endl;
+			}
+
+			board.setFen("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
 		}
 		else if (token == "test")
 		{
@@ -211,6 +273,34 @@ int main(int argc, char* argv[]) {
 	} while (token != "quit");
 
 	return 0;
+}
+
+void uciRunner::run_benchmark() {//Setting up the bench Board
+	Board benchBoard;
+
+	//Setting up the clock 
+	auto start = std::chrono::high_resolution_clock::now();
+
+	//Reseting the nodes
+	seracher.nodes = 0;
+
+	//Looping over all bench positions
+	for (const auto& test : testStrings) {
+		benchBoard.setFen(test);
+		seracher.pvs(-infinity, infinity, benchDepth, 0, benchBoard);
+	}
+
+	auto end = std::chrono::high_resolution_clock::now();
+
+	//Calculates the total time used
+	std::chrono::duration<double, std::milli> timeElapsed = end - start;
+	int timeInMs = static_cast<int>(timeElapsed.count());
+
+	//calculates the Nodes per Second
+	int NPS = static_cast<int>(seracher.nodes / timeElapsed.count() * 1000);
+
+	//Prints out the final bench 
+	std::cout << "Time  : " << timeInMs << " ms\nNodes : " << seracher.nodes << "\nNPS   : " << NPS << std::endl;
 }
 
 int getTime()

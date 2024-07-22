@@ -1,8 +1,10 @@
 #include "Moveorder.h"
 
+#include "consts.h"
+#include "tt.h"
+
 Movelist orderMoves(Movelist moveList, Hash* entry)
 {
-
 	if (entry == nullptr)
 	{
 		return moveList;

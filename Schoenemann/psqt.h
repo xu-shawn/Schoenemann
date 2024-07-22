@@ -1,3 +1,5 @@
+#pragma once
+
 #include "movegen/chess.hpp"
 
 using namespace chess;
