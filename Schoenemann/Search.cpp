@@ -31,6 +31,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         shouldStop = true;
     }
 
+    //If depth is 0 we drop into qs to get a neutral position
     if (depth == 0)
     {
         return qs(alpha, beta, board, ply);
@@ -41,16 +42,22 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     int hashedDepth = 0;
     int staticEval = NO_VALUE;
 
+    //Get some important search constants
     const bool pvNode = (alpha != beta) - 1;
     const bool root = (ply == 0);
     const std::uint64_t zobristKey = board.zobrist();
 
-
+    //Get an potential hash entry
     Hash* entry = transpositionTabel.getHash(zobristKey);
+
+    //Check if we this stored position is valid
     const bool isNullptr = entry == nullptr ? true : false;
 
     if (!isNullptr)
     {
+        //If we have a transposition
+        //That means that the current board zobrist key 
+        //is the same as the hash entry zobrist key 
         if (zobristKey == entry->key)
         {
             hashedScore = transpositionTabel.ScoreFromTT(entry->score, ply);
@@ -59,6 +66,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             staticEval = entry->eval;
         }
 
+        //Check if we can return a stored score
         if (!pvNode && hashedDepth >= depth && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
             if (hashedType == EXACT ||
@@ -70,6 +78,8 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
+    //If no evaluation was found in the transposition table
+    //we perform an static evaulation
     if (staticEval == NO_VALUE)
     {
         staticEval = evaluate(board);
