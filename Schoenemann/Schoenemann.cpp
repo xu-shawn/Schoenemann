@@ -192,6 +192,10 @@ int main(int argc, char* argv[]) {
 		{
 			transpositionTableTest(board);
 		}
+		else if (token == "eval")
+		{
+			std::cout << "The evaluation is: " << evaluate(board) << " cp" << std::endl;
+		}
 		else if (token == "test")
 		{
 			testCommand();
