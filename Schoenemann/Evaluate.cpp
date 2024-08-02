@@ -38,7 +38,6 @@ int countMaterial(Board& board, Color color) {
     int valueKnight = knightValue + bouns.getPieceBounus(board, PieceType::KNIGHT, color);
     material += amountKnight * valueKnight;
 
-
     short bishopAmount = countAmount(board, PieceType::BISHOP, color);
 
     if (bishopAmount >= 2)
