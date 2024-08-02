@@ -22,7 +22,7 @@ short psqt::bounusCalculation(PieceType type, Bitboard bitboard, const bool isWh
 				
 				if (bitboard.check(i))
 				{
-					return pawnTable[i];
+					return pawnTable[63 - i];
 				}
 			}
 		}
@@ -32,7 +32,7 @@ short psqt::bounusCalculation(PieceType type, Bitboard bitboard, const bool isWh
 			{
 				if (bitboard.check(i))
 				{
-					return pawnTable[63 - i];
+					return pawnTable[i];
 				}
 			}
 		}
@@ -46,7 +46,7 @@ short psqt::bounusCalculation(PieceType type, Bitboard bitboard, const bool isWh
 
 				if (bitboard.check(i))
 				{
-					return knightTable[i];
+					return knightTable[63 - i];
 				}
 			}
 		}
@@ -56,7 +56,7 @@ short psqt::bounusCalculation(PieceType type, Bitboard bitboard, const bool isWh
 			{
 				if (bitboard.check(i))
 				{
-					return knightTable[63 - i];
+					return knightTable[i];
 				}
 			}
 		}
@@ -70,7 +70,7 @@ short psqt::bounusCalculation(PieceType type, Bitboard bitboard, const bool isWh
 
 				if (bitboard.check(i))
 				{
-					return bishopTable[i];
+					return bishopTable[63 - i];
 				}
 			}
 		}
@@ -80,7 +80,7 @@ short psqt::bounusCalculation(PieceType type, Bitboard bitboard, const bool isWh
 			{
 				if (bitboard.check(i))
 				{
-					return bishopTable[63 - i];
+					return bishopTable[i];
 				}
 			}
 		}
@@ -118,7 +118,7 @@ short psqt::bounusCalculation(PieceType type, Bitboard bitboard, const bool isWh
 
 				if (bitboard.check(i))
 				{
-					return queenTable[i];
+					return queenTable[63 - i];
 				}
 			}
 		}
@@ -128,7 +128,7 @@ short psqt::bounusCalculation(PieceType type, Bitboard bitboard, const bool isWh
 			{
 				if (bitboard.check(i))
 				{
-					return queenTable[63 - i];
+					return queenTable[i];
 				}
 			}
 		}
