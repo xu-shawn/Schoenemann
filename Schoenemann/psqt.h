@@ -84,8 +84,8 @@ public:
 	};
 
 
-	int getPieceBounus(Board& board, PieceType piece, Color& color);
+	int getPieceBounus(Board& board, PieceType piece, Color color);
+	short bounusCalculation(PieceType type, Bitboard bitboard, const bool isWhite);
 
 private:
-	std::vector<int> getSetBitsEfficient(Bitboard& bitboard, Color color);
 };
