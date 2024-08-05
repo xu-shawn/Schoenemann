@@ -37,6 +37,23 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         return qs(alpha, beta, board, ply);
     }
 
+
+    const std::uint64_t zobristKey = board.zobrist();
+
+    if (ply > 0)
+    {
+        if (board.isHalfMoveDraw())
+        {
+            return 0;
+        }
+
+        if (contains(zobristKey))
+        {
+            return 0;
+
+        }
+    }
+
     int hashedScore = 0;
     short hashedType = 0;
     int hashedDepth = 0;
@@ -45,7 +62,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     //Get some important search constants
     const bool pvNode = (alpha != beta) - 1;
     const bool root = (ply == 0);
-    const std::uint64_t zobristKey = board.zobrist();
 
     //Get an potential hash entry
     Hash* entry = transpositionTabel.getHash(zobristKey);
@@ -304,6 +320,7 @@ void Search::iterativeDeepening(Board& board)
     Move bestMoveThisIteration = Move::NULL_MOVE;
     isNormalSearch = false;
     bool hasFoundMove = false;
+    std::uint64_t key = board.zobrist();
 
     //If there is no time left make a search at depth 1
     if (timeForMove == -20)
@@ -311,6 +328,7 @@ void Search::iterativeDeepening(Board& board)
         pvs(-32767, 32767, 1, 0, board);
         if (bestMove != Move::NULL_MOVE)
         {
+            storeKey(key);
             std::cout << "bestmove " << bestMove << std::endl;
             return;
         }
@@ -342,12 +360,14 @@ void Search::iterativeDeepening(Board& board)
         //std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
         if (i == 256 && hasFoundMove)
         {
+            storeKey(key);
             std::cout << "bestmove " << bestMove << std::endl;
             break;
         }
 
         if (isOver && hasFoundMove)
         {
+            storeKey(key);
             std::cout << "bestmove " << bestMoveThisIteration << std::endl;
             shouldStop = true;
             break;
