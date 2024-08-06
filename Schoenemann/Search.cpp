@@ -7,6 +7,7 @@
 #include "timeman.h"
 #include "Moveorder.h"
 #include "consts.h"
+#include "nnue.hpp"
 
 using namespace chess;
 
@@ -50,7 +51,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         if (contains(zobristKey))
         {
             return 0;
-
         }
     }
 
@@ -139,9 +139,10 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     }
     int score = 0;
     int bestScore = -infinity;
-    for (const Move& move : moveList)
+    for (Move& move : moveList)
     {
         board.makeMove(move);
+        makeMoveAndUpdateNNUE(board, move);
 
         short checkExtension = 0;
 
@@ -164,6 +165,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
 
         board.unmakeMove(move);
+        unmakeMoveAndUpdateNNUE(board, move);
 
         if (score > bestScore)
         {
@@ -253,7 +255,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     if (standPat == NO_VALUE)
     {
-        standPat = evaluate(board);
+        standPat = evaluateB(board);
     }
 
     if (standPat >= beta)
@@ -272,14 +274,14 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     int bestScore = standPat;
     Move bestMoveInQs = Move::NULL_MOVE;
 
-    for (const Move& move : moveList)
+    for (Move& move : moveList)
     {
         board.makeMove(move);
-
+        makeMoveAndUpdateNNUE(board, move);
         int score = -qs(-beta, -alpha, board, ply);
 
         board.unmakeMove(move);
-
+        unmakeMoveAndUpdateNNUE(board, move);
         //Our current Score is better then the previos bestScore so we update it 
         if (score > bestScore)
         {

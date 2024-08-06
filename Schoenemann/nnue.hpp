@@ -23,7 +23,7 @@ MantaRay::BinaryFileStream stream("simple-88.bin");
 // Create & load the network from the stream:
 NeuralNetwork network(stream);
 
-inline int32_t evaluate(const Board& board)
+inline int32_t evaluateB(const Board& board)
 {
     return network.Evaluate((int)board.sideToMove());
 }
@@ -76,8 +76,8 @@ inline void makeMoveAndUpdateNNUE(Board& board, Move& move)
     int intColor = (int)color;
     Color enemyColor = ~color;
     int intEnemyColor = (int)enemyColor;
-    int to = move.to();
-    int from = move.from();
+    int to = move.to().index();
+    int from = move.from().index();
     uint16_t moveType = move.typeOf();
 
     if (moveType == move.CASTLING)
