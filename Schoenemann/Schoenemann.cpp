@@ -2,6 +2,7 @@
 #include "search.h"
 #include "consts.h"
 #include "helper.h"
+#include <cstring>
 #include "datagen/gen.h"
 #include "movegen/chess.hpp"
 
