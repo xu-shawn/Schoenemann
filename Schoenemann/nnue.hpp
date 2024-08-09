@@ -53,6 +53,126 @@ inline void restartNNUE()
     network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(5, 1, 4 ^ 56);
 }
 
+inline void encodeBoard(Board& board)
+{
+    network.ResetAccumulator();
+    network.RefreshAccumulator();
+    
+    //Pawns
+    Bitboard whitePawns = board.pieces(PieceType::PAWN, Color::WHITE);
+    for (short i = 0; i < 64; i++)
+    {
+        if (whitePawns.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 0, i);
+        }
+    }
+
+    Bitboard blackPawns = board.pieces(PieceType::PAWN, Color::BLACK);
+    for (short i = 0; i < 64; i++)
+    {
+        if (blackPawns.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 1, i);
+        }
+    }
+
+    //Knight
+    Bitboard whiteKnights = board.pieces(PieceType::KNIGHT, Color::WHITE);
+    for (short i = 0; i < 64; i++)
+    {
+        if (whiteKnights.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 0, i);
+        }
+    }
+
+    Bitboard blackKnights = board.pieces(PieceType::KNIGHT, Color::BLACK);
+    for (short i = 0; i < 64; i++)
+    {
+        if (blackKnights.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 1, i);
+        }
+    }
+
+    //Bishops
+    Bitboard whiteBishops = board.pieces(PieceType::BISHOP, Color::WHITE);
+    for (short i = 0; i < 64; i++)
+    {
+        if (whiteBishops.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 0, i);
+        }
+    }
+
+    Bitboard blackBishops = board.pieces(PieceType::BISHOP, Color::BLACK);
+    for (short i = 0; i < 64; i++)
+    {
+        if (blackBishops.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 1, i);
+        }
+    }
+
+    //Rooks
+    Bitboard whiteRooks = board.pieces(PieceType::ROOK, Color::WHITE);
+    for (short i = 0; i < 64; i++)
+    {
+        if (whiteRooks.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 0, i);
+        }
+    }
+
+    Bitboard blackRooks = board.pieces(PieceType::ROOK, Color::BLACK);
+    for (short i = 0; i < 64; i++)
+    {
+        if (blackRooks.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 1, i);
+        }
+    }
+
+    //Queens
+    Bitboard whiteQueens = board.pieces(PieceType::QUEEN, Color::WHITE);
+    for (short i = 0; i < 64; i++)
+    {
+        if (whiteQueens.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 0, i);
+        }
+    }
+
+    Bitboard blackQueens = board.pieces(PieceType::QUEEN, Color::BLACK);
+    for (short i = 0; i < 64; i++)
+    {
+        if (blackQueens.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 1, i);
+        }
+    }
+
+    //Kings
+    Bitboard whiteKing = board.pieces(PieceType::KING, Color::WHITE);
+    for (short i = 0; i < 64; i++)
+    {
+        if (whiteKing.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 0, i);
+        }
+    }
+
+    Bitboard blackKing = board.pieces(PieceType::KING, Color::BLACK);
+    for (short i = 0; i < 64; i++)
+    {
+        if (blackKing.check(i))
+        {
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>(0, 1, i);
+        }
+    }
+}
+
 inline void makeMoveAndUpdateNNUE(Board& board, Move& move)
 {
     // Push Accumulator (right before updating for makeMove)

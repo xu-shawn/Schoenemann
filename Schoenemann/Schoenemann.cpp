@@ -16,7 +16,6 @@ psqt bouns;
 MantaRay::BinaryFileStream stream("simple-4.bin");
 NeuralNetwork network(stream);
 
-
 int timeLeft = 0;
 int increment = 0;
 int newTranspositionTableSize = 8;
@@ -117,6 +116,7 @@ int main(int argc, char* argv[]) {
 					}
 					fen = fen.substr(0, fen.size() - 1);
 					board.setFen(fen);
+					encodeBoard(board);
 				}
 				else if (token != "moves" && isFen)
 				{

@@ -103,8 +103,8 @@ void runBenchmark() {
 	//Looping over all bench positions
 	for (const auto& test : testStrings) {
 		benchBoard.setFen(test);
+		encodeBoard(benchBoard);
 		seracher.pvs(-infinity, infinity, benchDepth, 0, benchBoard);
-		restartNNUE();
 	}
 
 	auto end = std::chrono::high_resolution_clock::now();
