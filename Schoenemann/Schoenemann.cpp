@@ -5,6 +5,7 @@
 #include <cstring>
 #include "datagen/gen.h"
 #include "movegen/chess.hpp"
+#include "nnue.hpp"
 
 using namespace chess;
 
@@ -12,6 +13,9 @@ Search seracher;
 tt transpositionTabel(8);
 uciRunner mainRunner;
 psqt bouns;
+MantaRay::BinaryFileStream stream("simple-4.bin");
+NeuralNetwork network(stream);
+
 
 int timeLeft = 0;
 int increment = 0;
@@ -30,6 +34,11 @@ int main(int argc, char* argv[]) {
 
 	//Disable FRC (Fisher-Random-Chess)
 	board.set960(false);
+
+	restartNNUE();
+
+	std::cout << "The startpos eval: " << evaluate(board) << std::endl;
+
 	transpositionTabel.setSize(8);
 	if (argc > 1 && strcmp(argv[1], "bench") == 0)
 	{
@@ -117,7 +126,8 @@ int main(int argc, char* argv[]) {
 
 			for (const auto& move : moves)
 			{
-				board.makeMove(uci::uciToMove(board, move));
+				Move m = uci::uciToMove(board, move);
+				makeMoveAndUpdateNNUE(board, m);
 			}
 		}
 		else if (token == "go")

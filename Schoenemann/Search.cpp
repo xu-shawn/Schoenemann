@@ -2,7 +2,6 @@
 #include <iostream>
 
 #include "Search.h"
-#include "evaluate.h"
 #include "movegen/chess.hpp"
 #include "timeman.h"
 #include "Moveorder.h"
@@ -141,7 +140,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     int bestScore = -infinity;
     for (Move& move : moveList)
     {
-        board.makeMove(move);
         makeMoveAndUpdateNNUE(board, move);
 
         short checkExtension = 0;
@@ -163,8 +161,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
                 score = -pvs(-beta, -alpha, depth - 1 + checkExtension, ply + 1, board);
             }
         }
-
-        board.unmakeMove(move);
         unmakeMoveAndUpdateNNUE(board, move);
 
         if (score > bestScore)
@@ -255,7 +251,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     if (standPat == NO_VALUE)
     {
-        standPat = evaluateB(board);
+        standPat = evaluate(board);
     }
 
     if (standPat >= beta)
@@ -276,11 +272,9 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     for (Move& move : moveList)
     {
-        board.makeMove(move);
         makeMoveAndUpdateNNUE(board, move);
         int score = -qs(-beta, -alpha, board, ply);
 
-        board.unmakeMove(move);
         unmakeMoveAndUpdateNNUE(board, move);
         //Our current Score is better then the previos bestScore so we update it 
         if (score > bestScore)

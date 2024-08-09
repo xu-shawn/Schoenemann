@@ -5,25 +5,11 @@
 #include "movegen/chess.hpp"
 #include "MantaRay/Perspective/PerspectiveNNUE.h"
 #include "MantaRay/Activation/ClippedReLU.h"
-using namespace std;
+#include "consts.h"
 using namespace chess;
 
-// Define the network:
-// Format: PerspectiveNetwork<InputType, OutputType, Activation, ...>
-//                      <..., InputSize, HiddenSize, OutputSize, ...>
-//                      <...,       AccumulatorStackSize,        ...>
-//                      <..., Scale, QuantizationFeature, QuantizationOutput>
-// using NeuralNetwork = MantaRay::PerspectiveNetwork<int16_t, int32_t, Activation, 768, 64, 1, 512, 400, 255, 64>;
-using NeuralNetwork = MantaRay::PerspectiveNetwork<int16_t, int32_t, MantaRay::ClippedReLU<int16_t, 0, 255>, 768, 128, 1, 512, 400, 255, 64>;
 
-// Create the input stream:
-// MantaRay::MarlinflowStream stream("simple-88.bin");
-MantaRay::BinaryFileStream stream("simple-88.bin");
-
-// Create & load the network from the stream:
-NeuralNetwork network(stream);
-
-inline int32_t evaluateB(const Board& board)
+inline int32_t evaluate(const Board& board)
 {
     return network.Evaluate((int)board.sideToMove());
 }
@@ -153,7 +139,6 @@ inline void makeMoveAndUpdateNNUE(Board& board, Move& move)
         // move piece
         network.EfficientlyUpdateAccumulator(pieceType, intColor, from, to);
     }
-
     board.makeMove(move);
 }
 
@@ -164,5 +149,6 @@ inline void unmakeMoveAndUpdateNNUE(Board& board, Move& move)
     // Pull Accumulator (to undo the updates done after PushAccumulator):
     network.PullAccumulator();
 }
+
 
 #endif
