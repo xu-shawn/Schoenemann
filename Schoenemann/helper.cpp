@@ -1,4 +1,5 @@
 #include "helper.h"
+#include "nnue.hpp"
 
 void transpositionTableTest(Board& board)
 {
@@ -97,10 +98,13 @@ void runBenchmark() {
 	//Reseting the nodes
 	seracher.nodes = 0;
 
+	restartNNUE();
+
 	//Looping over all bench positions
 	for (const auto& test : testStrings) {
 		benchBoard.setFen(test);
 		seracher.pvs(-infinity, infinity, benchDepth, 0, benchBoard);
+		restartNNUE();
 	}
 
 	auto end = std::chrono::high_resolution_clock::now();
