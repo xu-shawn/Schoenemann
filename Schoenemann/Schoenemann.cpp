@@ -37,8 +37,6 @@ int main(int argc, char* argv[]) {
 
 	restartNNUE();
 
-	std::cout << "The startpos eval: " << evaluate(board) << std::endl;
-
 	transpositionTabel.setSize(8);
 	if (argc > 1 && strcmp(argv[1], "bench") == 0)
 	{
@@ -80,6 +78,8 @@ int main(int argc, char* argv[]) {
 
 			//Clear the transposition table
 			transpositionTabel.clear();
+
+			restartNNUE();
 		}
 		else if (token == "setoption")
 		{
