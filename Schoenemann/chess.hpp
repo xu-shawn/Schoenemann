@@ -2379,7 +2379,10 @@ namespace chess {
             occ_bb_[color].set(index);
             board_[index] = piece;
 
-            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>((int)type, (int)color, sq.index());
+            PieceType pieceType = piece.type();
+            Color colorPiece = piece.color();
+
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>((int)pieceType, (int)colorPiece, sq.index());
         }
 
         virtual void removePiece(Piece piece, Square sq) {
@@ -2396,7 +2399,11 @@ namespace chess {
             pieces_bb_[type].clear(index);
             occ_bb_[color].clear(index);
             board_[index] = Piece::NONE;
-            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Deactivate>((int)type, (int)color, sq.index());
+
+            PieceType pieceType = piece.type();
+            Color colorPiece = piece.color();
+
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Deactivate>((int)pieceType, (int)colorPiece, sq.index());
         }
 
         std::vector<State> prev_states_;

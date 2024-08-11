@@ -122,7 +122,7 @@ int uciLoop(int argc, char* argv[]) {
 
 			for (const auto& move : moves)
 			{
-				Move m = uci::uciToMove(board, move);
+				board.makeMove(uci::uciToMove(board, move));
 			}
 		}
 		else if (token == "go")
