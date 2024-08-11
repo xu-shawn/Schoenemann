@@ -1,28 +1,8 @@
 #pragma once
 
 #include "tt.h"
-#include "psqt.h"
 #include "Search.h"
 #include <iostream>
-#include "movegen/chess.hpp"
-
-
-#include "MantaRay/Perspective/PerspectiveNNUE.h"
-#include "MantaRay/Activation/ClippedReLU.h"
-
-
-// Define the network:
-// Format: PerspectiveNetwork<InputType, OutputType, Activation, ...>
-//                      <..., InputSize, HiddenSize, OutputSize, ...>
-//                      <...,       AccumulatorStackSize,        ...>
-//                      <..., Scale, QuantizationFeature, QuantizationOutput>
-using NeuralNetwork = MantaRay::PerspectiveNetwork<int16_t, int32_t, MantaRay::ClippedReLU<int16_t, 0, 255>, 768, 128, 1, 512, 400, 255, 64>;
-
-// Create the input stream:
-//MantaRay::MarlinflowStream stream("net_128_500M_0wdl.json");
-extern MantaRay::BinaryFileStream stream;
-// Create & load the network from the stream:
-extern NeuralNetwork network;
 
 const std::string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
@@ -57,4 +37,3 @@ const std::string testStrings[] = {
 
 extern tt transpositionTabel;
 extern Search seracher;
-extern psqt bouns;

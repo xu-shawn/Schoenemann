@@ -1,5 +1,4 @@
 #include "helper.h"
-#include "nnue.hpp"
 
 void transpositionTableTest(Board& board)
 {
@@ -75,8 +74,6 @@ void testCommand()
 {
 	Board testBoard;
 	testBoard.setFen("8/4p3/8/8/8/8/8/8 w - - 0 1");
-	std::cout << bouns.getPieceBounus(testBoard, PieceType::PAWN, Color::BLACK);
-	testBoard.setFen("8/4R3/6kp/6p1/8/7P/3r4/6K1 w - - 0 28");
 }
 
 //Print the uci info
@@ -98,12 +95,9 @@ void runBenchmark() {
 	//Reseting the nodes
 	seracher.nodes = 0;
 
-	restartNNUE();
-
 	//Looping over all bench positions
 	for (const auto& test : testStrings) {
 		benchBoard.setFen(test);
-		encodeBoard(benchBoard);
 		seracher.pvs(-infinity, infinity, benchDepth, 0, benchBoard);
 	}
 

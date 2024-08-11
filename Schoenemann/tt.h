@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "movegen/chess.hpp"
+#include "chess.hpp"
 
 using namespace chess;
 

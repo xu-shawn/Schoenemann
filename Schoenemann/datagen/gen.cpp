@@ -4,7 +4,7 @@
 
 #include "gen.h"
 #include "../Search.h"
-#include "../movegen/chess.hpp"
+#include "../chess.hpp"
 
 using namespace chess;
 
@@ -74,7 +74,11 @@ void generateDataSet(int epochs)
 			}
 			//search.setNodes(0);
 			//search.search(1, -32767, 32767, 0, board);
-			board.makeMove(search.bestMove);
+
+
+
+			//TODO Important
+			board.makeMove(Move::NULL_MOVE);
 			fens[x] = board.getFen() + "; ";
 			genFens++;
 

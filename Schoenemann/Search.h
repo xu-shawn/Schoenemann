@@ -1,5 +1,5 @@
 #pragma once
-#include "movegen/chess.hpp"
+#include "chess.hpp"
 
 using namespace chess;
 

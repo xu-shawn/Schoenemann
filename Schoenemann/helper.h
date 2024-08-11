@@ -1,7 +1,7 @@
 #pragma once
 
 #include "consts.h"
-#include "movegen/chess.hpp"
+#include "chess.hpp"
 
 #include <chrono>
 
