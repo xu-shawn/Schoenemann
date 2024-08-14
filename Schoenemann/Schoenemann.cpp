@@ -12,7 +12,7 @@ using namespace chess;
 Search seracher;
 tt transpositionTabel(8);
 
-MantaRay::BinaryFileStream stream("simple-4.bin");
+MantaRay::BinaryFileStream stream("simple-95.bin");
 
 // Define & load the network from the stream
 NeuralNetwork network(stream);
