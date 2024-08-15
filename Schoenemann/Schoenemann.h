@@ -2,14 +2,6 @@
 
 #include <iostream>
 #include <chrono>
-
-class uciRunner
-{
-public:
-	
-private:
-
-};
-
+int uciLoop(int argc, char* argv[]);
 int getTime();
 int getIncrement();

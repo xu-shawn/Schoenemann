@@ -2,11 +2,11 @@
 #include <iostream>
 
 #include "Search.h"
-#include "evaluate.h"
-#include "movegen/chess.hpp"
+#include "chess.hpp"
 #include "timeman.h"
 #include "Moveorder.h"
 #include "consts.h"
+#include "nnue.hpp"
 
 using namespace chess;
 
@@ -50,7 +50,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         if (contains(zobristKey))
         {
             return 0;
-
         }
     }
 
@@ -85,9 +84,9 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         //Check if we can return a stored score
         if (!pvNode && hashedDepth >= depth && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
-            if (hashedType == EXACT ||
-                hashedType == UPPER_BOUND && hashedScore <= alpha ||
-                hashedType == LOWER_BOUND && hashedScore >= beta)
+            if ((hashedType == EXACT) ||
+                (hashedType == UPPER_BOUND && hashedScore <= alpha) ||
+                (hashedType == LOWER_BOUND && hashedScore >= beta))
             {
                 return hashedScore;
             }
@@ -107,7 +106,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     //we perform an static evaulation
     if (staticEval == NO_VALUE)
     {
-        staticEval = evaluate(board);
+        staticEval = network.Evaluate((int)board.sideToMove());
     }
 
     //Reverse futility pruning
@@ -139,7 +138,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     }
     int score = 0;
     int bestScore = -infinity;
-    for (const Move& move : moveList)
+    for (Move& move : moveList)
     {
         board.makeMove(move);
 
@@ -162,7 +161,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
                 score = -pvs(-beta, -alpha, depth - 1 + checkExtension, ply + 1, board);
             }
         }
-
         board.unmakeMove(move);
 
         if (score > bestScore)
@@ -222,7 +220,6 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     const bool isNullptr = entry == nullptr ? true : false;
 
     int hashedScore = 0;
-    int hashedEval = 0;
     short hashedType = 0;
     int standPat = NO_VALUE;
 
@@ -237,9 +234,9 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
         if (!pvNode && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, beta))
         {
-            if (hashedType == EXACT ||
-                hashedType == UPPER_BOUND && hashedScore <= alpha ||
-                hashedType == LOWER_BOUND && hashedScore >= beta)
+            if ((hashedType == EXACT) ||
+                (hashedType == UPPER_BOUND && hashedScore <= alpha) ||
+                (hashedType == LOWER_BOUND && hashedScore >= beta))
             {
                 return hashedScore;
             }
@@ -253,7 +250,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     if (standPat == NO_VALUE)
     {
-        standPat = evaluate(board);
+        standPat = network.Evaluate((int)board.sideToMove());
     }
 
     if (standPat >= beta)
@@ -272,14 +269,12 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     int bestScore = standPat;
     Move bestMoveInQs = Move::NULL_MOVE;
 
-    for (const Move& move : moveList)
+    for (Move& move : moveList)
     {
         board.makeMove(move);
-
         int score = -qs(-beta, -alpha, board, ply);
 
         board.unmakeMove(move);
-
         //Our current Score is better then the previos bestScore so we update it 
         if (score > bestScore)
         {

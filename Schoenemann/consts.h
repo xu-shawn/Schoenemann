@@ -1,24 +1,22 @@
 #pragma once
 
 #include "tt.h"
-#include "psqt.h"
 #include "Search.h"
 #include <iostream>
-#include "movegen/chess.hpp"
 
 const std::string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 //Bench depth 
-const short benchDepth = 3;
+const int benchDepth = 3;
 
 //Evaluation consts
-const short pawnValue = 126;
-const short knightValue = 781;
-const short bishopValue = 825;
-const short rookValue = 1276;
-const short queenValue = 2538;
+const int pawnValue = 126;
+const int knightValue = 781;
+const int bishopValue = 825;
+const int rookValue = 1276;
+const int queenValue = 2538;
 
-const short NO_VALUE = 50000;
+const int NO_VALUE = 50000;
 const std::string testStrings[] = {
 		STARTPOS,
 		"r2q4/pp1k1pp1/2p1r1np/5p2/2N5/1P5Q/5PPP/3RR1K1 b - -",
@@ -39,4 +37,3 @@ const std::string testStrings[] = {
 
 extern tt transpositionTabel;
 extern Search seracher;
-extern psqt bouns;

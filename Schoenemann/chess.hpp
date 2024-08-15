@@ -33,10 +33,7 @@ VERSION: 0.6.46
 
 
 #include <functional>
-
-
 #include <cstdint>
-
 
 #if __cplusplus >= 202002L
 #include <bit>
@@ -46,13 +43,12 @@ VERSION: 0.6.46
 #include <algorithm>
 #include <iostream>
 #include <cassert>
+#include "nnue.hpp"
 
 #if defined(_MSC_VER)
 #include <intrin.h>
 #include <nmmintrin.h>
 #endif
-
-
 #include <string_view>
 
 
@@ -2382,6 +2378,11 @@ namespace chess {
             pieces_bb_[type].set(index);
             occ_bb_[color].set(index);
             board_[index] = piece;
+
+            PieceType pieceType = piece.type();
+            Color colorPiece = piece.color();
+
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Activate>((int)pieceType, (int)colorPiece, sq.index());
         }
 
         virtual void removePiece(Piece piece, Square sq) {
@@ -2398,6 +2399,11 @@ namespace chess {
             pieces_bb_[type].clear(index);
             occ_bb_[color].clear(index);
             board_[index] = Piece::NONE;
+
+            PieceType pieceType = piece.type();
+            Color colorPiece = piece.color();
+
+            network.EfficientlyUpdateAccumulator<MantaRay::AccumulatorOperation::Deactivate>((int)pieceType, (int)colorPiece, sq.index());
         }
 
         std::vector<State> prev_states_;
@@ -2419,6 +2425,10 @@ namespace chess {
         /// @brief [Internal Usage]
         /// @param fen
         void setFenInternal(std::string_view fen) {
+
+            network.ResetAccumulator();
+            network.RefreshAccumulator();
+
             original_fen_ = fen;
 
             occ_bb_.fill(0ULL);

@@ -74,8 +74,6 @@ void testCommand()
 {
 	Board testBoard;
 	testBoard.setFen("8/4p3/8/8/8/8/8/8 w - - 0 1");
-	std::cout << bouns.getPieceBounus(testBoard, PieceType::PAWN, Color::BLACK);
-	testBoard.setFen("8/4R3/6kp/6p1/8/7P/3r4/6K1 w - - 0 28");
 }
 
 //Print the uci info
