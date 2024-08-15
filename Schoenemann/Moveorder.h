@@ -2,7 +2,7 @@
 
 #include "tt.h"
 
-#include "movegen/chess.hpp"
+#include "chess.hpp"
 #include "consts.h"
 #include "tt.h"
 

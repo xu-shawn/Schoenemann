@@ -2,7 +2,4 @@ EXE ?= null
 CC ?= null
 
 all:
-	cmake . > cmake_output.txt
-	cmake --build . --config Release >> cmake_output.txt
-	$(eval TARGET = $(shell py find_exe.py cmake_output.txt))
-	cmd /C move /Y $(TARGET) src/$(EXE).exe
+	cd Schoenemann && clang++ -Wall -O3 -std=c++20 Schoenemann.cpp search.cpp timeman.cpp helper.cpp tt.cpp main.cpp moveorder.cpp datagen/gen.cpp -o ../src/$(EXE).exe

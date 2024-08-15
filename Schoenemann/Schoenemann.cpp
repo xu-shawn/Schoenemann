@@ -2,21 +2,27 @@
 #include "search.h"
 #include "consts.h"
 #include "helper.h"
+#include <cstring>
 #include "datagen/gen.h"
-#include "movegen/chess.hpp"
+#include "chess.hpp"
+#include "nnue.hpp"
+#include "simple-95.h"
 
 using namespace chess;
 
 Search seracher;
 tt transpositionTabel(8);
-uciRunner mainRunner;
-psqt bouns;
+
+MantaRay::BinaryFileStream stream(simple_95_bin, simple_95_bin_len);
+
+// Define & load the network from the stream
+NeuralNetwork network(stream);
 
 int timeLeft = 0;
 int increment = 0;
 int newTranspositionTableSize = 8;
 
-int main(int argc, char* argv[]) {
+int uciLoop(int argc, char* argv[]) {
 
 	//The main board
 	Board board;
@@ -29,6 +35,7 @@ int main(int argc, char* argv[]) {
 
 	//Disable FRC (Fisher-Random-Chess)
 	board.set960(false);
+
 	transpositionTabel.setSize(8);
 	if (argc > 1 && strcmp(argv[1], "bench") == 0)
 	{
@@ -194,7 +201,7 @@ int main(int argc, char* argv[]) {
 		}
 		else if (token == "eval")
 		{
-			std::cout << "The evaluation is: " << evaluate(board) << " cp" << std::endl;
+			std::cout << "The evaluation is: " << network.Evaluate((int)board.sideToMove()) << " cp" << std::endl;
 		}
 		else if (token == "test")
 		{

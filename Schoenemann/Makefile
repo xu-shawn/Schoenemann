@@ -1,1 +1,5 @@
-clang++ -Wall -std=c++20 Schoenemann.cpp evaluate.cpp search.cpp timeman.cpp psqt.cpp tt.cpp moveorder.cpp datagen/gen.cpp nnue.cpp -o S.exe
+EXE ?= null
+CC ?= null
+
+all:
+	cd ../Schoenemann && clang++ -Wall -std=c++20 Schoenemann.cpp search.cpp main.cpp timeman.cpp helper.cpp tt.cpp moveorder.cpp datagen/gen.cpp -o $(EXE).exe
