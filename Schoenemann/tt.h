@@ -6,7 +6,7 @@
 using namespace chess;
 
 const short EXACT = 0;
-const short UPPER_BOUND = 1;
+const short UPPER_BOUND = 1; //Upper bound
 const short LOWER_BOUND = 2; //Lower bound
 const short infinity = 32767;
 
