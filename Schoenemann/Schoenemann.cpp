@@ -3,7 +3,6 @@
 #include "consts.h"
 #include "helper.h"
 #include <cstring>
-#include "datagen/gen.h"
 #include "chess.hpp"
 #include "nnue.hpp"
 #include "simple-74.h"
@@ -190,11 +189,6 @@ int uciLoop(int argc, char* argv[]) {
 		else if (token == "nodes")
 		{
 			std::cout << seracher.nodes << std::endl;
-		}
-		else if (token == "datagen")
-		{
-			is >> token;
-			generateDataSet(std::stoi(token));
 		}
 		else if (token == "ttest")
 		{
