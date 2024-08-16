@@ -6,15 +6,16 @@
 #include "datagen/gen.h"
 #include "chess.hpp"
 #include "nnue.hpp"
-#include "simple-133.h"
+#include "simple-74.h"
 
 using namespace chess;
 
 Search seracher;
 tt transpositionTabel(8);
 
-MantaRay::BinaryFileStream stream(simple_133_bin, simple_133_bin_len);
+MantaRay::BinaryFileStream stream(simple_74_bin, simple_74_bin_len);
 
+// xxd -i simple-74.bin > simple-74.h
 // Define & load the network from the stream
 NeuralNetwork network(stream);
 
