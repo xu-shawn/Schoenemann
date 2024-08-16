@@ -11,7 +11,7 @@ using namespace std;
 //                      <..., InputSize, HiddenSize, OutputSize, ...>
 //                      <...,       AccumulatorStackSize,        ...>
 //                      <..., Scale, QuantizationFeature, QuantizationOutput>
-using NeuralNetwork = MantaRay::PerspectiveNetwork<int16_t, int32_t, MantaRay::ClippedReLU<int16_t, 0, 255>, 768, 128, 1, 512, 400, 255, 64>;
+using NeuralNetwork = MantaRay::PerspectiveNetwork<int16_t, int32_t, MantaRay::ClippedReLU<int16_t, 0, 255>, 768, 512, 1, 512, 400, 255, 64>;
 
 // Create the input stream:
 // MantaRay::MarlinflowStream stream("net.json");
