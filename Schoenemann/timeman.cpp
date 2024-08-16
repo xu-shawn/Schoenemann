@@ -1,5 +1,4 @@
 #include "timeman.h"
-#include "Schoenemann.h"
 
 int getTimeForMove()
 {

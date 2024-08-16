@@ -1,7 +1,7 @@
 #pragma once
 
 #include "tt.h"
-#include "Search.h"
+#include "search.h"
 #include <iostream>
 
 const std::string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";

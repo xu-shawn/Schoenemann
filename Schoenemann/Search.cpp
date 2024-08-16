@@ -1,10 +1,10 @@
 #include <chrono>
 #include <iostream>
 
-#include "Search.h"
+#include "search.h"
 #include "chess.hpp"
 #include "timeman.h"
-#include "Moveorder.h"
+#include "moveorder.h"
 #include "consts.h"
 #include "nnue.hpp"
 

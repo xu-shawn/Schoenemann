@@ -16,7 +16,6 @@
 #include "../AccumulatorOperation.h"
 #include "../IO/BinaryFileStream.h"
 #include "../IO/BinaryMemoryStream.h"
-#include "../IO/MarlinflowStream.h"
 
 namespace MantaRay
 {
@@ -124,25 +123,6 @@ namespace MantaRay
                 stream.ReadArray(FeatureBias  );
                 stream.ReadArray(OutputWeight );
                 stream.ReadArray(OutputBias   );
-            }
-
-            /// \brief Constructs a new PerspectiveNetwork.
-            /// \param stream The Marlinflow JSON stream to read the network from.
-            /// \details This constructor initializes the network with the weights and biases read from the stream.
-            ///          Internally, this constructor also quantizes the weights and biases. It also permutes the
-            ///          weights to ensure better performance with respect to the cache. This constructor is only
-            ///          there to ensure compatibility with the Marlinflow JSON network format.
-            __attribute__((unused)) explicit PerspectiveNetwork(MarlinflowStream &stream)
-            {
-                InitializeAccumulatorStack();
-
-                stream.Read2DArray("ft.weight" , FeatureWeight, HiddenSize    , QuantizationFeature,
-                                   true );
-                stream.Read2DArray("out.weight", OutputWeight , HiddenSize * 2, QuantizationOutput ,
-                                   false);
-
-                stream.ReadArray("ft.bias" , FeatureBias, QuantizationFeature                     );
-                stream.ReadArray("out.bias", OutputBias , QuantizationFeature * QuantizationOutput);
             }
 
             /// \brief Provides information about the network.
