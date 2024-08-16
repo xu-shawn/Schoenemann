@@ -5,14 +5,14 @@
 #include <cstring>
 #include "chess.hpp"
 #include "nnue.hpp"
-#include "simple-74.h"
+#include "simple-81.h"
 
 using namespace chess;
 
 Search seracher;
 tt transpositionTabel(8);
 
-MantaRay::BinaryFileStream stream(simple_74_bin, simple_74_bin_len);
+MantaRay::BinaryFileStream stream(simple_81_bin, simple_81_bin_len);
 
 // xxd -i simple-74.bin > simple-74.h
 // Define & load the network from the stream
