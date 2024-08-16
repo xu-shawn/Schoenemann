@@ -1,3 +1,3 @@
-#include "Schoenemann.h"
+#include "schoenemann.h"
 
 int getTimeForMove();

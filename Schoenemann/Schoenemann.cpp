@@ -1,4 +1,4 @@
-﻿#include "Schoenemann.h"
+﻿#include "schoenemann.h"
 #include "search.h"
 #include "consts.h"
 #include "helper.h"

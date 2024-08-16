@@ -1,4 +1,4 @@
-#include "Schoenemann.h"
+#include "schoenemann.h"
 
 int main(int argc, char* argv[])
 {
