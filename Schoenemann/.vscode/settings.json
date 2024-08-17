@@ -75,6 +75,12 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "string_view": "cpp",
-        "deque": "cpp"
+        "deque": "cpp",
+        "cwctype": "cpp",
+        "numbers": "cpp",
+        "queue": "cpp",
+        "variant": "cpp",
+        "*.tcc": "cpp",
+        "memory_resource": "cpp"
     }
 }

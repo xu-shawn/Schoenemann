@@ -271,7 +271,9 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     for (Move& move : moveList)
     {
-        if (see(board, move.from()))
+        int seet = see(board, move.to());
+        std::cout << "SEE is currently: " << seet << std::endl;
+        if (false)
         {
             continue;
         }
@@ -315,13 +317,16 @@ bool Search::see(Board& board, Square attacked)
 {
     const Color color = board.sideToMove();
     PieceType smallestAttacker = getLeastValuableAttacker(board, attacked);
-    std::cout << board.getFen() << std::endl;
-    Move m = Move::make(getIndexOfAttack(board, attacked, smallestAttacker), attacked, smallestAttacker);
-    std::cout << m;
+    std::cout << "FEN" << board.getFen() << std::endl;
+    std::cout << "PieceType: " << smallestAttacker << std::endl;
+    std::cout << "The index: " << getIndexOfAttack(board, attacked, smallestAttacker).index() << std::endl;
+    Move m = Move::make<Move::NORMAL>(getIndexOfAttack(board, attacked, smallestAttacker), attacked);
+    std::cout << "The move: " << m << std::endl;;
+    std::cout << "Type: " << (m.typeOf() == Move::CASTLING) << std::endl;
     board.makeMove(m);
     int val = std::max(0, board.at(attacked).type() - see(board, attacked));
     board.unmakeMove(m);
-
+    std::cout << "The final value is: " << val << std::endl;
     return val;
 }   
 
@@ -340,6 +345,7 @@ PieceType Search::getLeastValuableAttacker(Board& board, Square square)
 
     if (attacks::bishop(square, board.occ()) & (board.pieces(PieceType::BISHOP, color)))
     {
+        //std::cout << "What: " << (attacks::bishop(square, board.occ()) & (board.pieces(PieceType::BISHOP, color))) << std::endl;
         return PieceType::BISHOP;
     }
 
@@ -352,6 +358,10 @@ PieceType Search::getLeastValuableAttacker(Board& board, Square square)
     {
         return PieceType::QUEEN;
     }
+    if (attacks::king(square) & board.pieces(PieceType::KING, color))
+    {
+        return PieceType::KING;
+    }
 }
 
 Square Search::getIndexOfAttack(Board& board, Square& square, PieceType pieceType)
@@ -361,58 +371,27 @@ Square Search::getIndexOfAttack(Board& board, Square& square, PieceType pieceTyp
 
     if(pieceType == PieceType::PAWN)
     {
-        for (int square = 0; square < 64; square++) 
-        {
-            // Check if the condition is true for the given square
-            if (attacks::pawn(~color, square) & board.pieces(PieceType::PAWN, color)) 
-            {
-                return square;  // Return the index of the square
-            }
-        }
+        return (attacks::pawn(~color, square) & board.pieces(PieceType::PAWN, color)).msb();
     }
     else if(pieceType == PieceType::KNIGHT)
     {
-        for (int square = 0; square < 64; square++) 
-        {
-            // Check if the condition is true for the given square
-            if (attacks::knight(square) & board.pieces(PieceType::KNIGHT, color))
-            {
-                return square;  // Return the index of the square
-            }
-        }
+        return (attacks::knight(square) & board.pieces(PieceType::KNIGHT, color)).msb();
     }
     else if(pieceType == PieceType::BISHOP)
     {
-        for (int square = 0; square < 64; square++) 
-        {
-            // Check if the condition is true for the given square
-            if (attacks::bishop(square, board.occ()) & (board.pieces(PieceType::BISHOP, color)))
-            {
-                return square;  // Return the index of the square
-            }
-        }
+        return (attacks::bishop(square, board.occ()) & (board.pieces(PieceType::BISHOP, color))).msb();
     }
     else if(pieceType == PieceType::ROOK)
     {
-        for (int square = 0; square < 64; square++) 
-        {
-            // Check if the condition is true for the given square
-            if (attacks::rook(square, board.occ()) & (board.pieces(PieceType::ROOK, color)))
-            {
-                return square;  // Return the index of the square
-            }
-        }
+        return (attacks::rook(square, board.occ()) & (board.pieces(PieceType::ROOK, color))).msb();
     }
     else if(pieceType == PieceType::QUEEN)
     {
-        for (int square = 0; square < 64; square++) 
-        {
-            // Check if the condition is true for the given square
-            if (attacks::queen(square, board.occ()) & board.pieces(PieceType::QUEEN, color))
-            {
-                return square;  // Return the index of the square
-            }
-        }
+        return (attacks::queen(square, board.occ()) & board.pieces(PieceType::QUEEN, color)).msb();
+    }
+    else if (pieceType == PieceType::KING)
+    {
+        return (attacks::king(square) & board.pieces(PieceType::KING, color)).msb();
     }
 }
 
