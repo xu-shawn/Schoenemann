@@ -39,6 +39,9 @@ public:
 
 	int pvs(int alpha, int beta, int depth, int ply, Board& board);
 	int qs(int alpha, int beta, Board& board, int ply);
+	bool see(Board& board, Square attacked);
+	Square getIndexOfAttack(Board& board, Square& square, PieceType pieceType);
+	PieceType getLeastValuableAttacker(Board& board, Square square);
 	void iterativeDeepening(Board& board);
 private:
 };

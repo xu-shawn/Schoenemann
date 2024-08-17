@@ -271,6 +271,10 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     for (Move& move : moveList)
     {
+        if (see(board, move.from()))
+        {
+            continue;
+        }
         board.makeMove(move);
         int score = -qs(-beta, -alpha, board, ply);
 
@@ -305,6 +309,111 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     transpositionTabel.storeEvaluation(zobristKey, 0, bestScore >= beta ? LOWER_BOUND : UPPER_BOUND, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInQs, standPat);
 
     return bestScore;
+}
+
+bool Search::see(Board& board, Square attacked)
+{
+    const Color color = board.sideToMove();
+    PieceType smallestAttacker = getLeastValuableAttacker(board, attacked);
+    std::cout << board.getFen() << std::endl;
+    Move m = Move::make(getIndexOfAttack(board, attacked, smallestAttacker), attacked, smallestAttacker);
+    std::cout << m;
+    board.makeMove(m);
+    int val = std::max(0, board.at(attacked).type() - see(board, attacked));
+    board.unmakeMove(m);
+
+    return val;
+}   
+
+PieceType Search::getLeastValuableAttacker(Board& board, Square square)
+{
+    Color color = board.sideToMove();
+    if (attacks::pawn(~color, square) & board.pieces(PieceType::PAWN, color))
+    {
+        return PieceType::PAWN;
+    }
+
+    if (attacks::knight(square) & board.pieces(PieceType::KNIGHT, color))
+    {
+        return PieceType::KNIGHT;
+    }
+
+    if (attacks::bishop(square, board.occ()) & (board.pieces(PieceType::BISHOP, color)))
+    {
+        return PieceType::BISHOP;
+    }
+
+    if (attacks::rook(square, board.occ()) & (board.pieces(PieceType::ROOK, color)))
+    {
+        return PieceType::ROOK;
+    } 
+
+    if (attacks::queen(square, board.occ()) & board.pieces(PieceType::QUEEN, color))
+    {
+        return PieceType::QUEEN;
+    }
+}
+
+Square Search::getIndexOfAttack(Board& board, Square& square, PieceType pieceType)
+{
+    Square source;
+    Color color = board.sideToMove();
+
+    if(pieceType == PieceType::PAWN)
+    {
+        for (int square = 0; square < 64; square++) 
+        {
+            // Check if the condition is true for the given square
+            if (attacks::pawn(~color, square) & board.pieces(PieceType::PAWN, color)) 
+            {
+                return square;  // Return the index of the square
+            }
+        }
+    }
+    else if(pieceType == PieceType::KNIGHT)
+    {
+        for (int square = 0; square < 64; square++) 
+        {
+            // Check if the condition is true for the given square
+            if (attacks::knight(square) & board.pieces(PieceType::KNIGHT, color))
+            {
+                return square;  // Return the index of the square
+            }
+        }
+    }
+    else if(pieceType == PieceType::BISHOP)
+    {
+        for (int square = 0; square < 64; square++) 
+        {
+            // Check if the condition is true for the given square
+            if (attacks::bishop(square, board.occ()) & (board.pieces(PieceType::BISHOP, color)))
+            {
+                return square;  // Return the index of the square
+            }
+        }
+    }
+    else if(pieceType == PieceType::ROOK)
+    {
+        for (int square = 0; square < 64; square++) 
+        {
+            // Check if the condition is true for the given square
+            if (attacks::rook(square, board.occ()) & (board.pieces(PieceType::ROOK, color)))
+            {
+                return square;  // Return the index of the square
+            }
+        }
+    }
+    else if(pieceType == PieceType::QUEEN)
+    {
+        for (int square = 0; square < 64; square++) 
+        {
+            // Check if the condition is true for the given square
+            if (attacks::queen(square, board.occ()) & board.pieces(PieceType::QUEEN, color))
+            {
+                return square;  // Return the index of the square
+            }
+        }
+    }
 }
 
 void Search::iterativeDeepening(Board& board)
