@@ -271,9 +271,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     for (Move& move : moveList)
     {
-        int seet = see(board, move.to());
-        std::cout << "SEE is currently: " << seet << std::endl;
-        if (false)
+        if (see(board, move.to()))
         {
             continue;
         }
@@ -315,18 +313,28 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
 bool Search::see(Board& board, Square attacked)
 {
+    //std::cout << "Lets go gammbling" << std::endl;
     const Color color = board.sideToMove();
     PieceType smallestAttacker = getLeastValuableAttacker(board, attacked);
-    std::cout << "FEN" << board.getFen() << std::endl;
-    std::cout << "PieceType: " << smallestAttacker << std::endl;
-    std::cout << "The index: " << getIndexOfAttack(board, attacked, smallestAttacker).index() << std::endl;
+
+    if (smallestAttacker == PieceType::NONE)
+    {
+        return 0;
+    }
+
+    //std::cout << board.getFen() << std::endl;
     Move m = Move::make<Move::NORMAL>(getIndexOfAttack(board, attacked, smallestAttacker), attacked);
-    std::cout << "The move: " << m << std::endl;;
-    std::cout << "Type: " << (m.typeOf() == Move::CASTLING) << std::endl;
+    //std::cout << "The move: " << m << std::endl;;
+
     board.makeMove(m);
-    int val = std::max(0, board.at(attacked).type() - see(board, attacked));
+
+    //int l = smallestAttacker - see(board, attacked);
+    //std::cout << "Recusion: " << l << std::endl;
+
+    int val = std::max(0, smallestAttacker - see(board, attacked));
+
     board.unmakeMove(m);
-    std::cout << "The final value is: " << val << std::endl;
+    //std::cout << "The final value is: " << val << std::endl;
     return val;
 }   
 
@@ -362,6 +370,8 @@ PieceType Search::getLeastValuableAttacker(Board& board, Square square)
     {
         return PieceType::KING;
     }
+
+    return PieceType::NONE;
 }
 
 Square Search::getIndexOfAttack(Board& board, Square& square, PieceType pieceType)
