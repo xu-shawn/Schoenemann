@@ -366,10 +366,6 @@ PieceType Search::getLeastValuableAttacker(Board& board, Square square)
     {
         return PieceType::QUEEN;
     }
-    if (attacks::king(square) & board.pieces(PieceType::KING, color))
-    {
-        return PieceType::KING;
-    }
 
     return PieceType::NONE;
 }
@@ -398,10 +394,6 @@ Square Search::getIndexOfAttack(Board& board, Square& square, PieceType pieceTyp
     else if(pieceType == PieceType::QUEEN)
     {
         return (attacks::queen(square, board.occ()) & board.pieces(PieceType::QUEEN, color)).msb();
-    }
-    else if (pieceType == PieceType::KING)
-    {
-        return (attacks::king(square) & board.pieces(PieceType::KING, color)).msb();
     }
 }
 
