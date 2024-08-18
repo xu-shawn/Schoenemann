@@ -271,7 +271,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     for (Move& move : moveList)
     {
-        if (see(board, move.to()))
+        if (seeCapture(board, move))
         {
             continue;
         }
@@ -311,12 +311,23 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     return bestScore;
 }
 
+bool Search::seeCapture(Board& board, Move move)
+{
+    int val = 0;
+
+    PieceType pieceType = board.at(move.from()).type();
+    board.makeMove(move);
+    val = (pieceType + 1) - see(board, move.to());
+    board.unmakeMove(move);
+    return val;
+}
+
 bool Search::see(Board& board, Square attacked)
 {
     //std::cout << "Lets go gammbling" << std::endl;
     const Color color = board.sideToMove();
     PieceType smallestAttacker = getLeastValuableAttacker(board, attacked);
-
+    //std::cout << "Smallest Attacker: " << smallestAttacker << std::endl;
     if (smallestAttacker == PieceType::NONE)
     {
         return 0;
@@ -328,10 +339,7 @@ bool Search::see(Board& board, Square attacked)
 
     board.makeMove(m);
 
-    //int l = smallestAttacker - see(board, attacked);
-    //std::cout << "Recusion: " << l << std::endl;
-
-    int val = std::max(0, smallestAttacker - see(board, attacked));
+    int val = std::max(0, (smallestAttacker + 1) - see(board, attacked));
 
     board.unmakeMove(m);
     //std::cout << "The final value is: " << val << std::endl;
