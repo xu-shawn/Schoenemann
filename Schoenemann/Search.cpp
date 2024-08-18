@@ -271,7 +271,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     for (Move& move : moveList)
     {
-        if (seeCapture(board, move))
+        if (see(board, board.sideToMove(), move))
         {
             continue;
         }
@@ -311,42 +311,51 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     return bestScore;
 }
 
-bool Search::seeCapture(Board& board, Move move)
-{
-    int val = 0;
-
-    PieceType pieceType = board.at(move.from()).type();
-    board.makeMove(move);
-    val = (pieceType + 1) - see(board, move.to());
-    board.unmakeMove(move);
-    return val;
-}
-
-bool Search::see(Board& board, Square attacked)
+bool Search::see(Board& board, Color color, Move move)
 {
     //std::cout << "Lets go gammbling" << std::endl;
-    const Color color = board.sideToMove();
-    PieceType smallestAttacker = getLeastValuableAttacker(board, attacked);
-    //std::cout << "Smallest Attacker: " << smallestAttacker << std::endl;
-    if (smallestAttacker == PieceType::NONE)
+    static constexpr int SEE_PIECE_VALS[6] = {100, 400, 400, 600, 1150, 0};
+
+    if(move.typeOf() == Move::CASTLING)
     {
-        return 0;
+        return false;
     }
 
-    //std::cout << board.getFen() << std::endl;
-    Move m = Move::make<Move::NORMAL>(getIndexOfAttack(board, attacked, smallestAttacker), attacked);
-    //std::cout << "The move: " << m << std::endl;;
+    int seeColor = color ^ 1;
+    PieceType lastPiece;
 
-    board.makeMove(m);
+    Bitboard occ = board.occ();
+    Bitboard attackers = getAttackes(move.to(), occ, board, seeColor);
 
-    int val = std::max(0, (smallestAttacker + 1) - see(board, attacked));
+    int value = (board.at(move.to()).type() == PieceType::NONE) ? 0 : SEE_PIECE_VALS[board.at(move.to()).type()];
 
-    board.unmakeMove(m);
-    //std::cout << "The final value is: " << val << std::endl;
-    return val;
+    while (true)
+    {
+        PieceType smallestAttacker = getLeastValuableAttacker(board, move.to(), occ);
+        //std::cout << "Smallest Attacker: " << smallestAttacker << std::endl;
+        if (smallestAttacker == PieceType::NONE)
+        {
+            break;
+        }
+
+        seeColor ^= 1;
+        attackers ^= (int)smallestAttacker;
+        occ ^= (int)smallestAttacker;
+
+        value = -value - 1 - SEE_PIECE_VALS[lastPiece];
+        if (value >= 0)
+        {
+            break;
+        }
+        
+
+    }
+
+    
+    return ((int)color != seeColor);
 }   
 
-PieceType Search::getLeastValuableAttacker(Board& board, Square square)
+PieceType Search::getLeastValuableAttacker(Board& board, Square square, Bitboard occ)
 {
     Color color = board.sideToMove();
     if (attacks::pawn(~color, square) & board.pieces(PieceType::PAWN, color))
@@ -359,13 +368,12 @@ PieceType Search::getLeastValuableAttacker(Board& board, Square square)
         return PieceType::KNIGHT;
     }
 
-    if (attacks::bishop(square, board.occ()) & (board.pieces(PieceType::BISHOP, color)))
+    if (attacks::bishop(square, occ) & (board.pieces(PieceType::BISHOP, color)))
     {
-        //std::cout << "What: " << (attacks::bishop(square, board.occ()) & (board.pieces(PieceType::BISHOP, color))) << std::endl;
         return PieceType::BISHOP;
     }
 
-    if (attacks::rook(square, board.occ()) & (board.pieces(PieceType::ROOK, color)))
+    if (attacks::rook(square, occ) & (board.pieces(PieceType::ROOK, color)))
     {
         return PieceType::ROOK;
     } 
@@ -376,6 +384,17 @@ PieceType Search::getLeastValuableAttacker(Board& board, Square square)
     }
 
     return PieceType::NONE;
+}
+
+Bitboard Search::getAttackes(Square square, Bitboard occ, Board& board, Color color)
+{
+    return (attacks::pawn(~color, square) & board.pieces(PieceType::PAWN, color)) |
+             (attacks::knight(square) & board.pieces(PieceType::KNIGHT, color)) |
+             (attacks::king(square) & board.pieces(PieceType::KING, color))|
+
+             (attacks::bishop(square, occ) & (board.pieces(PieceType::BISHOP, color) | board.pieces(PieceType::QUEEN, color))) |
+
+             (attacks::rook(square, occ) & (board.pieces(PieceType::ROOK, color) | board.pieces(PieceType::QUEEN, color)));
 }
 
 Square Search::getIndexOfAttack(Board& board, Square& square, PieceType pieceType)
