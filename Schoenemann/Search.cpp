@@ -271,7 +271,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     for (Move& move : moveList)
     {
-        if (see(board, board.sideToMove(), move))
+        if (see(board, board.sideToMove(), move, 0))
         {
             continue;
         }
@@ -311,14 +311,14 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     return bestScore;
 }
 
-bool Search::see(Board& board, Color color, Move move)
+bool Search::see(Board& board, Color color, Move move, int cutoff)
 {
     //std::cout << "Lets go gammbling" << std::endl;
     static constexpr int SEE_PIECE_VALS[6] = {100, 400, 400, 600, 1150, 0};
 
     if(move.typeOf() == Move::CASTLING)
     {
-        return true;
+        return 0 >= cutoff;
     }
 
     int seeColor = color ^ 1;
@@ -327,12 +327,18 @@ bool Search::see(Board& board, Color color, Move move)
     Bitboard occ = board.occ();
     Bitboard attackers = getAttackes(move.to(), occ, board, seeColor);
 
-    int value = (board.at(move.to()).type() == PieceType::NONE) ? 0 : SEE_PIECE_VALS[board.at(move.to()).type()];
+    int capturedPiece = (board.at(move.to()).type() == PieceType::NONE) ? 0 : SEE_PIECE_VALS[board.at(move.to()).type()];
+
+    int val = capturedPiece - cutoff;
+    if (val < 0)
+    {
+        return false;
+    }
+
     Square toSquare = move.to();
     while (true)
     {
-        PieceType smallestAttacker = getLeastValuableAttacker(board, move.to(), occ);
-        //std::cout << "Smallest Attacker: " << smallestAttacker << std::endl;
+        PieceType smallestAttacker = getLeastValuableAttacker(board, move.to(), occ);   
         if (smallestAttacker == PieceType::NONE)
         {
             break;
@@ -344,8 +350,8 @@ bool Search::see(Board& board, Color color, Move move)
 
         attackers |= getXRayPieceMap(Color::WHITE, toSquare, occ, board) | getXRayPieceMap(Color::BLACK, toSquare, occ, board);
 
-        value = -value - 1 - SEE_PIECE_VALS[lastPiece];
-        if (value >= 0)
+        val = -val - 1 - SEE_PIECE_VALS[lastPiece];
+        if (val >= 0)
         {
             if (lastPiece == PieceType::KING && (attackers & board.us(seeColor)))
             {
