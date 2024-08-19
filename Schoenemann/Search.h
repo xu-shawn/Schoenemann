@@ -41,7 +41,7 @@ public:
 	int qs(int alpha, int beta, Board& board, int ply);
 	bool see(Board& board, Color color, Move move);
 	Bitboard getAttackes(Square square, Bitboard occ, Board& board, Color color);
-	Square getIndexOfAttack(Board& board, Square& square, PieceType pieceType);
+	Bitboard getXRayPieceMap(Color color, Square square, Bitboard occ, Board& board);
 	PieceType getLeastValuableAttacker(Board& board, Square square, Bitboard occ);
 	void iterativeDeepening(Board& board);
 private:

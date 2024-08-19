@@ -318,7 +318,7 @@ bool Search::see(Board& board, Color color, Move move)
 
     if(move.typeOf() == Move::CASTLING)
     {
-        return false;
+        return true;
     }
 
     int seeColor = color ^ 1;
@@ -328,7 +328,7 @@ bool Search::see(Board& board, Color color, Move move)
     Bitboard attackers = getAttackes(move.to(), occ, board, seeColor);
 
     int value = (board.at(move.to()).type() == PieceType::NONE) ? 0 : SEE_PIECE_VALS[board.at(move.to()).type()];
-
+    Square toSquare = move.to();
     while (true)
     {
         PieceType smallestAttacker = getLeastValuableAttacker(board, move.to(), occ);
@@ -342,18 +342,33 @@ bool Search::see(Board& board, Color color, Move move)
         attackers ^= (int)smallestAttacker;
         occ ^= (int)smallestAttacker;
 
+        attackers |= getXRayPieceMap(Color::WHITE, toSquare, occ, board) | getXRayPieceMap(Color::BLACK, toSquare, occ, board);
+
         value = -value - 1 - SEE_PIECE_VALS[lastPiece];
         if (value >= 0)
         {
+            if (lastPiece == PieceType::KING && (attackers & board.us(seeColor)))
+            {
+                seeColor ^= 1;
+            }
             break;
         }
-        
-
     }
 
     
     return ((int)color != seeColor);
 }   
+
+Bitboard Search::getXRayPieceMap(Color color, Square square, Bitboard occ, Board& board)
+{
+    Bitboard bishops = board.pieces(PieceType::BISHOP, color);
+    Bitboard rooks = board.pieces(PieceType::ROOK, color);
+    Bitboard queens = board.pieces(PieceType::QUEEN, color);
+
+    Bitboard xRay = (attacks::bishop(square, occ) & (bishops | queens)) | (attacks::rook(square, occ) & (rooks | queens));
+
+    return (xRay & occ);
+}
 
 PieceType Search::getLeastValuableAttacker(Board& board, Square square, Bitboard occ)
 {
@@ -383,6 +398,11 @@ PieceType Search::getLeastValuableAttacker(Board& board, Square square, Bitboard
         return PieceType::QUEEN;
     }
 
+    if (attacks::king(square) & board.pieces(PieceType::KING, color))
+    {
+        return PieceType::KING;
+    }
+
     return PieceType::NONE;
 }
 
@@ -395,33 +415,6 @@ Bitboard Search::getAttackes(Square square, Bitboard occ, Board& board, Color co
              (attacks::bishop(square, occ) & (board.pieces(PieceType::BISHOP, color) | board.pieces(PieceType::QUEEN, color))) |
 
              (attacks::rook(square, occ) & (board.pieces(PieceType::ROOK, color) | board.pieces(PieceType::QUEEN, color)));
-}
-
-Square Search::getIndexOfAttack(Board& board, Square& square, PieceType pieceType)
-{
-    Square source;
-    Color color = board.sideToMove();
-
-    if(pieceType == PieceType::PAWN)
-    {
-        return (attacks::pawn(~color, square) & board.pieces(PieceType::PAWN, color)).msb();
-    }
-    else if(pieceType == PieceType::KNIGHT)
-    {
-        return (attacks::knight(square) & board.pieces(PieceType::KNIGHT, color)).msb();
-    }
-    else if(pieceType == PieceType::BISHOP)
-    {
-        return (attacks::bishop(square, board.occ()) & (board.pieces(PieceType::BISHOP, color))).msb();
-    }
-    else if(pieceType == PieceType::ROOK)
-    {
-        return (attacks::rook(square, board.occ()) & (board.pieces(PieceType::ROOK, color))).msb();
-    }
-    else if(pieceType == PieceType::QUEEN)
-    {
-        return (attacks::queen(square, board.occ()) & board.pieces(PieceType::QUEEN, color)).msb();
-    }
 }
 
 void Search::iterativeDeepening(Board& board)
