@@ -353,14 +353,14 @@ bool Search::see(Board& board, Color color, Move move, int cutoff)
 
     // Flip the color
     int seeColor = color ^ 1;
-    PieceType lastPiece = PieceType::NONE;
+    int lastPiece = 0;
 
     Bitboard occ = (board.occ() ^ fromSquare.index()) | toSquare.index();
     Bitboard attackers = getAttackes(toSquare, occ, board, color) & ~fromSquare.index();
 
     while (true)
     {
-        PieceType smallestAttacker = getLeastValuableAttacker(board, toSquare, occ, seeColor);   
+        PieceType smallestAttacker = popLeastValuable(board, occ, attackers, seeColor);  
         if (smallestAttacker == PieceType::NONE)
         {
             break;
@@ -379,7 +379,7 @@ bool Search::see(Board& board, Color color, Move move, int cutoff)
         val = -val - 1 - SEE_PIECE_VALS[lastPiece];
         if (val >= 0)
         {   // If it is the case where the last piece is the king to recapture we flip the color once again
-            if (lastPiece == PieceType::KING && (attackers & board.us(seeColor)))
+            if ((lastPiece == (int)PieceType::KING) && (attackers & board.us(seeColor)))
             {
                 seeColor ^= 1;
             }
@@ -400,36 +400,16 @@ Bitboard Search::getXRayPieceMap(Color color, Square square, Bitboard occ, Board
     return (xRay & occ);
 }
 
-PieceType Search::getLeastValuableAttacker(Board& board, Square square, Bitboard occ, Color color)
+PieceType Search::popLeastValuable(const Board &board, Bitboard &occ, Bitboard attackers, Color color)
 {
-    if (attacks::pawn(~color, square) & board.pieces(PieceType::PAWN, color))
+    for (int pt = 0; pt <= 5; pt++)
     {
-        return PieceType::PAWN;
-    }
-
-    if (attacks::knight(square) & board.pieces(PieceType::KNIGHT, color))
-    {
-        return PieceType::KNIGHT;
-    }
-
-    if (attacks::bishop(square, occ) & (board.pieces(PieceType::BISHOP, color)))
-    {
-        return PieceType::BISHOP;
-    }
-
-    if (attacks::rook(square, occ) & (board.pieces(PieceType::ROOK, color)))
-    {
-        return PieceType::ROOK;
-    } 
-
-    if (attacks::queen(square, board.occ()) & board.pieces(PieceType::QUEEN, color))
-    {
-        return PieceType::QUEEN;
-    }
-
-    if (attacks::king(square) & board.pieces(PieceType::KING, color))
-    {
-        return PieceType::KING;
+        Bitboard bb = attackers & board.pieces((PieceType)pt, color);
+        if (bb.getBits() > 0)
+        {
+            occ ^= (1ULL << bb.lsb());
+            return (PieceType)pt;
+        }
     }
 
     return PieceType::NONE;

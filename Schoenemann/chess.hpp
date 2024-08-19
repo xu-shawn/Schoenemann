@@ -896,6 +896,9 @@ namespace chess {
 
         constexpr PieceType() : pt(underlying::NONE) {}
         constexpr PieceType(underlying pt) : pt(pt) {}
+        constexpr explicit PieceType(int value) 
+            : pt(value >= 0 && value <= static_cast<int>(underlying::NONE) ? 
+                static_cast<underlying>(value) : underlying::NONE) {}
         constexpr explicit PieceType(std::string_view type) : pt(underlying::NONE) {
             assert(type.size() > 0);
             switch (type.data()[0]) {

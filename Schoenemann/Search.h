@@ -42,7 +42,7 @@ public:
 	bool see(Board& board, Color color, Move move, int cutoff);
 	Bitboard getAttackes(Square square, Bitboard occ, Board& board, Color color);
 	Bitboard getXRayPieceMap(Color color, Square square, Bitboard occ, Board& board);
-	PieceType getLeastValuableAttacker(Board& board, Square square, Bitboard occ, Color color);
+	PieceType popLeastValuable(const Board &board, Bitboard &occ, Bitboard attackers, Color color);
 	void iterativeDeepening(Board& board);
 private:
 };
