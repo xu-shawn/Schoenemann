@@ -278,7 +278,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         }
         */
 
-        if (!see(board, board.sideToMove(), move, 0))
+        if (see(board, board.sideToMove(), move, 0))
         {
             continue;
         }
