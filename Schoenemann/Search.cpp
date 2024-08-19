@@ -331,6 +331,7 @@ bool Search::see(Board& board, Color color, Move move, int cutoff)
     }
 
     Square toSquare = move.to();
+    Square fromSquare = move.from();
 
     // Get the value of the captured piece
     int capturedPiece = (board.at(toSquare).type() == PieceType::NONE) ? 0 : SEE_PIECE_VALS[board.at(toSquare).type()];
@@ -342,12 +343,20 @@ bool Search::see(Board& board, Color color, Move move, int cutoff)
         return false;
     }
 
+    val -= (board.at(fromSquare).type() == PieceType::KING) ? infinity / 2 : SEE_PIECE_VALS[board.at(fromSquare).type()];
+
+    if (val >= 0)
+    {
+        return true;
+    }
+    
+
     // Flip the color
     int seeColor = color ^ 1;
     PieceType lastPiece = PieceType::NONE;
 
-    Bitboard occ = (board.occ() ^ move.from().index()) | toSquare.index();
-    Bitboard attackers = getAttackes(toSquare, occ, board, color) & ~move.from().index();
+    Bitboard occ = (board.occ() ^ fromSquare.index()) | toSquare.index();
+    Bitboard attackers = getAttackes(toSquare, occ, board, color) & ~fromSquare.index();
 
     while (true)
     {
