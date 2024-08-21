@@ -93,6 +93,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
+    // Initial Iterative Deepening
     if (!isNullptr)
     {
         if (zobristKey != entry->key && !board.inCheck() && depth >= 4)
