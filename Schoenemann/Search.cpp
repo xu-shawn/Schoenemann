@@ -271,18 +271,14 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     for (Move& move : moveList)
     {
-        /*
-        if (!(move.typeOf() == Move::PROMOTION)  && standPat < alpha - 80 && !see(board, board.sideToMove(), move, 1)) {
-            bestScore = std::max(bestScore, standPat + 80);
-            continue;
-        }
-        */
-
+        // Static Exchange Evaluation
         if (!see(board, move, 0))
         {
             continue;
         }
+        
         board.makeMove(move);
+
         int score = -qs(-beta, -alpha, board, ply);
 
         board.unmakeMove(move);
@@ -318,35 +314,46 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     return bestScore;
 }
 
-int Search::gain(const Board &board, Move &move)
+int Search::getPieceValue(const Board &board, Move &move)
 {
     auto moveType = move.typeOf();
 
     if (moveType == move.CASTLING)
+    {
         return 0;
+    }
 
     if (moveType == move.ENPASSANT)
-        return SEE_PIECE_VALUES[PAWN_INDEX];
+    {
+        return SEE_PIECE_VALUES[0];
+    }
 
     int score = SEE_PIECE_VALUES[(int)board.at<PieceType>(move.to())];
 
     if (moveType == move.PROMOTION)
-        score += SEE_PIECE_VALUES[(int)move.promotionType()] - SEE_PIECE_VALUES[PAWN_INDEX]; // gain promotion, lose the pawn
+    {
+        score += SEE_PIECE_VALUES[(int)move.promotionType()] - SEE_PIECE_VALUES[0];
+    }
 
     return score;
 }
 
-bool Search::see(const Board &board, Move &move, int threshold)
-{
-    //std::cout << "Lets go gammbling" << std::endl;
-     int score = gain(board, move) - threshold;
-    if (score < 0)
-        return false;
 
-    PieceType next = move.typeOf() == move.PROMOTION ? move.promotionType() : board.at<PieceType>(move.from());
+// SEE prunning by Starzix
+bool Search::see(const Board &board, Move &move, int cutoff)
+{
+    int score = getPieceValue(board, move) - cutoff;
+    if (score < 0)
+    {
+        return false;
+    }
+
+    PieceType next = (move.typeOf() == move.PROMOTION) ? move.promotionType() : board.at<PieceType>(move.from());
     score -= SEE_PIECE_VALUES[(int)next];
     if (score >= 0)
+    {
         return true;
+    }
 
     int from = move.from().index();
     int to = move.to().index();
@@ -371,15 +378,21 @@ bool Search::see(const Board &board, Move &move, int threshold)
     {
         Bitboard ourAttackers = attackers & board.us(us);
         if (ourAttackers == 0)
+        {
             break;
+        }
 
-        next = popLeastValuable(board, occupancy, ourAttackers, us);
+        next = getLeastValuableAttacker(board, occupancy, ourAttackers, us);
 
         if (next == PieceType::PAWN || next == PieceType::BISHOP || next == PieceType::QUEEN)
+        {
             attackers |= attacks::bishop(square, occupancy) & bishops;
+        }
 
         if (next == PieceType::ROOK || next == PieceType::QUEEN)
+        {
             attackers |= attacks::rook(square, occupancy) & rooks;
+        }
 
         attackers &= occupancy;
         score = -score - 1 - SEE_PIECE_VALUES[(int)next];
@@ -387,53 +400,33 @@ bool Search::see(const Board &board, Move &move, int threshold)
 
         if (score >= 0)
         {
-            // if our only attacker is our king, but the opponent still has defenders
+            // If our only attacker is our king, but the opponent still has defenders
             if (next == PieceType::KING && (attackers & board.us(us)).getBits() > 0)
+            {
                 us = ~us;
+            }
             break;
         }
     }
 
     return board.sideToMove() != us;
-}   
-
-Bitboard Search::getXRayPieceMap(Color color, Square square, Bitboard occ, Board& board)
-{
-    Bitboard bishops = board.pieces(PieceType::BISHOP, color);
-    Bitboard rooks = board.pieces(PieceType::ROOK, color);
-    Bitboard queens = board.pieces(PieceType::QUEEN, color);
-
-    Bitboard xRay = (attacks::bishop(square, occ) & (bishops | queens)) | (attacks::rook(square, occ) & (rooks | queens));
-
-    return (xRay & occ);
 }
 
-PieceType Search::popLeastValuable(const Board &board, Bitboard &occ, Bitboard attackers, Color color)
+PieceType Search::getLeastValuableAttacker(const Board &board, Bitboard &occ, Bitboard attackers, Color color)
 {
-    for (int pt = 0; pt <= 5; pt++)
+    for (int piece = 0; piece <= 5; piece++)
     {
-        Bitboard bb = attackers & board.pieces((PieceType)pt, color);
-        if (bb.getBits() > 0)
+        Bitboard bitboard = attackers & board.pieces((PieceType)piece, color);
+        if (bitboard.getBits() > 0)
         {
-            occ ^= (1ULL << bb.lsb());
-            return (PieceType)pt;
+            occ ^= (1ULL << bitboard.lsb());
+            return (PieceType)piece;
         }
     }
 
+    // If no attacker is found we return an empty piece
     return PieceType::NONE;
 }
-
-Bitboard Search::getAttackes(Square square, Bitboard occ, Board& board, Color color)
-{
-    return (attacks::pawn(~color, square) & board.pieces(PieceType::PAWN, color)) |
-             (attacks::knight(square) & board.pieces(PieceType::KNIGHT, color)) |
-             (attacks::king(square) & board.pieces(PieceType::KING, color))|
-
-             (attacks::bishop(square, occ) & (board.pieces(PieceType::BISHOP, color) | board.pieces(PieceType::QUEEN, color))) |
-
-             (attacks::rook(square, occ) & (board.pieces(PieceType::ROOK, color) | board.pieces(PieceType::QUEEN, color)));
-}
-
 void Search::iterativeDeepening(Board& board)
 {
     start = std::chrono::high_resolution_clock::now();
