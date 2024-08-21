@@ -11,13 +11,14 @@ public:
 	bool isNormalSearch = true;
 	int timeForMove = 0;
 	int index = 0;
-	std::uint64_t repitions[256] = {0};
+	std::uint64_t repetitions[256] = {0};
+	const int SEE_PIECE_VALUES[7] = {100, 300, 300, 500, 900, 0, 0};
 
 	bool contains(std::uint64_t key)
 	{
-		for (size_t i = 0; i < sizeof(repitions) / sizeof(std::uint64_t); i++)
+		for (size_t i = 0; i < sizeof(repetitions) / sizeof(std::uint64_t); i++)
 		{
-			if (key == repitions[i])
+			if (key == repetitions[i])
 			{
 				return true;
 			}
@@ -27,7 +28,7 @@ public:
 
 	void storeKey(std::uint64_t key)
 	{
-		repitions[index] = key;
+		repetitions[index] = key;
 		index++;
 		if (index == 255)
 		{
@@ -39,6 +40,8 @@ public:
 
 	int pvs(int alpha, int beta, int depth, int ply, Board& board);
 	int qs(int alpha, int beta, Board& board, int ply);
+	bool see(const Board &board, Move &move, int threshold = 0);
+	PieceType getLeastValuableAttacker(const Board &board, Bitboard &occ, Bitboard attackers, Color color);
+	int getPieceValue(const Board &board, Move &move);
 	void iterativeDeepening(Board& board);
-private:
 };
