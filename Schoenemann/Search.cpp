@@ -278,7 +278,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         }
         */
 
-        if (!see(board, board.sideToMove(), move, 0))
+        if (!see(board, move, 0))
         {
             continue;
         }
@@ -318,75 +318,83 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     return bestScore;
 }
 
-bool Search::see(Board& board, Color color, Move move, int cutoff)
+int Search::gain(const Board &board, Move &move)
+{
+    auto moveType = move.typeOf();
+
+    if (moveType == move.CASTLING)
+        return 0;
+
+    if (moveType == move.ENPASSANT)
+        return SEE_PIECE_VALUES[PAWN_INDEX];
+
+    int score = SEE_PIECE_VALUES[(int)board.at<PieceType>(move.to())];
+
+    if (moveType == move.PROMOTION)
+        score += SEE_PIECE_VALUES[(int)move.promotionType()] - SEE_PIECE_VALUES[PAWN_INDEX]; // gain promotion, lose the pawn
+
+    return score;
+}
+
+bool Search::see(const Board &board, Move &move, int threshold)
 {
     //std::cout << "Lets go gammbling" << std::endl;
-    static constexpr int SEE_PIECE_VALS[6] = {100, 400, 400, 600, 1150, 0};
-
-    // Checks if the move type is either casteling or enPassant
-    // If this is the case we can return from the SEE
-    if(move.typeOf() == Move::CASTLING || move.typeOf() == Move::ENPASSANT)
-    {
-        return 0 >= cutoff;
-    }
-
-    Square toSquare = move.to();
-    Square fromSquare = move.from();
-
-    // Get the value of the captured piece
-    int capturedPiece = (board.at(toSquare).type() == PieceType::NONE) ? 0 : SEE_PIECE_VALS[board.at(toSquare).type()];
-
-    // We immediately return when capturing a free piece is not enough
-    int val = capturedPiece - cutoff;
-    if (val < 0)
-    {
+     int score = gain(board, move) - threshold;
+    if (score < 0)
         return false;
-    }
 
-    val -= (board.at(fromSquare).type() == PieceType::KING) ? infinity / 2 : SEE_PIECE_VALS[board.at(fromSquare).type()];
-
-    if (val >= 0)
-    {
+    PieceType next = move.typeOf() == move.PROMOTION ? move.promotionType() : board.at<PieceType>(move.from());
+    score -= SEE_PIECE_VALUES[(int)next];
+    if (score >= 0)
         return true;
-    }
-    
 
-    // Flip the color
-    int seeColor = color ^ 1;
-    int lastPiece = 0;
+    int from = move.from().index();
+    int to = move.to().index();
 
-    Bitboard occ = (board.occ() ^ fromSquare.index()) | toSquare.index();
-    Bitboard attackers = getAttackes(toSquare, occ, board, color) & ~fromSquare.index();
+    Bitboard occupancy = board.occ() ^ (1ULL << from) ^ (1ULL << to);
+    Bitboard queens = board.pieces(PieceType::QUEEN);
+    Bitboard bishops = queens | board.pieces(PieceType::BISHOP);
+    Bitboard rooks = queens | board.pieces(PieceType::ROOK);
 
+    Square square = move.to();
+
+    Bitboard attackers = 0;
+    attackers |= rooks & attacks::rook(square, occupancy);
+    attackers |= bishops & attacks::bishop(square, occupancy);
+    attackers |= board.pieces(PieceType::PAWN, Color::BLACK) & attacks::pawn(Color::WHITE, square);
+    attackers |= board.pieces(PieceType::PAWN, Color::WHITE) & attacks::pawn(Color::BLACK, square);
+    attackers |= board.pieces(PieceType::KNIGHT) & attacks::knight(square);
+    attackers |= board.pieces(PieceType::KING) & attacks::king(square);
+
+    Color us = ~board.sideToMove();
     while (true)
     {
-        PieceType smallestAttacker = popLeastValuable(board, occ, attackers, seeColor);  
-        if (smallestAttacker == PieceType::NONE)
-        {
+        Bitboard ourAttackers = attackers & board.us(us);
+        if (ourAttackers == 0)
             break;
-        }
 
-        // We flip the color again
-        seeColor ^= 1;
+        next = popLeastValuable(board, occupancy, ourAttackers, us);
 
-        // We remove the used attacker from the bitboard with the bitwise XOR
-        attackers ^= (int)smallestAttacker;
-        occ ^= (int)smallestAttacker;
+        if (next == PieceType::PAWN || next == PieceType::BISHOP || next == PieceType::QUEEN)
+            attackers |= attacks::bishop(square, occupancy) & bishops;
 
-        // We also check for possibl X-Rays and remove them with bitwise OR
-        attackers |= getXRayPieceMap(Color::WHITE, toSquare, occ, board) | getXRayPieceMap(Color::BLACK, toSquare, occ, board);
+        if (next == PieceType::ROOK || next == PieceType::QUEEN)
+            attackers |= attacks::rook(square, occupancy) & rooks;
 
-        val = -val - 1 - SEE_PIECE_VALS[lastPiece];
-        if (val >= 0)
-        {   // If it is the case where the last piece is the king to recapture we flip the color once again
-            if ((lastPiece == (int)PieceType::KING) && (attackers & board.us(seeColor)))
-            {
-                seeColor ^= 1;
-            }
+        attackers &= occupancy;
+        score = -score - 1 - SEE_PIECE_VALUES[(int)next];
+        us = ~us;
+
+        if (score >= 0)
+        {
+            // if our only attacker is our king, but the opponent still has defenders
+            if (next == PieceType::KING && (attackers & board.us(us)).getBits() > 0)
+                us = ~us;
             break;
         }
     }
-    return ((int)color != seeColor);
+
+    return board.sideToMove() != us;
 }   
 
 Bitboard Search::getXRayPieceMap(Color color, Square square, Bitboard occ, Board& board)

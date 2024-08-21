@@ -39,10 +39,13 @@ public:
 
 	int pvs(int alpha, int beta, int depth, int ply, Board& board);
 	int qs(int alpha, int beta, Board& board, int ply);
-	bool see(Board& board, Color color, Move move, int cutoff);
+	bool see(const Board &board, Move &move, int threshold = 0);
 	Bitboard getAttackes(Square square, Bitboard occ, Board& board, Color color);
 	Bitboard getXRayPieceMap(Color color, Square square, Bitboard occ, Board& board);
 	PieceType popLeastValuable(const Board &board, Bitboard &occ, Bitboard attackers, Color color);
+	int gain(const Board &board, Move &move);
 	void iterativeDeepening(Board& board);
+	const int SEE_PIECE_VALUES[7] = {100, 300, 300, 500, 900, 0, 0},
+                 PAWN_INDEX = 0;
 private:
 };
