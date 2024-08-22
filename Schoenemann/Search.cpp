@@ -104,14 +104,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (!isNullptr)
     {
-        if (zobristKey != entry->key && !board.inCheck() && depth >= 4)
-        {
-            depth--;
-        }
-    }
-
-    if (!isNullptr)
-    {
         int probCutBeta = beta + 390;
         if (hashedDepth >= depth - 2 && hashedScore >= probCutBeta && std::abs(beta) < infinity)
         {
