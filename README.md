@@ -1,7 +1,7 @@
 # Schönemann
 - [About](#about)
 - [How it works](#how-it-works)
-- [Install](#install)
+- [Build](#build)
 - [Thanks](#thanks)
 
 # About
@@ -13,9 +13,15 @@ in this it seems that white is hanging a bishop but is not worst.
 It has currently a strenght about ~2660 Elo (Tested againtst Laser 1.7 STC)
 
 # How it works
-Currently it is using a NNUE with 512 Hidden Layers and Leela data and uses a simple Alpha-Beta Search.
+-  NNUE with 512 Hidden Layers
+-  Trained with Leela Data
 
-# Install
+-  PVS-Search
+-  SEE Prunning + MoveOrdering
+-  Check Extension
+-  MVA - LVV in MoveOrdering
+
+# Build
 Type 
   ```
   make all
@@ -23,4 +29,4 @@ Type
 
 #  Thanks
 Special thanks to Disservin's [chess libary](https://github.com/Disservin/chess-library/) witch made the wohle development process simpler.
-For NNUE [nnue](https://github.com/TheBlackPlague/MantaRay)
+MantaRay for [NNUE](https://github.com/TheBlackPlague/MantaRay)
