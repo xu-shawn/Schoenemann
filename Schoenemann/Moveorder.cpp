@@ -2,29 +2,51 @@
 
 #include "consts.h"
 #include "tt.h"
+#include "see.h"
 
-Movelist orderMoves(Movelist moveList, Hash* entry)
+void orderMoves(Movelist moveList, Hash* entry, Board& board, int *scores)
 {
-	if (entry == nullptr)
+	const bool isNullptr = entry == nullptr ? true : false;
+	Move hashMove;
+	if (!isNullptr)
 	{
-		return moveList;
+		hashMove = entry->move;
 	}
-
-	Move hashMove = entry->move;
-
-	if (hashMove != Move::NO_MOVE && hashMove != Move::NULL_MOVE)
+	for (int i = 0; i < moveList.size(); i++)
 	{
-		for (Move move : moveList)
+		Move move = moveList[i];
+		if (hashMove != Move::NO_MOVE && hashMove != Move::NULL_MOVE)
 		{
-			if (move == hashMove)
-			{
-				Move cache = moveList.front();
-				moveList.front() = hashMove;
-				moveList.add(cache);
-				//std::cout << "hash move is: " << hashMove << "    the front is " << moveList.front() << std::endl;
-				break;
-			}
+			scores[i] = hashMoveScore;
+		}
+		else if (board.isCapture(move))
+		{
+			PieceType captured = board.at<PieceType>(move.to());
+            PieceType capturing = board.at<PieceType>(move.from());
+
+			int captureScore = see(board, move, 0) ? goodCapture : badCapture;
+
+			// MVA - LVV
+			captureScore = 100 * SEE_PIECE_VALUES[captured] - SEE_PIECE_VALUES[capturing];
+
+			scores[i] = captureScore;
+		}
+		else if (move.typeOf() == Move::PROMOTION)
+		{
+			scores[i] = promotion;
 		}
 	}
-	return moveList;
+}
+
+Move sortByScore(Movelist moveList, int *scores, int i)
+{
+	for (int j = i + 1; j < moveList.size(); j++)
+	{
+		if (scores[j] > scores[i])
+        {
+            std::swap(moveList[i], moveList[j]);
+            std::swap(scores[i], scores[j]);
+        }
+	}
+	return moveList[i];
 }
