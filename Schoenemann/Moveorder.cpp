@@ -45,7 +45,8 @@ Move sortByScore(Movelist moveList, int scores[], int i)
     {
         if (scores[j] > scores[i])
         {
-			return moveList[j];
+            std::swap(moveList[i], moveList[j]);
+            std::swap(scores[i], scores[j]);
         }
     }
     return moveList[i];
