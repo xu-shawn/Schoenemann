@@ -144,7 +144,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
-    int scoreMoves[218];
+    int scoreMoves[218] = {0};
     //Sort the list
     orderMoves(moveList, entry, board, scoreMoves);
 

@@ -44,7 +44,7 @@ void orderMoves(Movelist moveList, Hash* entry, Board& board, int scores[])
 
 Move sortByScore(Movelist moveList, int scores[], int i)
 {
-	for (int j = i; j < moveList.size(); j++)
+	for (int j = i + 1; j < moveList.size(); j++)
 	{
 		if (scores[j] > scores[i])
         {
