@@ -144,15 +144,15 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
-    int scores[218];
+    int scoreMoves[218];
     //Sort the list
-    orderMoves(moveList, entry, board, scores);
+    orderMoves(moveList, entry, board, scoreMoves);
 
     int score = 0;
     int bestScore = -infinity;
     for (int i = 0; i < moveList.size(); i++)
     {
-        Move move = sortByScore(moveList, scores, i);
+        Move move = sortByScore(moveList, scoreMoves, i);
         board.makeMove(move);
 
         short checkExtension = 0;

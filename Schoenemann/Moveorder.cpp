@@ -4,20 +4,20 @@
 #include "tt.h"
 #include "see.h"
 
-void orderMoves(Movelist moveList, Hash* entry, Board& board, int *scores)
+void orderMoves(Movelist moveList, Hash* entry, Board& board, int scores[])
 {
 	const bool isNullptr = entry == nullptr ? true : false;
-	Move hashMove;
-	if (!isNullptr)
-	{
-		hashMove = entry->move;
-	}
+	const std::uint64_t key = board.zobrist();
+
 	for (int i = 0; i < moveList.size(); i++)
 	{
 		Move move = moveList[i];
-		if (hashMove != Move::NO_MOVE && hashMove != Move::NULL_MOVE)
+		if (!isNullptr)
 		{
-			scores[i] = hashMoveScore;
+			if (entry->key == key && move == entry->move)
+			{
+				scores[i] = hashMoveScore;
+			}
 		}
 		else if (board.isCapture(move))
 		{
@@ -27,7 +27,7 @@ void orderMoves(Movelist moveList, Hash* entry, Board& board, int *scores)
 			int captureScore = see(board, move, 0) ? goodCapture : badCapture;
 
 			// MVA - LVV
-			captureScore = 100 * SEE_PIECE_VALUES[captured] - SEE_PIECE_VALUES[capturing];
+			captureScore = 100 * PIECE_VALUES[captured] - PIECE_VALUES[capturing];
 
 			scores[i] = captureScore;
 		}
@@ -35,12 +35,16 @@ void orderMoves(Movelist moveList, Hash* entry, Board& board, int *scores)
 		{
 			scores[i] = promotion;
 		}
+		else
+		{
+			scores[i] = 0;
+		}
 	}
 }
 
-Move sortByScore(Movelist moveList, int *scores, int i)
+Move sortByScore(Movelist moveList, int scores[], int i)
 {
-	for (int j = i + 1; j < moveList.size(); j++)
+	for (int j = i; j < moveList.size(); j++)
 	{
 		if (scores[j] > scores[i])
         {
