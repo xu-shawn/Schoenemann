@@ -35,22 +35,18 @@ void orderMoves(Movelist moveList, Hash* entry, Board& board, int scores[])
 		{
 			scores[i] = promotion;
 		}
-		else
-		{
-			scores[i] = 0;
-		}
 	}
+	
 }
 
 Move sortByScore(Movelist moveList, int scores[], int i)
 {
 	for (int j = i + 1; j < moveList.size(); j++)
-	{
-		if (scores[j] > scores[i])
+    {
+        if (scores[j] > scores[i])
         {
-            std::swap(moveList[i], moveList[j]);
-            std::swap(scores[i], scores[j]);
+			return moveList[j];
         }
-	}
-	return moveList[i];
+    }
+    return moveList[i];
 }
