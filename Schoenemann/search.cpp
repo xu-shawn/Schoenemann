@@ -1,5 +1,7 @@
 #include <chrono>
 #include <iostream>
+#include <cmath>
+#include <cassert>
 
 #include "search.h"
 #include "chess.hpp"
@@ -349,9 +351,30 @@ void Search::iterativeDeepening(Board& board)
         }
     }
 
+    int score = -infinity;
+
     for (int i = 1; i <= 256; i++)
     {
-        pvs(-32767, 32767, i, 0, board);
+        int aspAlpha = -infinity;
+        int aspBeta = infinity;
+
+        if (i >= 4)
+        {
+            int delta = 12;
+            aspAlpha = std::max(score - delta, -infinity);
+            aspBeta = std::min(score + delta, infinity);
+        }
+        
+        int newScore = pvs(aspAlpha, aspBeta, i, 0, board);
+
+        if (newScore <= aspAlpha || newScore >= aspBeta)
+        {
+            aspAlpha = -infinity;
+            aspBeta = infinity;
+        }
+
+        score = newScore;
+        
 
         if (!shouldStop)
         {
