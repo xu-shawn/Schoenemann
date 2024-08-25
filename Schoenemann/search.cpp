@@ -365,13 +365,23 @@ void Search::iterativeDeepening(Board& board)
             aspBeta = std::min(score + delta, infinity);
         }
         
-        int newScore = pvs(aspAlpha, aspBeta, i, 0, board);
+        int newScore;
 
-        if (newScore <= aspAlpha || newScore >= aspBeta)
+        while (true)
         {
-            aspAlpha = -infinity;
-            aspBeta = infinity;
+            newScore = pvs(aspAlpha, aspBeta, i, 0, board);
+
+            if (newScore <= aspAlpha || newScore >= aspBeta)
+            {
+                aspAlpha = -infinity;
+                aspBeta = infinity;
+            }
+            else
+            {
+               break;
+            }
         }
+        
 
         score = newScore;
         
