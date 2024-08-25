@@ -334,7 +334,6 @@ int Search::aspiration(int maxDepth, int score, Board& board)
     int delta = 25;
     int alpha = std::max(-infinity, score - delta);
     int beta = std::min(infinity, score + delta);
-    int depth = maxDepth;
 
     while (true)
     {
@@ -344,18 +343,16 @@ int Search::aspiration(int maxDepth, int score, Board& board)
         {
             return 0;
         }
-        score = pvs(alpha, beta, depth, 0, board);
+        score = pvs(alpha, beta, maxDepth, 0, board);
 
         if (score >= beta)
         {
             beta = std::min(beta + delta, infinity);
-            depth--;
         }
         else if (score <= alpha)
         {
             beta = (alpha + beta) / 2;
             alpha = std::max(alpha - delta, -infinity);
-            depth = maxDepth;
         }
         else
         {
