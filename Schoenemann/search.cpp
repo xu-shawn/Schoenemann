@@ -329,6 +329,46 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     return bestScore;
 }
 
+int Search::aspiration(int maxDepth, int score, Board& board)
+{
+    int delta = 25;
+    int alpha = std::max(-infinity, score - delta);
+    int beta = std::min(infinity, score + delta);
+    int depth = maxDepth;
+
+    while (true)
+    {
+        score = pvs(alpha, beta, depth, 0, board);
+
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = end - start;
+        bool isOver = elapsed.count() >= timeForMove;
+        if (isOver) 
+        {
+            return 0;
+        }
+
+        if (score >= beta)
+        {
+            beta = std::min(beta + delta, infinity);
+            depth--;
+        }
+        else if (score <= alpha)
+        {
+            beta = (alpha + beta) / 2;
+            alpha = std::max(alpha - delta, -infinity);
+            depth = maxDepth;
+        }
+        else
+            break;
+
+        delta *= 1.5;
+    }
+
+    return score;
+}
+
+
 void Search::iterativeDeepening(Board& board)
 {
     start = std::chrono::high_resolution_clock::now();
@@ -338,6 +378,8 @@ void Search::iterativeDeepening(Board& board)
     isNormalSearch = false;
     bool hasFoundMove = false;
     std::uint64_t key = board.zobrist();
+    int score = 0;
+
 
     //If there is no time left make a search at depth 1
     if (timeForMove == -20)
@@ -351,52 +393,9 @@ void Search::iterativeDeepening(Board& board)
         }
     }
 
-    int score = -infinity;
-
     for (int i = 1; i <= 256; i++)
     {
-        int aspAlpha = -infinity;
-        int aspBeta = infinity;
-
-        if (i >= 4)
-        {
-            int delta = 12;
-            aspAlpha = std::max(score - delta, -infinity);
-            aspBeta = std::min(score + delta, infinity);
-        }
-        
-        int newScore;
-
-        if  (i >= 4)
-        {
-            while (true)
-            {
-                auto end = std::chrono::high_resolution_clock::now();
-                std::chrono::duration<double, std::milli> elapsed = end - start;
-                bool isOver = elapsed.count() >= timeForMove;
-
-                if (isOver)
-                {
-                    break;
-                }
-
-                newScore = pvs(aspAlpha, aspBeta, i, 0, board);
-
-                if (newScore <= aspAlpha || newScore >= aspBeta)
-                {
-                   aspAlpha = -infinity;
-                   aspBeta = infinity;
-                }
-                else
-                {
-                   break;
-                }
-            }
-        }
-        
-
-        score = newScore;
-        
+        score = i >= 4 ? aspiration(i, score, board) : pvs(-infinity, infinity, i, 0, board);
 
         if (!shouldStop)
         {

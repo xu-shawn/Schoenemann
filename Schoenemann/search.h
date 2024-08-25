@@ -40,4 +40,5 @@ public:
 	int pvs(int alpha, int beta, int depth, int ply, Board& board);
 	int qs(int alpha, int beta, Board& board, int ply);
 	void iterativeDeepening(Board& board);
+	int aspiration(int maxDepth, int score, Board& board);
 };
