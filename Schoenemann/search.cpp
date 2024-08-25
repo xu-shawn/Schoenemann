@@ -360,7 +360,9 @@ int Search::aspiration(int maxDepth, int score, Board& board)
             depth = maxDepth;
         }
         else
+        {
             break;
+        }
 
         delta *= 1.5;
     }
@@ -395,7 +397,7 @@ void Search::iterativeDeepening(Board& board)
 
     for (int i = 1; i <= 256; i++)
     {
-        score = i >= 4 ? aspiration(i, score, board) : pvs(-infinity, infinity, i, 0, board);
+        score = i >= 6 ? aspiration(i, score, board) : pvs(-infinity, infinity, i, 0, board);
 
         if (!shouldStop)
         {
