@@ -369,6 +369,15 @@ void Search::iterativeDeepening(Board& board)
 
         while (true)
         {
+            auto end = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double, std::milli> elapsed = end - start;
+            bool isOver = elapsed.count() >= timeForMove;
+
+            if (isOver)
+            {
+                break;
+            }
+
             newScore = pvs(aspAlpha, aspBeta, i, 0, board);
 
             if (newScore <= aspAlpha || newScore >= aspBeta)
