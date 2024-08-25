@@ -422,7 +422,7 @@ void Search::iterativeDeepening(Board& board)
     for (int i = 1; i <= 256; i++)
     {
         score = i >= 6 ? aspiration(i, score, board) : pvs(-infinity, infinity, i, 0, board);
-        std::cout << "info depth " << i << " nodes " << nodes << " cp " << score << " pv " << bestMoveThisIteration << std::endl;
+        std::cout << "info depth " << i << " nodes " << nodes << " cp " << score << " pv " << bestMove << std::endl;
 
         if (!shouldStop)
         {
