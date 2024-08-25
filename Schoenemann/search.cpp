@@ -335,15 +335,18 @@ int Search::aspiration(int maxDepth, int score, Board& board)
     int alpha = std::max(-infinity, score - delta);
     int beta = std::min(infinity, score + delta);
 
+    
+
     while (true)
     {
+        score = pvs(alpha, beta, maxDepth, 0, board);
+
         auto end = std::chrono::high_resolution_clock::now();
         std::chrono::duration<double, std::milli> elapsed = end - start;
         if (elapsed.count() >= timeForMove) 
         {
             return 0;
         }
-        score = pvs(alpha, beta, maxDepth, 0, board);
 
         if (score >= beta)
         {
