@@ -151,6 +151,20 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         return staticEval;
     }
 
+    if (!pvNode && !board.inCheck())
+    {
+        if (depth >= 3 && staticEval >= beta)
+        {
+            board.makeNullMove();
+            int score = -pvs(-beta, -alpha, depth - 2, ply + 1, board);
+            board.unmakeNullMove();
+            if (score >= beta)
+            {
+                return score;
+            }
+        }
+    }
+
     short type = UPPER_BOUND;
 
     bool bSearchPv = true;
