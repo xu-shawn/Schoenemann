@@ -373,8 +373,6 @@ int Search::aspiration(int depth, int score, Board& board)
     int alpha = std::max(-infinity, score - delta);
     int beta = std::min(infinity, score + delta);
 
-    std::cout << "the score is: " << score << std::endl;
-
     while (true)
     {
         score = pvs(alpha, beta, depth, 0, board);
@@ -436,7 +434,10 @@ void Search::iterativeDeepening(Board& board)
     for (int i = 1; i <= 256; i++)
     {
         score = i >= 6 ? aspiration(i, score, board) : pvs(-infinity, infinity, i, 0, board);
-        std::cout << "info depth " << i << " nodes " << nodes << " cp " << score << " pv " << bestMove << std::endl;
+        std::chrono::duration<double, std::milli> elapsed = std::chrono::high_resolution_clock::now() - start;
+        int timeCount = elapsed.count();
+        bool isOver = timeCount >= timeForMove;
+        std::cout << "info depth " << i << " nodes " << nodes << " nps " << static_cast<int>(seracher.nodes / timeCount * 1000) << " cp " << score << " pv " << bestMove << std::endl;
 
         if (!shouldStop)
         {
@@ -452,10 +453,6 @@ void Search::iterativeDeepening(Board& board)
         {
             hasFoundMove = true;
         }
-
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> elapsed = end - start;
-        bool isOver = elapsed.count() >= timeForMove;
 
         //std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
         if (i == 256 && hasFoundMove)
