@@ -1,5 +1,7 @@
 #include <chrono>
 #include <iostream>
+#include <cmath>
+#include <cassert>
 
 #include "search.h"
 #include "chess.hpp"
@@ -30,6 +32,30 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     if (isOver && !isNormalSearch)
     {
         shouldStop = true;
+    }
+
+    // Mate distance Prunning
+
+    int mateValueUpper = infinity - ply;
+
+    if (mateValueUpper < beta)
+    {
+        beta = mateValueUpper;
+        if (alpha >= mateValueUpper)
+        {
+            return mateValueUpper;
+        }
+    }
+
+    int mateValueLower = -infinity + ply;
+
+    if (mateValueLower > alpha)
+    {
+        alpha = mateValueLower;
+        if (beta <= mateValueLower)
+        {
+            return mateValueLower;
+        }
     }
 
     //If depth is 0 we drop into qs to get a neutral position
@@ -327,6 +353,46 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     return bestScore;
 }
 
+int Search::aspiration(int depth, int score, Board& board)
+{
+    int delta = 25;
+    int alpha = std::max(-infinity, score - delta);
+    int beta = std::min(infinity, score + delta);
+
+    std::cout << "the score is: " << score << std::endl;
+
+    while (true)
+    {
+        score = pvs(alpha, beta, depth, 0, board);
+
+        auto end = std::chrono::high_resolution_clock::now();
+        std::chrono::duration<double, std::milli> elapsed = end - start;
+        if (elapsed.count() >= timeForMove) 
+        {
+            return score;
+        }
+
+        if (score >= beta)
+        {
+            beta = std::min(beta + delta, infinity);
+        }
+        else if (score <= alpha)
+        {
+            beta = (alpha + beta) / 2;
+            alpha = std::max(alpha - delta, -infinity);
+        }
+        else
+        {
+            break;
+        }
+
+        delta *= 1.5;
+    }
+
+    return score;
+}
+
+
 void Search::iterativeDeepening(Board& board)
 {
     start = std::chrono::high_resolution_clock::now();
@@ -336,6 +402,10 @@ void Search::iterativeDeepening(Board& board)
     isNormalSearch = false;
     bool hasFoundMove = false;
     std::uint64_t key = board.zobrist();
+    int score = 0;
+
+    nodes = 0;
+
 
     //If there is no time left make a search at depth 1
     if (timeForMove == -20)
@@ -351,7 +421,8 @@ void Search::iterativeDeepening(Board& board)
 
     for (int i = 1; i <= 256; i++)
     {
-        pvs(-32767, 32767, i, 0, board);
+        score = i >= 6 ? aspiration(i, score, board) : pvs(-infinity, infinity, i, 0, board);
+        std::cout << "info depth " << i << " nodes " << nodes << " cp " << score << " pv " << bestMove << std::endl;
 
         if (!shouldStop)
         {
