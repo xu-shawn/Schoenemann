@@ -435,7 +435,8 @@ void Search::iterativeDeepening(Board& board)
     {
         score = i >= 6 ? aspiration(i, score, board) : pvs(-infinity, infinity, i, 0, board);
         std::chrono::duration<double, std::milli> elapsed = std::chrono::high_resolution_clock::now() - start;
-        int timeCount = elapsed.count();
+        // Add one the avoid division by zero
+        int timeCount = elapsed.count() + 1;
         bool isOver = timeCount >= timeForMove;
         std::cout << "info depth " << i << " nodes " << nodes << " nps " << static_cast<int>(seracher.nodes / timeCount * 1000) << " cp " << score << " pv " << bestMove << std::endl;
 
