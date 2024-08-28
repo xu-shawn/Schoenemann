@@ -325,7 +325,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     for (Move& move : moveList)
     {
         //Fultiy Prunning
-        if (!see(board, move, 1) && standPat + 100 <= alpha)
+        if (!see(board, move, 1) && standPat + 200 <= alpha)
         {
             continue;
         }
