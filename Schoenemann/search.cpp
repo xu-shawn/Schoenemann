@@ -438,7 +438,7 @@ void Search::iterativeDeepening(Board& board)
         // Add one the avoid division by zero
         int timeCount = elapsed.count() + 1;
         bool isOver = timeCount >= timeForMove;
-        std::cout << "info depth " << i << " nodes " << nodes << " nps " << static_cast<int>(seracher.nodes / timeCount * 1000) << " cp " << score << " pv " << bestMove << std::endl;
+        std::cout << "info depth " << i << " score cp " << score << " nodes " << nodes << " nps " << static_cast<int>(seracher.nodes / timeCount * 1000) << " pv " << bestMove << std::endl;
 
         if (!shouldStop)
         {
