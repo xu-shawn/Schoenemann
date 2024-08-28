@@ -119,6 +119,11 @@ int uciLoop(int argc, char* argv[]) {
 				{
 					moves.push_back(token);
 				}
+				else if (token == "startpos")
+				{
+					board.setFen(STARTPOS);
+					isFen = true;
+				}
 			}
 
 			for (const auto& move : moves)
@@ -161,6 +166,12 @@ int uciLoop(int argc, char* argv[]) {
 					seracher.pvs(-32767, 32767, std::stoi(token), 0, board);
 					std::cout << "bestmove " << seracher.bestMove << std::endl;
 				}
+				else if	(token == "movetime")
+				{
+					is >> token;
+					timeLeft = std::stoi(token);
+					seracher.iterativeDeepening(board);
+				}
 				if (!(is >> token)) break;
 			}
 			if (hasTime)
@@ -202,6 +213,11 @@ int uciLoop(int argc, char* argv[]) {
 		{
 			testCommand();
 		}
+		else if (token == "stop")
+		{
+			seracher.shouldStop = true;
+		}
+		
 
 	} while (token != "quit");
 
