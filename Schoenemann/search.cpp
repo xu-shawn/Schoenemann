@@ -324,6 +324,11 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     for (Move& move : moveList)
     {
+        //Fultiy Prunning
+        if (!see(board, move, 1) && standPat + 100 <= alpha)
+        {
+            continue;
+        }
         // Static Exchange Evaluation
         if (!see(board, move, 0))
         {
