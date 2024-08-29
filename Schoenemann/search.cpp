@@ -438,7 +438,7 @@ void Search::iterativeDeepening(Board& board)
         // Add one the avoid division by zero
         int timeCount = elapsed.count() + 1;
         bool isOver = timeCount >= timeForMove;
-        std::cout << "info depth " << i << " score cp " << score << " nodes " << nodes << " nps " << static_cast<int>(seracher.nodes / timeCount * 1000) << " pv " << bestMove << std::endl;
+        std::cout << "info depth " << i << " score cp " << score << " nodes " << nodes << " nps " << static_cast<int>(seracher.nodes / timeCount * 1000) << " pv " << uci::moveToUci(bestMove) << std::endl;
 
         if (!shouldStop)
         {
@@ -459,14 +459,14 @@ void Search::iterativeDeepening(Board& board)
         if (i == 256 && hasFoundMove)
         {
             storeKey(key);
-            std::cout << "bestmove " << bestMove << std::endl;
+            std::cout << "bestmove " << uci::moveToUci(bestMove) << std::endl;
             break;
         }
 
         if (isOver && hasFoundMove)
         {
             storeKey(key);
-            std::cout << "bestmove " << bestMoveThisIteration << std::endl;
+            std::cout << "bestmove " << uci::moveToUci(bestMoveThisIteration) << std::endl;
             shouldStop = true;
             break;
         }
