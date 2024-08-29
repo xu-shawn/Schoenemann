@@ -11,29 +11,6 @@ public:
 	bool isNormalSearch = true;
 	int timeForMove = 0;
 	int index = 0;
-	std::uint64_t repetitions[256] = {0};
-
-	bool contains(std::uint64_t key)
-	{
-		for (size_t i = 0; i < sizeof(repetitions) / sizeof(std::uint64_t); i++)
-		{
-			if (key == repetitions[i])
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	void storeKey(std::uint64_t key)
-	{
-		repetitions[index] = key;
-		index++;
-		if (index == 255)
-		{
-			index = 0;
-		}
-	}
 
 	int nodes = 0;
 
