@@ -319,6 +319,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         {
             continue;
         }
+        
         // Static Exchange Evaluation
         if (!see(board, move, 0))
         {
