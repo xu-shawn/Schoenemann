@@ -66,20 +66,6 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
 
     const std::uint64_t zobristKey = board.zobrist();
-
-    if (ply > 0)
-    {
-        if (board.isHalfMoveDraw())
-        {
-            return 0;
-        }
-
-        if (contains(zobristKey))
-        {
-            return 0;
-        }
-    }
-
     int hashedScore = 0;
     short hashedType = 0;
     int hashedDepth = 0;
@@ -182,6 +168,10 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         {
             return 0;
         }
+    }
+    else if(board.isHalfMoveDraw() || board.isRepetition() || board.isInsufficientMaterial())
+    {
+        return 0;
     }
 
     int scoreMoves[218] = {0};
@@ -425,7 +415,6 @@ void Search::iterativeDeepening(Board& board)
         pvs(-32767, 32767, 1, 0, board);
         if (bestMove != Move::NULL_MOVE)
         {
-            storeKey(key);
             std::cout << "bestmove " << bestMove << std::endl;
             return;
         }
@@ -458,14 +447,12 @@ void Search::iterativeDeepening(Board& board)
         //std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
         if (i == 256 && hasFoundMove)
         {
-            storeKey(key);
             std::cout << "bestmove " << uci::moveToUci(bestMove) << std::endl;
             break;
         }
 
         if (isOver && hasFoundMove)
         {
-            storeKey(key);
             std::cout << "bestmove " << uci::moveToUci(bestMoveThisIteration) << std::endl;
             shouldStop = true;
             break;
