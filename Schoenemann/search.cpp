@@ -67,16 +67,18 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     const std::uint64_t zobristKey = board.zobrist();
 
-    if (board.isHalfMoveDraw() || board.isInsufficientMaterial() || board.isRepetition())
+    if (ply > 0)
     {
-        return 0;
-    }
+        if (board.isHalfMoveDraw() || board.isInsufficientMaterial() || board.isRepetition())
+        {
+            return 0;
+        }
 
-    if (contains(zobristKey))
-    {
-        return 0;
+        if (contains(zobristKey))
+        {
+            return 0;
+        }
     }
-
     int hashedScore = 0;
     short hashedType = 0;
     int hashedDepth = 0;
