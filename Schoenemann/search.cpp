@@ -169,6 +169,10 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             return 0;
         }
     }
+    else if(board.isHalfMoveDraw() || board.isRepetition() || board.isInsufficientMaterial())
+    {
+        return 0;
+    }
 
     int scoreMoves[218] = {0};
     //Sort the list
