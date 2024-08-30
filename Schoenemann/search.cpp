@@ -395,16 +395,22 @@ int Search::aspiration(int depth, int score, Board& board)
 }
 
 
-void Search::iterativeDeepening(Board& board)
+void Search::iterativeDeepening(Board& board, bool isInfinite)
 {
     start = std::chrono::high_resolution_clock::now();
     timeForMove = getTimeForMove();
+
     bestMove = Move::NULL_MOVE;
     Move bestMoveThisIteration = Move::NULL_MOVE;
     isNormalSearch = false;
     bool hasFoundMove = false;
-    std::uint64_t key = board.zobrist();
     int score = 0;
+
+    if (isInfinite)
+    {
+        timeForMove = 0;
+        isNormalSearch = true;
+    }
 
     nodes = 0;
 
@@ -451,7 +457,14 @@ void Search::iterativeDeepening(Board& board)
             break;
         }
 
-        if (isOver && hasFoundMove)
+        if (isOver && hasFoundMove && !isInfinite)
+        {
+            std::cout << "bestmove " << uci::moveToUci(bestMoveThisIteration) << std::endl;
+            shouldStop = true;
+            break;
+        }
+
+        if (shouldStop)
         {
             std::cout << "bestmove " << uci::moveToUci(bestMoveThisIteration) << std::endl;
             shouldStop = true;
