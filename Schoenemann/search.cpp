@@ -456,7 +456,7 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
             break;
         }
 
-        if (shouldStop)
+        if (shouldStop && hasFoundMove)
         {
             std::cout << "bestmove " << uci::moveToUci(bestMoveThisIteration) << std::endl;
             shouldStop = true;
