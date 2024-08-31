@@ -232,24 +232,21 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
-    if (!root)
+    short finalType;
+    //Calculate the node type
+    if (bestScore >= beta)
     {
-        short finalType;
-        //Calculate the node type
-        if (bestScore >= beta)
-        {
-            finalType = LOWER_BOUND;
-        }
-        else if (pvNode && (type == EXACT))
-        {
-            finalType = EXACT;
-        }
-        else
-        {
-            finalType = UPPER_BOUND;
-        }
-        transpositionTabel.storeEvaluation(zobristKey, depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInPVS, staticEval);
+        finalType = LOWER_BOUND;
     }
+    else if (pvNode && (type == EXACT))
+    {
+        finalType = EXACT;
+    }
+    else
+    {
+        finalType = UPPER_BOUND;
+    }
+    transpositionTabel.storeEvaluation(zobristKey, depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInPVS, staticEval);
 
     return bestScore;
 }
