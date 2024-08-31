@@ -403,6 +403,7 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
 {
     start = std::chrono::high_resolution_clock::now();
     timeForMove = getTimeForMove();
+    rootBestMove = Move::NULL_MOVE;
     Move bestMoveThisIteration = Move::NULL_MOVE;
     isNormalSearch = false;
     bool hasFoundMove = false;
