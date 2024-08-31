@@ -434,7 +434,7 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
             bestMoveThisIteration = rootBestMove;
         }
 
-        if (rootBestMove != Move::NULL_MOVE)
+        if (bestMoveThisIteration != Move::NULL_MOVE)
         {
             hasFoundMove = true;
         }
@@ -445,7 +445,7 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
         //std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
         if (i == 256 && hasFoundMove)
         {
-            std::cout << "bestmove " << uci::moveToUci(bestMoveThisIteration) << std::endl;
+            std::cout << "bestmove " << uci::moveToUci(rootBestMove) << std::endl;
             break;
         }
 
