@@ -420,18 +420,6 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
 
     nodes = 0;
 
-
-    //If there is no time left make a search at depth 1
-    if (timeForMove == -20)
-    {
-        pvs(-32767, 32767, 1, 0, board);
-        if (bestMove != Move::NULL_MOVE)
-        {
-            std::cout << "bestmove " << bestMove << std::endl;
-            return;
-        }
-    }
-
     for (int i = 1; i <= 256; i++)
     {
         score = i >= 6 ? aspiration(i, score, board) : pvs(-infinity, infinity, i, 0, board);
