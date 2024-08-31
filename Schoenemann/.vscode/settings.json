@@ -81,6 +81,10 @@
         "queue": "cpp",
         "variant": "cpp",
         "*.tcc": "cpp",
-        "memory_resource": "cpp"
+        "memory_resource": "cpp",
+        "condition_variable": "cpp",
+        "mutex": "cpp",
+        "stop_token": "cpp",
+        "thread": "cpp"
     }
 }

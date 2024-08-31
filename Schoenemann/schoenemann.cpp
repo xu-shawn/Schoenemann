@@ -174,7 +174,7 @@ void processCommand(const std::string& cmd, Board& board)
 			{
                 is >> token;
                 seracher.pvs(-32767, 32767, std::stoi(token), 0, board);
-                std::cout << "bestmove " << uci::moveToUci(seracher.bestMove) << std::endl;
+                std::cout << "bestmove " << uci::moveToUci(seracher.rootestMove) << std::endl;
             }
             else if (token == "movetime") 
 			{
