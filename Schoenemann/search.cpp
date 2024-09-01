@@ -73,7 +73,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     //Get some important search constants
     const bool pvNode = (alpha != beta) - 1;
-    const bool root = (ply == 0);
+    const bool inCheck = board.inCheck();
 
     //Get an potential hash entry
     Hash* entry = transpositionTabel.getHash(zobristKey);
@@ -109,7 +109,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     // Initial Iterative Deepening
     if (!isNullptr)
     {
-        if (zobristKey != entry->key && !board.inCheck() && depth >= 4)
+        if (zobristKey != entry->key && !inCheck && depth >= 4)
         {
             depth--;
         }
@@ -132,12 +132,12 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     }
 
     //Reverse futility pruning
-    if (!pvNode && !board.inCheck() && depth <= 6 && staticEval - 70 * depth >= beta)
+    if (!pvNode && !inCheck && depth <= 6 && staticEval - 70 * depth >= beta)
     {
         return staticEval;
     }
 
-    if (!pvNode && !board.inCheck())
+    if (!pvNode && !inCheck)
     {
         if (depth >= 3 && staticEval >= beta)
         {
@@ -160,7 +160,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (moveList.size() == 0)
     {
-        if (board.inCheck() == true)
+        if (inCheck == true)
         {
             return -infinity + ply;
         }
@@ -259,6 +259,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     Hash* entry = transpositionTabel.getHash(zobristKey);
     const bool isNullptr = entry == nullptr ? true : false;
+    const bool inCheck = board.inCheck();
 
     int hashedScore = 0;
     short hashedType = 0;
@@ -284,7 +285,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         }
     }
 
-    if (!board.inCheck() && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
+    if (!inCheck && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
     {
         standPat = hashedScore;
     }
@@ -351,7 +352,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     }
 
     //Checks for checkmate
-    if (board.inCheck() && bestScore == -infinity)
+    if (inCheck && bestScore == -infinity)
     {
         return -infinity + ply;
     }
