@@ -73,7 +73,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     //Get some important search constants
     const bool pvNode = (alpha != beta) - 1;
-    const bool root = (ply == 0);
+    const bool inCheck = board.inCheck();
 
     //Get an potential hash entry
     Hash* entry = transpositionTabel.getHash(zobristKey);
@@ -109,7 +109,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     // Initial Iterative Deepening
     if (!isNullptr)
     {
-        if (zobristKey != entry->key && !board.inCheck() && depth >= 4)
+        if (zobristKey != entry->key && !inCheck && depth >= 4)
         {
             depth--;
         }
@@ -132,12 +132,12 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     }
 
     //Reverse futility pruning
-    if (!pvNode && !board.inCheck() && depth <= 6 && staticEval - 70 * depth >= beta)
+    if (!pvNode && !inCheck && depth <= 6 && staticEval - 70 * depth >= beta)
     {
         return staticEval;
     }
 
-    if (!pvNode && !board.inCheck())
+    if (!pvNode && !inCheck)
     {
         if (depth >= 3 && staticEval >= beta)
         {
@@ -160,7 +160,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (moveList.size() == 0)
     {
-        if (board.inCheck() == true)
+        if (inCheck == true)
         {
             return -infinity + ply;
         }
@@ -180,6 +180,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     int score = 0;
     int bestScore = -infinity;
+    Move bestMoveInPVS = Move::NULL_MOVE;
     for (int i = 0; i < moveList.size(); i++)
     {
         Move move = sortByScore(moveList, scoreMoves, i);
@@ -212,14 +213,14 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             if (score > alpha)
             {
                 alpha = score;
-
                 bSearchPv = false;
                 type = EXACT;
+                bestMoveInPVS = move;
 
                 //If we are ate the root we set the bestMove
                 if (ply == 0)
                 {
-                    bestMove = move;
+                    rootBestMove = move;
                 }
             }
 
@@ -231,24 +232,21 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         }
     }
 
-    if (!root)
+    short finalType;
+    //Calculate the node type
+    if (bestScore >= beta)
     {
-        short finalType;
-        //Calculate the node type
-        if (bestScore >= beta)
-        {
-            finalType = LOWER_BOUND;
-        }
-        else if (pvNode && (type == EXACT))
-        {
-            finalType = EXACT;
-        }
-        else
-        {
-            finalType = UPPER_BOUND;
-        }
-        transpositionTabel.storeEvaluation(zobristKey, depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMove, staticEval);
+        finalType = LOWER_BOUND;
     }
+    else if (pvNode && (type == EXACT))
+    {
+        finalType = EXACT;
+    }
+    else
+    {
+        finalType = UPPER_BOUND;
+    }
+    transpositionTabel.storeEvaluation(zobristKey, depth, finalType, transpositionTabel.ScoreToTT(bestScore, ply), bestMoveInPVS, staticEval);
 
     return bestScore;
 }
@@ -261,6 +259,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     Hash* entry = transpositionTabel.getHash(zobristKey);
     const bool isNullptr = entry == nullptr ? true : false;
+    const bool inCheck = board.inCheck();
 
     int hashedScore = 0;
     short hashedType = 0;
@@ -286,7 +285,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
         }
     }
 
-    if (!board.inCheck() && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
+    if (!inCheck && transpositionTabel.checkForMoreInformation(hashedType, hashedScore, standPat))
     {
         standPat = hashedScore;
     }
@@ -353,7 +352,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
     }
 
     //Checks for checkmate
-    if (board.inCheck() && bestScore == -infinity)
+    if (inCheck && bestScore == -infinity)
     {
         return -infinity + ply;
     }
@@ -405,8 +404,7 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
 {
     start = std::chrono::high_resolution_clock::now();
     timeForMove = getTimeForMove();
-
-    bestMove = Move::NULL_MOVE;
+    rootBestMove = Move::NULL_MOVE;
     Move bestMoveThisIteration = Move::NULL_MOVE;
     isNormalSearch = false;
     bool hasFoundMove = false;
@@ -420,18 +418,6 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
 
     nodes = 0;
 
-
-    //If there is no time left make a search at depth 1
-    if (timeForMove == -20)
-    {
-        pvs(-32767, 32767, 1, 0, board);
-        if (bestMove != Move::NULL_MOVE)
-        {
-            std::cout << "bestmove " << bestMove << std::endl;
-            return;
-        }
-    }
-
     for (int i = 1; i <= 256; i++)
     {
         score = i >= 6 ? aspiration(i, score, board) : pvs(-infinity, infinity, i, 0, board);
@@ -439,27 +425,28 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
         // Add one the avoid division by zero
         int timeCount = elapsed.count() + 1;
         bool isOver = timeCount >= timeForMove;
-        std::cout << "info depth " << i << " score cp " << score << " nodes " << nodes << " nps " << static_cast<int>(seracher.nodes / timeCount * 1000) << " pv " << uci::moveToUci(bestMove) << std::endl;
-
         if (!shouldStop)
         {
-            bestMoveThisIteration = bestMove;
+            bestMoveThisIteration = rootBestMove;
         }
 
         if (bestMoveThisIteration == Move::NULL_MOVE)
         {
-            bestMoveThisIteration = bestMove;
+            bestMoveThisIteration = rootBestMove;
         }
 
-        if (bestMove != Move::NULL_MOVE)
+        if (bestMoveThisIteration != Move::NULL_MOVE)
         {
             hasFoundMove = true;
         }
 
+        std::cout << "info depth " << i << " score cp " << score << " nodes " << nodes << " nps " << static_cast<int>(seracher.nodes / timeCount * 1000) << " pv " << uci::moveToUci(rootBestMove) << std::endl;
+
+
         //std::cout << "Time for this move: " << timeForMove << " | Time used: " << static_cast<int>(elapsed.count()) << " | Depth: " << i << " | bestmove: " << bestMove << std::endl;
         if (i == 256 && hasFoundMove)
         {
-            std::cout << "bestmove " << uci::moveToUci(bestMove) << std::endl;
+            std::cout << "bestmove " << uci::moveToUci(rootBestMove) << std::endl;
             break;
         }
 
@@ -470,7 +457,7 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
             break;
         }
 
-        if (shouldStop)
+        if (shouldStop && hasFoundMove)
         {
             std::cout << "bestmove " << uci::moveToUci(bestMoveThisIteration) << std::endl;
             shouldStop = true;
