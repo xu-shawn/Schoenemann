@@ -139,7 +139,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (!pvNode && !inCheck)
     {
-        if (depth >= 3 && staticEval >= beta)
+        if (depth >= 5 && staticEval >= beta)
         {
             board.makeNullMove();
             int depthReduction = 3 + depth / 3;
