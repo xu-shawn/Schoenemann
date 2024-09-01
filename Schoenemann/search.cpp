@@ -142,7 +142,8 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         if (depth >= 3 && staticEval >= beta)
         {
             board.makeNullMove();
-            int score = -pvs(-beta, -alpha, depth - 2, ply + 1, board);
+            int depthReduction = 3 + depth / 3;
+            int score = -pvs(-beta, -alpha, depth - depthReduction, ply + 1, board);
             board.unmakeNullMove();
             if (score >= beta)
             {
