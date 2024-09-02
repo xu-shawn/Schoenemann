@@ -297,7 +297,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     if (standPat >= beta)
     {
-        return beta;
+        return standPat;
     }
 
     if (alpha < standPat)
