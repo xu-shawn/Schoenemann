@@ -139,10 +139,11 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
     if (!pvNode && !inCheck)
     {
-        if (depth >= 3 && staticEval >= beta)
+        if (depth >= 5 && staticEval >= beta)
         {
             board.makeNullMove();
-            int score = -pvs(-beta, -alpha, depth - 2, ply + 1, board);
+            int depthReduction = 3 + depth / 3;
+            int score = -pvs(-beta, -alpha, depth - depthReduction, ply + 1, board);
             board.unmakeNullMove();
             if (score >= beta)
             {
