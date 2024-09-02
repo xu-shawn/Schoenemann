@@ -314,7 +314,7 @@ int Search::qs(int alpha, int beta, Board& board, int ply)
 
     for (Move& move : moveList)
     {
-        //Fultiy Prunning
+        // Fultiy Prunning
         if (!see(board, move, 1) && standPat + SEE_PIECE_VALUES[board.at(move.to()).type()] <= alpha)
         {
             continue;
