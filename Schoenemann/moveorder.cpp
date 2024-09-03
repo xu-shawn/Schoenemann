@@ -27,7 +27,7 @@ void orderMoves(Movelist moveList, Hash* entry, Board& board, int scores[])
 			int captureScore = see(board, move, 0) ? goodCapture : badCapture;
 
 			// MVA - LVV
-			captureScore = 100 * PIECE_VALUES[captured] - PIECE_VALUES[capturing];
+			captureScore += 100 * PIECE_VALUES[captured] - PIECE_VALUES[capturing];
 
 			scores[i] = captureScore;
 		}
