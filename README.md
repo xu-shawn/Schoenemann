@@ -2,6 +2,7 @@
 - [About](#about)
 - [How it works](#how-it-works)
 - [Build](#build)
+- [Rating](#rating)
 - [Thanks](#thanks)
 
 # About
@@ -26,6 +27,10 @@ Type
   ```
   make all
   ```
+
+# Rating
+
+[![lichess-rapid](https://lichess-shield.vercel.app/api?username=Schoenemannt&format=bullet)](https://lichess.org/@/Schoenemann/perf/bullet)
 
 #  Thanks
 Special thanks to Disservin's [chess libary](https://github.com/Disservin/chess-library/) witch made the wohle development process simpler.
