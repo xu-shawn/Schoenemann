@@ -10,8 +10,7 @@
 #include "search.h"
 #include "consts.h"
 #include "helper.h"
-#include "chess.hpp"
-#include "nnue.hpp"
+#include "nnue.h"
 #include "simple-167.h"
 
 using namespace chess;
@@ -19,10 +18,10 @@ using namespace chess;
 Search seracher;
 tt transpositionTabel(8);
 
-MantaRay::BinaryFileStream stream(simple_167_bin, simple_167_bin_len);
+memorystream memoryStream(simple_167_bin, simple_167_bin_len);
 
 // Define & load the network from the stream
-NeuralNetwork network(stream);
+network net(memoryStream);
 
 int timeLeft = 0;
 int increment = 0;
@@ -221,7 +220,7 @@ void processCommand(const std::string& cmd, Board& board)
     }
     else if (token == "eval") 
 	{
-        std::cout << "The evaluation is: " << network.Evaluate((int)board.sideToMove()) << " cp" << std::endl;
+        std::cout << "The evaluation is: " << net.evaluate((int)board.sideToMove()) << " cp" << std::endl;
     }
     else if (token == "test") 
 	{
