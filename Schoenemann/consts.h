@@ -7,7 +7,8 @@
 const std::string STARTPOS = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
 //Bench depth 
-constexpr int benchDepth = 5;
+const int benchDepth = 5;
+
 const int NO_VALUE = 50000;
 
 const std::string testStrings[] = {
