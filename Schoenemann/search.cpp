@@ -1,17 +1,15 @@
+#include "search.h"
+
 #include <chrono>
 #include <iostream>
 #include <cmath>
 #include <cassert>
 
-#include "search.h"
-#include "chess.hpp"
 #include "timeman.h"
 #include "moveorder.h"
 #include "consts.h"
 #include "nnue.h"
 #include "see.h"
-
-using namespace chess;
 
 std::chrono::time_point start = std::chrono::high_resolution_clock::now();
 
@@ -25,11 +23,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
         return beta;
     }
 
-    std::chrono::time_point end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<double, std::milli> elapsed = end - start;
-    bool isOver = elapsed.count() >= timeForMove;
-
-    if (isOver && !isNormalSearch)
+    if (shouldStopSoft(start) && !isNormalSearch)
     {
         shouldStop = true;
     }
@@ -254,6 +248,12 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
 
 int Search::qs(int alpha, int beta, Board& board, int ply)
 {
+
+    if (shouldStopSoft(start) && !isNormalSearch) 
+    {
+        return beta;
+    }
+
     nodes++;
     const bool pvNode = (alpha != beta) - 1;
     const std::uint64_t zobristKey = board.zobrist();
@@ -372,10 +372,7 @@ int Search::aspiration(int depth, int score, Board& board)
     while (true)
     {
         score = pvs(alpha, beta, depth, 0, board);
-
-        auto end = std::chrono::high_resolution_clock::now();
-        std::chrono::duration<double, std::milli> elapsed = end - start;
-        if (elapsed.count() >= timeForMove) 
+        if (shouldStopSoft(start)) 
         {
             return score;
         }
@@ -404,7 +401,7 @@ int Search::aspiration(int depth, int score, Board& board)
 void Search::iterativeDeepening(Board& board, bool isInfinite)
 {
     start = std::chrono::high_resolution_clock::now();
-    timeForMove = getTimeForMove();
+    getTimeForMove();
     rootBestMove = Move::NULL_MOVE;
     Move bestMoveThisIteration = Move::NULL_MOVE;
     isNormalSearch = false;
@@ -425,7 +422,6 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
         std::chrono::duration<double, std::milli> elapsed = std::chrono::high_resolution_clock::now() - start;
         // Add one the avoid division by zero
         int timeCount = elapsed.count() + 1;
-        bool isOver = timeCount >= timeForMove;
         if (!shouldStop)
         {
             bestMoveThisIteration = rootBestMove;
@@ -451,7 +447,7 @@ void Search::iterativeDeepening(Board& board, bool isInfinite)
             break;
         }
 
-        if (isOver && hasFoundMove && !isInfinite)
+        if (shouldStopID(start) && hasFoundMove && !isInfinite)
         {
             std::cout << "bestmove " << uci::moveToUci(bestMoveThisIteration) << std::endl;
             shouldStop = true;
