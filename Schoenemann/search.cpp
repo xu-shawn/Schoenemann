@@ -66,6 +66,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     short hashedType = 0;
     int hashedDepth = 0;
     int staticEval = NO_VALUE;
+    Move hashedMove = Move::NULL_MOVE;
 
     //Get some important search constants
     const bool pvNode = (alpha != beta) - 1;
@@ -88,6 +89,7 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
             hashedType = entry->type;
             hashedDepth = entry->depth;
             staticEval = entry->eval;
+            hashedMove = entry->move;
         }
 
         //Check if we can return a stored score
@@ -131,6 +133,45 @@ int Search::pvs(int alpha, int beta, int depth, int ply, Board& board)
     if (!pvNode && !inCheck && depth <= 6 && staticEval - 70 * depth >= beta)
     {
         return staticEval;
+    }
+
+    //Idea by Laser
+    //If we can make a winning move and can confirm that when we do a lower depth search
+    //it causes a beta cuttoff we can make that beta cutoff
+    if (!pvNode && !inCheck && depth >= 6 && staticEval >= beta - 100 - 20 * depth && std::abs(beta) < infinity)
+    {
+        int probCutMargin = beta + 90;
+        int probCutCount = 0;
+
+        Movelist moveList;
+        movegen::legalmoves(moveList, board);
+
+        int scoreMoves[218] = {0};
+        //Sort the list
+        orderMoves(moveList, entry, board, scoreMoves);
+        for (int i = 0; i < moveList.size() && probCutCount < 3; i++)
+        {
+            probCutCount++;
+            Move move = sortByScore(moveList, scoreMoves, i);
+
+            //We don't want to prune the hashed move
+            if (move == hashedMove)
+            {
+                continue;
+            }
+
+            board.makeMove(move);
+
+            int score = -pvs(-probCutMargin, -probCutMargin + 1, depth - depth / 4 - 4, ply + 1, board);
+
+            board.unmakeMove(move);
+            
+            if (score >= probCutMargin)
+            {
+                return score;
+            }
+        }
+
     }
 
     if (!pvNode && !inCheck)
