@@ -4,7 +4,7 @@
 #include "tt.h"
 #include "see.h"
 
-void orderMoves(Movelist moveList, Hash* entry, Board& board, int scores[])
+void orderMoves(Movelist& moveList, Hash* entry, Board& board, int scores[])
 {
 	const bool isNullptr = entry == nullptr ? true : false;
 	const std::uint64_t key = board.zobrist();
@@ -17,9 +17,10 @@ void orderMoves(Movelist moveList, Hash* entry, Board& board, int scores[])
 			if (entry->key == key && move == entry->move)
 			{
 				scores[i] = hashMoveScore;
+				continue;
 			}
 		}
-		else if (board.isCapture(move))
+		if (board.isCapture(move))
 		{
 			PieceType captured = board.at<PieceType>(move.to());
             PieceType capturing = board.at<PieceType>(move.from());
@@ -43,7 +44,7 @@ void orderMoves(Movelist moveList, Hash* entry, Board& board, int scores[])
 	
 }
 
-Move sortByScore(Movelist moveList, int scores[], int i)
+Move sortByScore(Movelist& moveList, int scores[], int i)
 {
 	for (int j = i + 1; j < moveList.size(); j++)
     {
